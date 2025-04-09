@@ -19,6 +19,6 @@ export default class Game {
 
     /** @param {CanvasRenderingContext2D} */
     draw(ctx) {
-
+        
     }
 }
