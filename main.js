@@ -1,3 +1,5 @@
 import Game from './Game/game.js';
 
-new Game("GameCanvas");
+window.addEventListener("load", () => {
+    new Game("GameCanvas");
+});
