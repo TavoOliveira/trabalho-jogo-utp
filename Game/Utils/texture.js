@@ -19,11 +19,4 @@ export default class Texture extends Image {
 
         ctx.drawImage(this, x, y, width, height);
     }
-
-    /** @param {CanvasRenderingContext2D} ctx */
-    draw(ctx, sx, sy, sw, sh, dx, dy, dw = sw, dh = sh) {
-        if (!this.loaded) return;
-
-        ctx.drawImage(this, sx, sy, sw, sh, dx, dy, dw, dh);
-    }
 }
