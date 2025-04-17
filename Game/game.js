@@ -33,6 +33,8 @@ export default class Game {
     loop() {
         this.draw(this.ctx);
 
+        console.log(this.mouse.getPosition());
+
         requestAnimationFrame(this.loop.bind(this));
     }
 
