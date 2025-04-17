@@ -24,11 +24,8 @@ export default class Game {
             button.setText("Clicado");
         });
 
-        //let image = new UIImage("https://casa.abril.com.br/wp-content/uploads/2021/03/tipos-de-flores-para-decorar-seu-ambiente-casa.com-7-jacinto.jpg", 0, 0, "", { width: "100%", height: "100%" });
-
         this.ui = new UIManager();
         this.ui.add(button);
-        //this.ui.add(image);
 
         this.loop();
     }
