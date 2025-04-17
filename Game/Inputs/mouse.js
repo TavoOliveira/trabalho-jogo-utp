@@ -1,33 +1,30 @@
-class Mouse {
+export default class Mouse {
   constructor() {
     this.x = 0;
     this.y = 0;
-    this.pressedButtons = '';
+    this.isLeft = false;
+    this.isRight = false;
 
-    window.addEventListener('mousedown', this.onMouseDown.bind(this));
-    window.addEventListener('mouseup', this.onMouseUp.bind(this));
-    window.addEventListener('mousemove', this.onMouseMove.bind(this));
-  }
+    window.addEventListener('mousedown', e => {
+      if (e.button === 0) {
+        this.isLeft = true;
+      } else if (e.button === 2) {
+        this.isRight = true;
+      }
+    });
 
-  onMouseDown(event) {
-    this.pressedButtons[event.button] = true;
-  }
+    window.addEventListener('mouseup', e => {
+      if (e.button === 0) {
+        this.isLeft = false;
+      } else if (e.button === 2) {
+        this.isRight = false;
+      }
+    });
 
-  onMouseUp(event) {
-    this.pressedButtons[event.button] = false;
-  }
-
-  onMouseMove(event) {
-    this.x = event.clientX;
-    this.y = event.clientY;
-  }
-
-  isButtonPressed(button) {
-    return !!this.pressedButtons[button];
-  }
-
-  isButtonReleased(button) {
-    return !this.pressedButtons[button];
+    window.addEventListener('mousemove', e => {
+      this.x = e.clientX;
+      this.y = e.clientY;
+    });
   }
 
   getPosition() {

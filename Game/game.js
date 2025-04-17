@@ -1,5 +1,6 @@
 import KeysState from "./Enums/key-state.js";
 import Keyboard from "./Inputs/keyboard.js";
+import Mouse from "./Inputs/mouse.js";
 
 export default class Game {
     constructor(canvasId) {
@@ -10,12 +11,15 @@ export default class Game {
         this.canvas.height = document.documentElement.clientHeight;
 
         this.keyboard = new Keyboard();
+        this.mouse = new Mouse();
 
         this.loop();
     }
 
     loop() {
         this.draw(this.ctx);
+
+        console.log(this.mouse.getPosition());
 
         requestAnimationFrame(this.loop.bind(this));
     }
