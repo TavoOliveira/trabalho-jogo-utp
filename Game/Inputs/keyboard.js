@@ -5,12 +5,12 @@ export default class Keyboard {
         this.key = '';
         this.KeysState = null;
 
-        window.addEventListener("keydown", (e) => {
+        window.addEventListener("keydown", e => {
             this.key = e.code;
             this.KeysState = KeysState.PRESSED;
         });
 
-        window.addEventListener("keyup", (e) => {
+        window.addEventListener("keyup", e => {
             this.key = e.code;
             this.KeysState = KeysState.RELEASE;
         });
