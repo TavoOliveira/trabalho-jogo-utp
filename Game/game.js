@@ -4,6 +4,8 @@ import Mouse from "./Inputs/mouse.js";
 import UIButton from "./UI/UIButton.js";
 import UIImage from "./UI/UIImage.js";
 import UIManager from "./UI/UIManager.js";
+import SceneManager from "./Scenes/scene-manager.js";
+import MenuScene from "./Scenes/menu-scene.js";
 
 export default class Game {
     constructor(canvasId) {
@@ -16,16 +18,9 @@ export default class Game {
         this.canvas.width = this.width;
         this.canvas.height = this.height;
 
-        this.keyboard = new Keyboard();
-        this.mouse = new Mouse();
+        this.sceneManager = new SceneManager();
+        this.sceneManager.changeScene(new MenuScene());
         
-        let button = new UIButton("Click me!", 100, 100, "btn btn-start", { background: "Red" });
-        button.on("click", () => {
-            button.setText("Clicado");
-        });
-
-        this.ui = new UIManager();
-        this.ui.add(button);
 
         this.loop();
     }
@@ -33,7 +28,7 @@ export default class Game {
     loop() {
         this.draw(this.ctx);
 
-        console.log(this.mouse.getPosition());
+        this.sceneManager.update();
 
         requestAnimationFrame(this.loop.bind(this));
     }
@@ -41,5 +36,9 @@ export default class Game {
     /** @param {CanvasRenderingContext2D} ctx */
     draw(ctx) {
         ctx.clearRect(0, 0, this.width, this.height);
+
+        this.sceneManager.draw(ctx);
     }
+
+    
 }
