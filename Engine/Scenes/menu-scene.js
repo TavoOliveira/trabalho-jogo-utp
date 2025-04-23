@@ -7,13 +7,13 @@ export default class MenuScene extends Scene{
     onEnter() {
         this.ui = new UIManager();
             
-        let button = new UIButton("click", 10, 10, "", {background: "pink"});
+        let button = new UIButton("click", 100, 100, "btn", {background: "blue"});
         button.on("click", () => {
             this.nextScene = new GameScene();
             console.log("Menu Click");
         });
         
-        ui.add(button);
+        this.ui.add(button);
     }
 
     onExit() {
