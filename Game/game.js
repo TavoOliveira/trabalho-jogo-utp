@@ -18,13 +18,21 @@ export default class Game {
         
         this.player = new Player(new Texture("Game/Assets/global.png"), new Vector2D(300, 300), this.keyboard);
 
-        this.loop();
+        this.lastTime = 0;
+
+        this.loop(0);
     }
 
-    loop() {
+    loop(timestamp) {
+        if (!this.lastTime) this.lastTime = timestamp;
+
+        let deltaTime = Math.min(timestamp - this.lastTime, 100);
+
+        this.lastTime = timestamp;
+
         this.draw(this.ctx);
 
-        this.player.update();
+        this.player.update(deltaTime);
 
         requestAnimationFrame(this.loop.bind(this));
     }
