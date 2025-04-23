@@ -1,11 +1,7 @@
-import KeysState from "./Enums/key-state.js";
-import Keyboard from "./Inputs/keyboard.js";
-import Mouse from "./Inputs/mouse.js";
-import UIButton from "./UI/UIButton.js";
-import UIImage from "./UI/UIImage.js";
-import UIManager from "./UI/UIManager.js";
-import SceneManager from "./Scenes/scene-manager.js";
-import MenuScene from "./Scenes/menu-scene.js";
+import Player from "./Entities/player.js";
+import Vector2D from "../Engine/Utils/vector2d.js";
+import Texture from "../Engine/Utils/texture.js";
+import Keyboard from "../Engine/Inputs/keyboard.js";
 
 export default class Game {
     constructor(canvasId) {
@@ -18,9 +14,9 @@ export default class Game {
         this.canvas.width = this.width;
         this.canvas.height = this.height;
 
-        this.sceneManager = new SceneManager();
-        this.sceneManager.changeScene(new MenuScene());
+        this.keyboard = new Keyboard();
         
+        this.player = new Player(new Texture("Game/Assets/global.png"), new Vector2D(300, 300), this.keyboard);
 
         this.loop();
     }
@@ -28,7 +24,7 @@ export default class Game {
     loop() {
         this.draw(this.ctx);
 
-        this.sceneManager.update();
+        this.player.update();
 
         requestAnimationFrame(this.loop.bind(this));
     }
@@ -37,7 +33,7 @@ export default class Game {
     draw(ctx) {
         ctx.clearRect(0, 0, this.width, this.height);
 
-        this.sceneManager.draw(ctx);
+        this.player.draw(ctx);
     }
 
     
