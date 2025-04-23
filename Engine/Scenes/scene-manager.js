@@ -13,8 +13,8 @@ export default class SceneManager {
         this.currentScene.onEnter();
     }
 
-    update() {
-        if (this.currentScene) this.currentScene.update();
+    update(deltaTime) {
+        if (this.currentScene) this.currentScene.update(deltaTime);
 
         const next = this.currentScene.getNextScene();
 

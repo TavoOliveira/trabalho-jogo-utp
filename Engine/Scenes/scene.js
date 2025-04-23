@@ -1,5 +1,5 @@
 export default class Scene {
-    update() {}
+    update(deltaTime) {}
     draw(ctx) {}
     onEnter() {}
     onExit() {}
