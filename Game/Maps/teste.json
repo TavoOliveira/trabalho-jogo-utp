@@ -1,0 +1,12 @@
+{
+    "tileSize": 16,
+    "tileset": "Game/Assets/map/tileset.png",
+    "tileDefinitions": {
+      "0": { "sx": 0, "sy": 16 }
+    },
+    "tiles": [
+      [0,0,0,0,0],
+      [0,0,0,0,0],
+      [0,0,0,0,0]
+    ]
+  }  

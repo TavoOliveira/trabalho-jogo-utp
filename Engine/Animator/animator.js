@@ -6,6 +6,16 @@ export default class Animator {
     #frameDuration;
 
     /**
+    * @type {Map<string, Hitbox[]>}
+    */
+    #hitboxes;
+
+    /**
+    * @type {Map<string, Hitbox[]>}
+    */
+    #globalHitboxes;
+
+    /**
      * Cria uma nova animação.
      * @param {string} name - O nome da animação.
      * @param {Texture} texture - A textura contendo os quadros da animação.
@@ -30,6 +40,26 @@ export default class Animator {
         this.#currentFrame = 0;
         this.#elapsedTime = 0;
         this.#frameDuration = 1000 / fps;
+
+        this.#hitboxes = new Map();
+        this.#globalHitboxes = [];
+    }
+
+    setHitboxes(frameIndex, hitboxes) {
+        this.#hitboxes.set(frameIndex, hitboxes);
+    }
+
+    setGlobalHitboxes(hitboxes) {
+        this.#globalHitboxes = hitboxes;
+    }
+
+    getCurrentHitboxes() {
+        const frameHitboxes = this.#hitboxes.get(this.#currentFrame) || [];
+        return [...this.#globalHitboxes, ...frameHitboxes];
+    }
+
+    getCurrentFrameIndex() {
+        return this.#currentFrame;
     }
 
     play() {
