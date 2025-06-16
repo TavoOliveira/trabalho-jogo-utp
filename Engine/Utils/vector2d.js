@@ -4,12 +4,17 @@
 export default class Vector2D {
     /**
      * Cria um novo vetor 2D.
-     * @param {number} [x=0] - A coordenada x.
-     * @param {number} [y=0] - A coordenada y.
+     * @param {number} - A coordenada x.
+     * @param {number} - A coordenada y.
      */
-    constructor(x = 0, y = 0) {
-        this.x = x;
-        this.y = y;
+    constructor(x, y) {
+        if (y === undefined) {
+            this.x = x;
+            this.y = x;
+        } else {
+            this.x = x;
+            this.y = y;
+        }
     }
 
     /**
@@ -133,6 +138,23 @@ export default class Vector2D {
      */
     equals(vector) {
         return this.x === vector.x && this.y === vector.y;
+    }
+
+    angle() {
+        let deg = Math.atan2(this.y, this.x) * 180 / Math.PI;
+        deg = (deg + 90 + 360) % 360; 
+        return deg;
+    }
+
+    direction() {
+        const deg = this.angle();
+        const labels = ['N','NE','E','SE','S','SW','W','NW'];
+        const index = Math.floor((deg + 22.5) / 45) % 8;
+        return labels[index];
+    }
+
+    static one(value) {
+        return new Vector2D(value, value);
     }
 
     /**

@@ -1,53 +1,87 @@
 import Texture from "../../Engine/Utils/texture.js";
 import Vector2D from "../../Engine/Utils/vector2d.js";
-import Keyboard from "../../Engine/Inputs/keyboard.js";
 import KeysState from "../../Engine/Enums/key-state.js";
+import Animator from "../../Engine/Animator/animator.js";
+import GameObject from "../../Engine/Utils/game-object.js";
+import { Hitbox, RectHitbox } from "../../Engine/Collision/index.js";
 
-export default class Player {
+export default class Player extends GameObject {
     /**
      * @param {Texture} texture
      * @param {Vector2D} position
      */
     constructor(texture, position, keyboard) {
-        this.texture = texture;
-        this.position = position;
+        super(texture, position);
         this.keyboard = keyboard;
-        this.speed = new Vector2D(5, 5);
+        this.speed = Vector2D.one(2);
+        this.moveDir = Vector2D.zero();
+
+        this.animations = {
+            walk: new Animator('walk', this.texture, 32, 32, 0, 0, 8, 10),
+            idle: new Animator('idle', this.texture, 32, 32, 0, 0, 1, 0)
+        }
+
+        this.hitbox = new RectHitbox(this, new Vector2D(10, 12), 12, 20);
+
+        this.currentAnim = this.animations.idle;
+        this.currentAnim.play();
     }
 
-    move() {
+    #setAction(name) {
+        if (this.currentAnim.name == name) return;
+
+        this.currentAnim.stop();
+        this.currentAnim = this.animations[name];
+        this.currentAnim.play();
+    }
+
+    #move() {
         let direction = Vector2D.zero();
+        let moving = false;
 
         if (this.keyboard.isKey("ArrowLeft") == KeysState.PRESSED || this.keyboard.isKey("KeyA") == KeysState.PRESSED) {
+            this.texture.flipX = true;
+            moving = true;
             direction.x -= 1;
         }
-        
-        if (this.keyboard.isKey("ArrowRight") == KeysState.PRESSED) {
+
+        if (this.keyboard.isKey("ArrowRight") == KeysState.PRESSED || this.keyboard.isKey("KeyD") == KeysState.PRESSED) {
+            this.texture.flipX = false;
+            moving = true;
             direction.x += 1;
         }
 
-        if (this.keyboard.isKey("ArrowUp") == KeysState.PRESSED) {
+        if (this.keyboard.isKey("ArrowUp") == KeysState.PRESSED || this.keyboard.isKey("KeyW") == KeysState.PRESSED) {
+            moving = true;
             direction.y -= 1;
         }
 
-        if (this.keyboard.isKey("ArrowDown") == KeysState.PRESSED) {
+        if (this.keyboard.isKey("ArrowDown") == KeysState.PRESSED || this.keyboard.isKey("KeyS") == KeysState.PRESSED) {
+            moving = true;
             direction.y += 1;
         }
 
-        if (direction.x !== 0 || direction.y !== 0) {
+        if (moving) {
+            this.#setAction('walk');
             direction = direction.normalize();
-    
+            this.moveDir.copy(direction);
             this.position.x += direction.x * this.speed.x;
             this.position.y += direction.y * this.speed.y;
+        } else {
+            this.moveDir.set(0, 0);
+            this.#setAction('idle');
         }
     }
 
-    update() {
-        this.move();
+    update(deltaTime) {
+        this.#move();
+        
+        this.currentAnim.update(deltaTime);
     }
 
     /** @param {CanvasRenderingContext2D} ctx */
     draw(ctx) {
-        this.texture.draw(ctx, this.position.x, this.position.y, 0, 0, 32, 32, 32, 32);
+        this.hitbox.draw(ctx);
+        this.currentAnim.draw(ctx, this.position);
     }
 }
