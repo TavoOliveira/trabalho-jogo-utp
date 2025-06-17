@@ -1,3 +1,4 @@
+import HealthBar from "../HUD/HealthBar.js";
 import Texture from "../../Engine/Utils/texture.js";
 import Vector2D from "../../Engine/Utils/vector2d.js";
 import KeysState from "../../Engine/Enums/key-state.js";
@@ -25,6 +26,11 @@ export default class Player extends GameObject {
 
         this.currentAnim = this.animations.idle;
         this.currentAnim.play();
+
+        this.live    = 5;
+        this.counter = 0;   
+
+        this.HealthBar = new HealthBar(new Vector2D(10,10), 3);
     }
 
     #setAction(name) {
@@ -77,11 +83,23 @@ export default class Player extends GameObject {
         this.#move();
         
         this.currentAnim.update(deltaTime);
+
+        if (this.keyboard.isKey("KeyO") == KeysState.PRESSED && this.counter == 0) {
+            this.HealthBar.addStartX();                                
+            this.live--;
+            this.counter = 1
+        } else{            
+        }
+
+        if(this.live == 0)
+            console.log('morte');            
     }
 
     /** @param {CanvasRenderingContext2D} ctx */
-    draw(ctx) {
+    draw(ctx, hudctx) {
         this.hitbox.draw(ctx);
-        this.currentAnim.draw(ctx, this.position);
+        this.currentAnim.draw(ctx, this.position);      
+        
+        this.HealthBar.draw(hudctx);
     }
 }
