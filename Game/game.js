@@ -51,7 +51,7 @@ export default class Game {
 
         let deltaTime = Math.min(timestamp - this.lastTime, 100);
 
-        this.lastTime = timestamp;
+        this.lastTime = timestamp;        
 
         this.draw(this.ctx, this.HUDctx);
 
@@ -61,10 +61,12 @@ export default class Game {
     }
 
     /** @param {CanvasRenderingContext2D} ctx */
-    draw(ctx, hudctx) {
+    draw(ctx, hudctx) {        
         ctx.clearRect(0, 0, this.width, this.height);
         ctx.fillStyle = "black";
         ctx.fillRect(0, 0, this.width, this.height);
+
+        hudctx.clearRect(0,0,this.width,this.height)
 
         this.camera.setPosition(this.player.position);
         this.camera.applyTransform(ctx, this.canvas);
@@ -75,8 +77,7 @@ export default class Game {
         this.player.draw(ctx,hudctx);
         this.enemy.draw(ctx);        
 
-        this.camera.resetTransform(ctx, this.canvas);
+        this.camera.resetTransform(ctx, this.canvas);        
     }
-
     
 }

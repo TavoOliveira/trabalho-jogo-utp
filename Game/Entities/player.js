@@ -1,4 +1,6 @@
 //HUD
+import mouse_dots from "../HUD/dots.js";
+import Enums from "../HUD/HUD-enums/HUD_Enums.js";
 import InfoIcons from "../HUD/InfoIcons.js";
 import HealthBar from "../HUD/HealthBar.js";
 import DPadLayout from "../HUD/DPadLayout.js";
@@ -42,15 +44,20 @@ export default class Player extends GameObject {
         this.live    = 5;
         this.counter = 0;           
         
-        // HUD                        
-        this.HealthBar  = new HealthBar(new Vector2D(global_width * 0.01, global_height * 0.01), this.PlayerId); 
+        // HUD  
+        this.Mousedot = new mouse_dots(new Texture(Enums.dots_Id[this.PlayerId]),35);
+        
+        window.addEventListener('mousemove', (event) => {
+            this.Mousedot.setMousePos(event.clientX, event.clientY);
+        });
+        
+        this.HealthBar  = new HealthBar(new Vector2D(global_width * 0.01, global_height * 0.01), this.PlayerId);                
         
         // Icone de Botão no D-Pad      
         this.icon_up    = new InfoIcons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.icon_offset, GlobalVars.dpad_centerY - GlobalVars.offset - GlobalVars.icon_vertical_spacing), 30, "q", 0);
         this.icon_down  = new InfoIcons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.icon_offset, GlobalVars.dpad_centerY + GlobalVars.offset - GlobalVars.icon_vertical_spacing), 30, "x", 0);
         this.icon_left  = new InfoIcons(new Vector2D(GlobalVars.dpad_centerX - GlobalVars.offset + GlobalVars.icon_offset, GlobalVars.dpad_centerY - GlobalVars.icon_vertical_spacing), 30, "z", 0);
         this.icon_right = new InfoIcons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.offset + GlobalVars.icon_offset, GlobalVars.dpad_centerY - GlobalVars.icon_vertical_spacing), 30, "e", 0);
- 
 
         // Layout do D-Pad
         this.layoutHB_up    = new DPadLayout(new Vector2D(GlobalVars.dpad_centerX, GlobalVars.dpad_centerY - GlobalVars.offset), 70, this.PlayerId);
@@ -114,7 +121,7 @@ export default class Player extends GameObject {
     update(deltaTime) {
         this.#move();
         
-        this.currentAnim.update(deltaTime);         
+        this.currentAnim.update(deltaTime);                        
         
         //D-Pad - Up
         //KEY
@@ -188,8 +195,8 @@ export default class Player extends GameObject {
     draw(ctx, hudctx) {
         this.hitbox.draw(ctx);
         this.currentAnim.draw(ctx, this.position);      
-        
-        this.HealthBar.draw(hudctx);
+                
+        this.HealthBar.draw(hudctx);        
 
         // D-Pad - Up
         this.layoutHB_up.draw(hudctx);
@@ -211,5 +218,6 @@ export default class Player extends GameObject {
         this.icon_down.draw(hudctx);
         this.loadingHB_down.draw(hudctx);
 
+        this.Mousedot.draw(hudctx);
     }
 }

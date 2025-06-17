@@ -1,5 +1,5 @@
 import Texture  from "../../Engine/Utils/texture.js";
-import Enums from "./HUD-enums/HUDEnums.js";
+import Enums from "./HUD-enums/HUD_Enums.js";
 
 export default class InfoIcons{
     /**
@@ -18,8 +18,8 @@ export default class InfoIcons{
 
     draw(ctx){                            
         this.icontexture.draw(ctx, this.position.x,this.position.y,
-                                    this.size,this.size * 1,
-                                    this.KeyMap.x,this.KeyMap.y,
-                                    this.KeyMap.sW,this.KeyMap.sH);                     
+                                   this.size,this.size * 1,
+                                   this.KeyMap.x,this.KeyMap.y,
+                                   this.KeyMap.sW,this.KeyMap.sH);                     
     }
 }

@@ -1,5 +1,5 @@
 import Texture  from "../../Engine/Utils/texture.js";
-import Enums from "./HUD-enums/HUDEnums.js";
+import Enums from "./HUD-enums/HUD_Enums.js";
 
 export default class HealthBar{
     constructor(position,type){

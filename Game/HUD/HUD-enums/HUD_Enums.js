@@ -19,4 +19,12 @@ const Key_type = {
     'x': {x:17 ,y:49 ,sW: 14,sH: 13}    
 };
 
-export default {UtilityIcon_type,bar_type,Key_type};
+const dots_Id = { 
+    0: "/Game/Assets/HUD/mouseIcons/white_dots.png",
+    1: "/Game/Assets/HUD/mouseIcons/blue_dots.png", 
+    2: "/Game/Assets/HUD/mouseIcons/green_dots.png",
+    3: "/Game/Assets/HUD/mouseIcons/orange_dots.png",
+    4: "/Game/Assets/HUD/mouseIcons/purple_dots.png",                           
+}
+
+export default {UtilityIcon_type,bar_type,Key_type,dots_Id};
