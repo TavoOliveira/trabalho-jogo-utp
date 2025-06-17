@@ -12,4 +12,11 @@ const UtilityIcon_type = {
     4: {x: 128, y: 80}  //tipo - 4 - roxo
 };
 
-export default {UtilityIcon_type,bar_type};
+const Key_type = {
+    'q': {x:1  ,y:17 ,sW: 14,sH: 13},
+    'e': {x:33 ,y:17 ,sW: 14,sH: 13},
+    'z': {x:81 ,y:17 ,sW: 14,sH: 13},
+    'x': {x:17 ,y:49 ,sW: 14,sH: 13}    
+};
+
+export default {UtilityIcon_type,bar_type,Key_type};

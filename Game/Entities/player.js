@@ -1,7 +1,8 @@
 //HUD
+import InfoIcons from "../HUD/InfoIcons.js";
 import HealthBar from "../HUD/HealthBar.js";
-import loadingicon from "../HUD/loadingIcon.js";
 import DPadLayout from "../HUD/DPadLayout.js";
+import loadingicon from "../HUD/loadingIcon.js";
 import GlobalVars from "../HUD/HUD-Vars/HUDGlobalVars.js"
 
 //Util
@@ -41,8 +42,15 @@ export default class Player extends GameObject {
         this.live    = 5;
         this.counter = 0;           
         
-        // HUD              
-        this.HealthBar  = new HealthBar(new Vector2D(global_width * 0.01, global_height * 0.01), this.PlayerId);
+        // HUD                        
+        this.HealthBar  = new HealthBar(new Vector2D(global_width * 0.01, global_height * 0.01), this.PlayerId); 
+        
+        // Icone de Botão no D-Pad      
+        this.icon_up    = new InfoIcons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.icon_offset, GlobalVars.dpad_centerY - GlobalVars.offset - GlobalVars.icon_vertical_spacing), 30, "q", 0);
+        this.icon_down  = new InfoIcons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.icon_offset, GlobalVars.dpad_centerY + GlobalVars.offset - GlobalVars.icon_vertical_spacing), 30, "x", 0);
+        this.icon_left  = new InfoIcons(new Vector2D(GlobalVars.dpad_centerX - GlobalVars.offset + GlobalVars.icon_offset, GlobalVars.dpad_centerY - GlobalVars.icon_vertical_spacing), 30, "z", 0);
+        this.icon_right = new InfoIcons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.offset + GlobalVars.icon_offset, GlobalVars.dpad_centerY - GlobalVars.icon_vertical_spacing), 30, "e", 0);
+ 
 
         // Layout do D-Pad
         this.layoutHB_up    = new DPadLayout(new Vector2D(GlobalVars.dpad_centerX, GlobalVars.dpad_centerY - GlobalVars.offset), 70, this.PlayerId);
@@ -54,8 +62,7 @@ export default class Player extends GameObject {
         this.loadingHB_up    = new loadingicon(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.loading_offset, GlobalVars.dpad_centerY - GlobalVars.offset + GlobalVars.loading_offset), 50);
         this.loadingHB_down  = new loadingicon(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.offset + GlobalVars.loading_offset), 50);
         this.loadingHB_left  = new loadingicon(new Vector2D(GlobalVars.dpad_centerX - GlobalVars.offset + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.loading_offset), 50);
-        this.loadingHB_right = new loadingicon(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.offset + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.loading_offset), 50);    
-            
+        this.loadingHB_right = new loadingicon(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.offset + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.loading_offset), 50);                
     }
 
     #setAction(name) {
@@ -112,7 +119,7 @@ export default class Player extends GameObject {
         //D-Pad - Up
         //KEY
         if(this.keyboard.isKey("KeyQ") == KeysState.PRESSED)
-            this.loadingHB_up.startCooldown(2); 
+            this.loadingHB_up.startCooldown(1); 
 
         //Update
         this.layoutHB_up.updateIcon();
@@ -126,7 +133,7 @@ export default class Player extends GameObject {
         //D-Pad - Right
         //KEY
         if(this.keyboard.isKey("KeyE") == KeysState.PRESSED)
-            this.loadingHB_right.startCooldown(2)
+            this.loadingHB_right.startCooldown(1)
 
         //Update
         this.layoutHB_right.updateIcon();
@@ -184,20 +191,25 @@ export default class Player extends GameObject {
         
         this.HealthBar.draw(hudctx);
 
-        //D-Pad - Up   
-        this.layoutHB_up.draw(hudctx);           
+        // D-Pad - Up
+        this.layoutHB_up.draw(hudctx);
+        this.icon_up.draw(hudctx);
         this.loadingHB_up.draw(hudctx);
 
-        //D-Pad - Right   
-        this.layoutHB_right.draw(hudctx);           
+        // D-Pad - Right
+        this.layoutHB_right.draw(hudctx);
+        this.icon_right.draw(hudctx);
         this.loadingHB_right.draw(hudctx);
 
-        //D-Pad - Left   
-        this.layoutHB_left.draw(hudctx);           
+        // D-Pad - Left
+        this.layoutHB_left.draw(hudctx);
+        this.icon_left.draw(hudctx);
         this.loadingHB_left.draw(hudctx);
 
-        //D-Pad - Down
-        this.layoutHB_down.draw(hudctx);           
+        // D-Pad - Down
+        this.layoutHB_down.draw(hudctx);
+        this.icon_down.draw(hudctx);
         this.loadingHB_down.draw(hudctx);
+
     }
 }
