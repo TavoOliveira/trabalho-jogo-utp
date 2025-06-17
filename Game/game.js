@@ -55,7 +55,7 @@ export default class Game {
 
         this.draw(this.ctx, this.HUDctx);
 
-        this.player.update(deltaTime);        
+        this.player.update(deltaTime);                
 
         requestAnimationFrame(this.loop.bind(this));
     }
