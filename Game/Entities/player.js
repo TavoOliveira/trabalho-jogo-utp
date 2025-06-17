@@ -1,7 +1,7 @@
 //HUD
 import HealthBar from "../HUD/HealthBar.js";
 import loadingicon from "../HUD/loadingIcon.js";
-import habilityIcon from "../HUD/habilityIcon.js";
+import DPadLayout from "../HUD/DPadLayout.js";
 import GlobalVars from "../HUD/HUD-Vars/HUDGlobalVars.js"
 
 //Util
@@ -45,10 +45,10 @@ export default class Player extends GameObject {
         this.HealthBar  = new HealthBar(new Vector2D(global_width * 0.01, global_height * 0.01), this.PlayerId);
 
         // Layout do D-Pad
-        this.layoutHB_up    = new habilityIcon(new Vector2D(GlobalVars.dpad_centerX, GlobalVars.dpad_centerY - GlobalVars.offset), 70, this.PlayerId);
-        this.layoutHB_down  = new habilityIcon(new Vector2D(GlobalVars.dpad_centerX, GlobalVars.dpad_centerY + GlobalVars.offset), 70, this.PlayerId);
-        this.layoutHB_left  = new habilityIcon(new Vector2D(GlobalVars.dpad_centerX - GlobalVars.offset, GlobalVars.dpad_centerY), 70, this.PlayerId);
-        this.layoutHB_right = new habilityIcon(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.offset, GlobalVars.dpad_centerY), 70, this.PlayerId);
+        this.layoutHB_up    = new DPadLayout(new Vector2D(GlobalVars.dpad_centerX, GlobalVars.dpad_centerY - GlobalVars.offset), 70, this.PlayerId);
+        this.layoutHB_down  = new DPadLayout(new Vector2D(GlobalVars.dpad_centerX, GlobalVars.dpad_centerY + GlobalVars.offset), 70, this.PlayerId);
+        this.layoutHB_left  = new DPadLayout(new Vector2D(GlobalVars.dpad_centerX - GlobalVars.offset, GlobalVars.dpad_centerY), 70, this.PlayerId);
+        this.layoutHB_right = new DPadLayout(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.offset, GlobalVars.dpad_centerY), 70, this.PlayerId);
 
         // Loadings centralizado
         this.loadingHB_up    = new loadingicon(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.loading_offset, GlobalVars.dpad_centerY - GlobalVars.offset + GlobalVars.loading_offset), 50);

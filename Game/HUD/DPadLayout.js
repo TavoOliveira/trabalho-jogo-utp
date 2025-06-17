@@ -1,7 +1,7 @@
 import Texture  from "../../Engine/Utils/texture.js";
 import Enums from "./HUD-enums/HUDEnums.js";
 
-export default class habilityIcon{
+export default class DPadLayout{
     /**
      * @param {Vector2D} position -Posição na tela
      * @param {number} size -tamanho do loading
