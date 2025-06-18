@@ -1,11 +1,9 @@
-//HUD 
-import GlobalVars from "../Game/HUD/HUD-Vars/HUDGlobalVars.js";
-
 import Player from "./Entities/player.js";
 import Enemy from "./Entities/enemy.js";
 import Vector2D from "../Engine/Utils/vector2d.js";
 import Texture from "../Engine/Utils/texture.js";
 import Keyboard from "../Engine/Inputs/keyboard.js";
+import Mouse from "../Engine/Inputs/mouse.js";
 import { Collision } from "../Engine/Collision/index.js";
 import TileMap from "../Engine/Map/tile-map.js";
 import JsonLoader from "../Engine/Utils/json-loader.js";
@@ -29,9 +27,10 @@ export default class Game {
         this.HUDCanvas.width  = this.width;
         this.HUDCanvas.height = this.height;
 
-        this.keyboard = new Keyboard();        
+        this.keyboard = new Keyboard();
+        this.mouse    = new Mouse();        
         
-        this.player = new Player(new Texture("Game/Assets/global.png"), new Vector2D(this.width / 2, this.height / 2), this.keyboard);
+        this.player = new Player(new Texture("Game/Assets/global.png"), new Vector2D(this.width / 2, this.height / 2), this.keyboard,this.mouse);
 
         this.enemy = new Enemy(null, new Vector2D(100, 100));
 
@@ -45,14 +44,6 @@ export default class Game {
         });
 
         this.lastTime = 0;
-
-        window.addEventListener('mousemove', e => {
-            GlobalVars.mousePOS.xPos = e.clientX;
-            GlobalVars.mousePOS.yPOS = e.clientY;
-
-            console.log('entra');
-            
-        });
 
         this.loop(0);             
     }
@@ -83,6 +74,9 @@ export default class Game {
 
         if (this.tilemap != null)
             this.tilemap.draw(ctx);
+
+        //MOUSE
+        this.player.Mousedot.draw(hudctx);
 
         this.player.draw(ctx,hudctx);
         this.enemy.draw(ctx);        

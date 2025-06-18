@@ -23,7 +23,7 @@ export default class Mouse {
 
     window.addEventListener('mousemove', e => {
       this.x = e.clientX;
-      this.y = e.clientY;
+      this.y = e.clientY;      
     });
   }
 

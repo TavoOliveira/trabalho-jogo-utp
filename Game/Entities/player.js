@@ -21,14 +21,15 @@ export default class Player extends GameObject {
      * @param {Texture} texture
      * @param {Vector2D} position
      */
-    constructor(texture, position, keyboard) {
+    constructor(texture, position, keyboard, mouse) {
         const global_width = document.documentElement.clientWidth;
         const global_height = document.documentElement.clientHeight;
 
         super(texture, position);
         this.keyboard = keyboard;
-        this.speed = Vector2D.one(2);
-        this.moveDir = Vector2D.zero();
+        this.mouse    = mouse;
+        this.speed    = Vector2D.one(2);
+        this.moveDir  = Vector2D.zero();
 
         this.animations = {
             walk: new Animator('walk', this.texture, 32, 32, 0, 0, 8, 10),
@@ -80,18 +81,19 @@ export default class Player extends GameObject {
         this.currentAnim.play();
     }
 
-    #updateFacing(moving) {
-        if (moving) return;
+    #updateFacing() {
+        if(this.currentAnim.name != 'idle') return;
 
-        const mouseX = this.Mousedot.mousePos.x;        
-        const playerX = this.position.x;
+        const mouseX  = this.mouse.x;
+        const CenterX = document.documentElement.clientWidth / 2 + (32*2);                
 
-        this.texture.flipX = mouseX < playerX;
+        this.texture.flipX = mouseX < CenterX;
     }
 
-    #move() {
+
+    #move() {        
         let direction = Vector2D.zero();
-        let moving = false;    
+        let moving    = false;    
 
         if (this.keyboard.isKey("ArrowLeft") == KeysState.PRESSED || this.keyboard.isKey("KeyA") == KeysState.PRESSED) {
             this.texture.flipX = true;
@@ -113,7 +115,7 @@ export default class Player extends GameObject {
         if (this.keyboard.isKey("ArrowDown") == KeysState.PRESSED || this.keyboard.isKey("KeyS") == KeysState.PRESSED) {
             moving = true;
             direction.y += 1;
-        }        
+        }                
 
         if (moving) {
             this.#setAction('walk');
@@ -124,16 +126,16 @@ export default class Player extends GameObject {
         } else {
             this.moveDir.set(0, 0);
             this.#setAction('idle');
-        }
-
-        this.#updateFacing(moving);
+        }        
     }
 
     update(deltaTime) {        
+        this.Mousedot.setMousePos(this.mouse.x, this.mouse.y);
+
+        //Prioridade - MOUSE
+        this.#updateFacing();
         this.#move();                                
-        this.currentAnim.update(deltaTime);   
-        
-        this.Mousedot.setMousePos(GlobalVars.mousePOS.xPos, GlobalVars.mousePOS.yPOS);
+        this.currentAnim.update(deltaTime);                   
         
         //D-Pad - Up
         //KEY
@@ -216,10 +218,7 @@ export default class Player extends GameObject {
     }
 
     /** @param {CanvasRenderingContext2D} ctx */
-    draw(ctx, hudctx) {         
-        //mouse - PRIORIDADE
-        this.Mousedot.draw(hudctx);
-
+    draw(ctx, hudctx) {                 
         this.hitbox.draw(ctx);
         this.currentAnim.draw(ctx, this.position);      
         
