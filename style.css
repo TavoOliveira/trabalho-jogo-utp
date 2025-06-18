@@ -7,3 +7,8 @@ body {
     overflow: hidden;
     cursor: none;
 }
+
+@font-face {
+    font-family: 'MONOGRAM';
+    src: url("/Game/Assets/HUD/fonts/monogram.ttf") format('truetype');
+}

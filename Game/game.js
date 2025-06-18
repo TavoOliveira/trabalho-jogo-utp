@@ -1,3 +1,6 @@
+//HUD 
+import GlobalVars from "../Game/HUD/HUD-Vars/HUDGlobalVars.js";
+
 import Player from "./Entities/player.js";
 import Enemy from "./Entities/enemy.js";
 import Vector2D from "../Engine/Utils/vector2d.js";
@@ -17,7 +20,7 @@ export default class Game {
         this.HUDctx = this.HUDCanvas.getContext("2d");
         this.ctx    = this.canvas.getContext("2d");
 
-        this.width = document.documentElement.clientWidth;
+        this.width  = document.documentElement.clientWidth;
         this.height = document.documentElement.clientHeight;
 
         this.canvas.width  = this.width;
@@ -28,7 +31,7 @@ export default class Game {
 
         this.keyboard = new Keyboard();        
         
-        this.player = new Player(new Texture("Game/Assets/global.png"), new Vector2D(300, 300), this.keyboard);
+        this.player = new Player(new Texture("Game/Assets/global.png"), new Vector2D(this.width / 2, this.height / 2), this.keyboard);
 
         this.enemy = new Enemy(null, new Vector2D(100, 100));
 
@@ -43,6 +46,14 @@ export default class Game {
 
         this.lastTime = 0;
 
+        window.addEventListener('mousemove', e => {
+            GlobalVars.mousePOS.xPos = e.clientX;
+            GlobalVars.mousePOS.yPOS = e.clientY;
+
+            console.log('entra');
+            
+        });
+
         this.loop(0);             
     }
 
@@ -52,24 +63,23 @@ export default class Game {
         let deltaTime = Math.min(timestamp - this.lastTime, 100);
 
         this.lastTime = timestamp;        
-
-        this.draw(this.ctx, this.HUDctx);
-
-        this.player.update(deltaTime);                
+        
+        this.draw(this.ctx, this.HUDctx);                     
+        this.player.update(deltaTime);  
 
         requestAnimationFrame(this.loop.bind(this));
     }
 
     /** @param {CanvasRenderingContext2D} ctx */
-    draw(ctx, hudctx) {        
+    draw(ctx, hudctx) {                        
         ctx.clearRect(0, 0, this.width, this.height);
         ctx.fillStyle = "black";
-        ctx.fillRect(0, 0, this.width, this.height);
+        ctx.fillRect(0, 0, this.width, this.height);        
 
         hudctx.clearRect(0,0,this.width,this.height)
 
         this.camera.setPosition(this.player.position);
-        this.camera.applyTransform(ctx, this.canvas);
+        this.camera.applyTransform(ctx, this.canvas);        
 
         if (this.tilemap != null)
             this.tilemap.draw(ctx);
@@ -77,7 +87,7 @@ export default class Game {
         this.player.draw(ctx,hudctx);
         this.enemy.draw(ctx);        
 
-        this.camera.resetTransform(ctx, this.canvas);        
+        this.camera.resetTransform(ctx, this.canvas);    
     }
     
 }

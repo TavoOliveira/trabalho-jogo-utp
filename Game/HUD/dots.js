@@ -8,14 +8,14 @@ export default class MouseDots {
     constructor(texture, size) {
         this.texture  = texture;
         this.size     = size;                
-        this.mousePos = new Vector2D(0, 0);
+        this.mousePos = new Vector2D(0,0);        
     }
 
-    setMousePos(x, y) {
-        this.mousePos.set(x, y);
+    setMousePos(x, y) {        
+        this.mousePos.set(x, y);        
     }
 
-    draw(ctx) {                
-        this.texture.draw(ctx,this.mousePos.x,this.mousePos.y,this.size,this.size,19,99,9,9);
+    draw(ctx) {
+        this.texture.draw(ctx, this.mousePos.x - this.size/2, this.mousePos.y - this.size/2, this.size, this.size, 19, 99, 9, 9);
     }
 }

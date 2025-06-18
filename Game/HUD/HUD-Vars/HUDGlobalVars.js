@@ -5,4 +5,6 @@ const icon_offset = (70 - 30) / 2;    //Ajuste - centralizar Loading
 const offset = 90;                    // Ajuste - Distância entre o centro e cada botão
 const icon_vertical_spacing = 40;     // Espaço extra acima do botão
 
-export default {dpad_centerX,dpad_centerY,offset,loading_offset,icon_vertical_spacing,icon_offset}
+let mousePOS = {xPos: 0, yPOS: 0}
+
+export default {dpad_centerX,dpad_centerY,offset,loading_offset,icon_vertical_spacing,icon_offset,mousePOS}

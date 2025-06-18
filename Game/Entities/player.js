@@ -1,11 +1,12 @@
 //HUD
+import XPBar from "../HUD/XPBar.js";
 import mouse_dots from "../HUD/dots.js";
-import Enums from "../HUD/HUD-enums/HUD_Enums.js";
 import InfoIcons from "../HUD/InfoIcons.js";
 import HealthBar from "../HUD/HealthBar.js";
 import DPadLayout from "../HUD/DPadLayout.js";
 import loadingicon from "../HUD/loadingIcon.js";
-import GlobalVars from "../HUD/HUD-Vars/HUDGlobalVars.js"
+import Enums from "../HUD/HUD-enums/HUD_Enums.js";
+import GlobalVars from "../HUD/HUD-Vars/HUDGlobalVars.js";
 
 //Util
 import Texture from "../../Engine/Utils/texture.js";
@@ -40,19 +41,18 @@ export default class Player extends GameObject {
         this.currentAnim.play();
 
         this.PlayerId = 4;
+        this.LevelId  = 1;
+        this.XPNum    = 0.0; 
 
-        this.live    = 5;
+        this.live    = 5;   
         this.counter = 0;           
         
         // HUD  
-        this.Mousedot = new mouse_dots(new Texture(Enums.dots_Id[this.PlayerId]),35);
+        this.Mousedot = new mouse_dots(new Texture(Enums.dots_Id[this.PlayerId]),35);                
         
-        window.addEventListener('mousemove', (event) => {
-            this.Mousedot.setMousePos(event.clientX, event.clientY);
-        });
-        
-        this.HealthBar  = new HealthBar(new Vector2D(global_width * 0.01, global_height * 0.01), this.PlayerId);                
-        
+        this.HealthBar  = new HealthBar(new Vector2D(global_width * 0.01, global_height * 0.03), this.PlayerId);                
+        this.XPBar      = new XPBar(new Vector2D(global_width * 0.01, global_height * 0.1),this.LevelId,this.XPNum);
+
         // Icone de Botão no D-Pad      
         this.icon_up    = new InfoIcons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.icon_offset, GlobalVars.dpad_centerY - GlobalVars.offset - GlobalVars.icon_vertical_spacing), 30, "q", 0);
         this.icon_down  = new InfoIcons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.icon_offset, GlobalVars.dpad_centerY + GlobalVars.offset - GlobalVars.icon_vertical_spacing), 30, "x", 0);
@@ -80,9 +80,18 @@ export default class Player extends GameObject {
         this.currentAnim.play();
     }
 
+    #updateFacing(moving) {
+        if (moving) return;
+
+        const mouseX = this.Mousedot.mousePos.x;        
+        const playerX = this.position.x;
+
+        this.texture.flipX = mouseX < playerX;
+    }
+
     #move() {
         let direction = Vector2D.zero();
-        let moving = false;
+        let moving = false;    
 
         if (this.keyboard.isKey("ArrowLeft") == KeysState.PRESSED || this.keyboard.isKey("KeyA") == KeysState.PRESSED) {
             this.texture.flipX = true;
@@ -104,7 +113,7 @@ export default class Player extends GameObject {
         if (this.keyboard.isKey("ArrowDown") == KeysState.PRESSED || this.keyboard.isKey("KeyS") == KeysState.PRESSED) {
             moving = true;
             direction.y += 1;
-        }
+        }        
 
         if (moving) {
             this.#setAction('walk');
@@ -116,12 +125,15 @@ export default class Player extends GameObject {
             this.moveDir.set(0, 0);
             this.#setAction('idle');
         }
+
+        this.#updateFacing(moving);
     }
 
-    update(deltaTime) {
-        this.#move();
+    update(deltaTime) {        
+        this.#move();                                
+        this.currentAnim.update(deltaTime);   
         
-        this.currentAnim.update(deltaTime);                        
+        this.Mousedot.setMousePos(GlobalVars.mousePOS.xPos, GlobalVars.mousePOS.yPOS);
         
         //D-Pad - Up
         //KEY
@@ -178,7 +190,19 @@ export default class Player extends GameObject {
         } else {
             this.layoutHB_down.setMoving(true);
         }                
-                                                                                     
+        
+        //teste - XP
+        if (this.keyboard.isKey("KeyJ") == KeysState.PRESSED) {
+            this.XPNum++;
+            this.XPBar.updateXPNum(this.XPNum);
+
+            if(this.LevelId != this.XPBar.levelId){
+                this.LevelId = this.XPBar.levelId;
+                this.XPNum   = this.XPBar.xpnum;
+            }
+        }   
+
+        //Teste - vida
         if (this.keyboard.isKey("KeyO") == KeysState.PRESSED && this.counter == 0) {
             this.HealthBar.addStartX();                                             
             this.live--;
@@ -192,11 +216,16 @@ export default class Player extends GameObject {
     }
 
     /** @param {CanvasRenderingContext2D} ctx */
-    draw(ctx, hudctx) {
+    draw(ctx, hudctx) {         
+        //mouse - PRIORIDADE
+        this.Mousedot.draw(hudctx);
+
         this.hitbox.draw(ctx);
         this.currentAnim.draw(ctx, this.position);      
-                
+        
+        //VIDA e XP
         this.HealthBar.draw(hudctx);        
+        this.XPBar.draw(hudctx);
 
         // D-Pad - Up
         this.layoutHB_up.draw(hudctx);
@@ -216,8 +245,6 @@ export default class Player extends GameObject {
         // D-Pad - Down
         this.layoutHB_down.draw(hudctx);
         this.icon_down.draw(hudctx);
-        this.loadingHB_down.draw(hudctx);
-
-        this.Mousedot.draw(hudctx);
+        this.loadingHB_down.draw(hudctx);                  
     }
 }

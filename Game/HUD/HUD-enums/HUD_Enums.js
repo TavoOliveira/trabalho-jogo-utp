@@ -5,6 +5,15 @@ const bar_type = {
     4: 85  //tipo - 4 - roxo
 };
 
+const XP_BarLevel = {
+    0: 175, //vazia
+    1: 143, //1 nivel - 1 ponto
+    2: 111, //2 nivel - 2 ponto
+    3: 79,  //3 nivel - 3 ponto
+    4: 47,  //5 nivel - 4 ponto
+    5: 15   //6 nivel - completo
+}
+
 const UtilityIcon_type = {
     1: {x: 0,   y: 80}, //tipo - 1 - azul
     2: {x: 0,   y: 0},  //tipo - 2 - verde
@@ -27,4 +36,4 @@ const dots_Id = {
     4: "/Game/Assets/HUD/mouseIcons/purple_dots.png",                           
 }
 
-export default {UtilityIcon_type,bar_type,Key_type,dots_Id};
+export default {UtilityIcon_type,bar_type,Key_type,dots_Id,XP_BarLevel};
