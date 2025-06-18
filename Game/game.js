@@ -73,10 +73,7 @@ export default class Game {
         this.camera.applyTransform(ctx, this.canvas);        
 
         if (this.tilemap != null)
-            this.tilemap.draw(ctx);
-
-        //MOUSE
-        this.player.Mousedot.draw(hudctx);
+            this.tilemap.draw(ctx);    
 
         this.player.draw(ctx,hudctx);
         this.enemy.draw(ctx);        

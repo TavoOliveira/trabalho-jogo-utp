@@ -218,7 +218,7 @@ export default class Player extends GameObject {
     }
 
     /** @param {CanvasRenderingContext2D} ctx */
-    draw(ctx, hudctx) {                 
+    draw(ctx, hudctx) {                    
         this.hitbox.draw(ctx);
         this.currentAnim.draw(ctx, this.position);      
         
@@ -227,23 +227,26 @@ export default class Player extends GameObject {
         this.XPBar.draw(hudctx);
 
         // D-Pad - Up
-        this.layoutHB_up.draw(hudctx);
         this.icon_up.draw(hudctx);
+        this.layoutHB_up.draw(hudctx);        
         this.loadingHB_up.draw(hudctx);
 
         // D-Pad - Right
-        this.layoutHB_right.draw(hudctx);
         this.icon_right.draw(hudctx);
+        this.layoutHB_right.draw(hudctx);        
         this.loadingHB_right.draw(hudctx);
 
         // D-Pad - Left
-        this.layoutHB_left.draw(hudctx);
         this.icon_left.draw(hudctx);
+        this.layoutHB_left.draw(hudctx);
         this.loadingHB_left.draw(hudctx);
 
         // D-Pad - Down
-        this.layoutHB_down.draw(hudctx);
         this.icon_down.draw(hudctx);
-        this.loadingHB_down.draw(hudctx);                  
+        this.layoutHB_down.draw(hudctx);        
+        this.loadingHB_down.draw(hudctx);   
+        
+        //MOUSE
+        this.Mousedot.draw(hudctx);
     }
 }
