@@ -28,6 +28,26 @@ const Key_type = {
     'x': {x:17 ,y:49 ,sW: 14,sH: 13}    
 };
 
+const icons = {   
+    //HABILIDADES
+    '4-q': {x: 416,y: 1760,sW: 32,sH: 32}, //Dash - player 4
+    '4-z': {x: 96,y: 1472,sW: 32,sH: 32},  //Habilidade 1 - player 4
+    '4-x': {x: 480,y: 2080,sW: 32,sH: 32}, //Habilidade 2 - player 4
+
+    //ITEMS
+
+    //ARMAS
+    '4-wp-1': {x: 96,y: 3360,sW: 32,sH: 32}, //Espada - player 4
+    '4-wp-2': {x: 417,y: 3584,sW: 32,sH: 32}  //Arco - player 4
+};
+
+const playerIcon = {
+    1: {x: 28,y: 4,sW: 15,sH: 12},
+    2: {x: 0,y: 0,sW: 26,sH: 16},
+    3: {x: 0,y: 0,sW: 0,sH: 0},
+    4: {x: 48,y: 4,sW: 13,sH: 12},
+}
+
 const dots_Id = { 
     0: "/Game/Assets/HUD/mouseIcons/white_dots.png",
     1: "/Game/Assets/HUD/mouseIcons/blue_dots.png", 
@@ -36,4 +56,4 @@ const dots_Id = {
     4: "/Game/Assets/HUD/mouseIcons/purple_dots.png",                           
 }
 
-export default {UtilityIcon_type,bar_type,Key_type,dots_Id,XP_BarLevel};
+export default {UtilityIcon_type,bar_type,Key_type,dots_Id,XP_BarLevel,icons,playerIcon};

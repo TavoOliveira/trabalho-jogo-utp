@@ -19,8 +19,10 @@ export default class loadingicon{
     }
 
     updateIconTimer(){
-        if(!this.loading)
+        if(!this.loading){
+            ctx.clearRect(this.position.x, this.position.y, this.size, this.size);
             return
+        }
 
         if(this.timer == this.cooldown){
             this.counter++;  
@@ -51,8 +53,6 @@ export default class loadingicon{
 
     draw(ctx){      
         if(this.loading)          
-            this.icontexture.draw(ctx, this.position.x,this.position.y,this.size,this.size,this.startX,51,42,42);                     
-        else
-            ctx.clearRect(this.position.x, this.position.y, this.size, this.size);
+            this.icontexture.draw(ctx, this.position.x,this.position.y,this.size,this.size,this.startX,51,42,42);                                         
     }
 }

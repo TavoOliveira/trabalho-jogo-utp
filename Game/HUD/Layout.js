@@ -1,13 +1,13 @@
 import Texture  from "../../Engine/Utils/texture.js";
 import Enums from "./HUD-enums/HUD_Enums.js";
 
-export default class DPadLayout{
+export default class Layout{
     /**
      * @param {Vector2D} position -Posição na tela
      * @param {number} size -tamanho do loading
      * @param {number} type -tipo do estilo
      */
-    constructor(position,size,type){
+    constructor(position,size,type,cooldown = 2){
         this.position     = position;        
         this.size         = size;        
         this.icontexture  = new Texture("/Game/Assets/HUD/UtilityIcons.png");        
@@ -17,7 +17,7 @@ export default class DPadLayout{
         this.startY       = this.typeMap.y;      
                 
         //tempo padrão de atualização
-        this.cooldown     = 2 * 12,5;
+        this.cooldown     = cooldown * 12,5;
         this.counter      = 0;
         this.timer        = 0;
         

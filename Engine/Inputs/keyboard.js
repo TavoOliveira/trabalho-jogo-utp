@@ -5,15 +5,27 @@ export default class Keyboard {
         this.key = {};
 
         window.addEventListener("keydown", e => {
-            this.key[e.code] = KeysState.PRESSED;
+            if (this.key[e.code] !== KeysState.PRESSED) {
+                this.key[e.code] = KeysState.PRESSED;
+            }
         });
 
         window.addEventListener("keyup", e => {
-            this.key[e.code] = KeysState.RELEASE;
+            if (this.key[e.code] === KeysState.PRESSED) {
+                this.key[e.code] = KeysState.CLICKED;
+            }
         });
     }
 
     isKey(keyCode) {
-        return this.key[keyCode];
+        return this.key[keyCode] ?? KeysState.RELEASE;
+    }
+    
+    reset() {
+        for (let key in this.key) {
+            if (this.key[key] === KeysState.CLICKED) {
+                this.key[key] = KeysState.RELEASE;
+            }
+        }
     }
 }

@@ -1,9 +1,10 @@
 //HUD
 import XPBar from "../HUD/XPBar.js";
+import Icons from "../HUD/icons.js";
+import Layout from "../HUD/Layout.js";
+import Weapons from "../HUD/weapons.js"
 import mouse_dots from "../HUD/dots.js";
-import InfoIcons from "../HUD/InfoIcons.js";
 import HealthBar from "../HUD/HealthBar.js";
-import DPadLayout from "../HUD/DPadLayout.js";
 import loadingicon from "../HUD/loadingIcon.js";
 import Enums from "../HUD/HUD-enums/HUD_Enums.js";
 import GlobalVars from "../HUD/HUD-Vars/HUDGlobalVars.js";
@@ -22,8 +23,8 @@ export default class Player extends GameObject {
      * @param {Vector2D} position
      */
     constructor(texture, position, keyboard, mouse) {
-        const global_width = document.documentElement.clientWidth;
-        const global_height = document.documentElement.clientHeight;
+        const global_width    = document.documentElement.clientWidth;
+        const global_height   = document.documentElement.clientHeight;        
 
         super(texture, position);
         this.keyboard = keyboard;
@@ -49,22 +50,34 @@ export default class Player extends GameObject {
         this.counter = 0;           
         
         // HUD  
-        this.Mousedot = new mouse_dots(new Texture(Enums.dots_Id[this.PlayerId]),35);                
+        this.Mousedot = new mouse_dots(new Texture(Enums.dots_Id[this.PlayerId]),35);   
         
-        this.HealthBar  = new HealthBar(new Vector2D(global_width * 0.01, global_height * 0.03), this.PlayerId);                
-        this.XPBar      = new XPBar(new Vector2D(global_width * 0.01, global_height * 0.1),this.LevelId,this.XPNum);
+        //armas
+        this.currentWeapon = new Weapons(1);
+        
+        //Barra Superior
+        this.CharacterLayout = new Layout(new Vector2D(global_width * 0.01, global_height * 0.02), 70, this.PlayerId, 1);
+        this.CharacterIcon   = new Icons(new Vector2D(global_width * 0.015, global_height * 0.035), 50, this.PlayerId, 3);
+        this.HealthBar       = new HealthBar(new Vector2D(global_width * 0.07, global_height * 0.01), this.PlayerId);                
+        this.XPBar           = new XPBar(new Vector2D(global_width * 0.07, global_height * 0.08),this.LevelId,this.XPNum);        
 
         // Icone de Botão no D-Pad      
-        this.icon_up    = new InfoIcons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.icon_offset, GlobalVars.dpad_centerY - GlobalVars.offset - GlobalVars.icon_vertical_spacing), 30, "q", 0);
-        this.icon_down  = new InfoIcons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.icon_offset, GlobalVars.dpad_centerY + GlobalVars.offset - GlobalVars.icon_vertical_spacing), 30, "x", 0);
-        this.icon_left  = new InfoIcons(new Vector2D(GlobalVars.dpad_centerX - GlobalVars.offset + GlobalVars.icon_offset, GlobalVars.dpad_centerY - GlobalVars.icon_vertical_spacing), 30, "z", 0);
-        this.icon_right = new InfoIcons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.offset + GlobalVars.icon_offset, GlobalVars.dpad_centerY - GlobalVars.icon_vertical_spacing), 30, "e", 0);
+        this.icon_up    = new Icons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.icon_offset, GlobalVars.dpad_centerY - GlobalVars.offset - GlobalVars.icon_vertical_spacing), 30, "q",0);
+        this.icon_down  = new Icons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.icon_offset, GlobalVars.dpad_centerY + GlobalVars.offset - GlobalVars.icon_vertical_spacing), 30, "x",0);
+        this.icon_left  = new Icons(new Vector2D(GlobalVars.dpad_centerX - GlobalVars.offset + GlobalVars.icon_offset, GlobalVars.dpad_centerY - GlobalVars.icon_vertical_spacing), 30, "z",0);
+        this.icon_right = new Icons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.offset + GlobalVars.icon_offset, GlobalVars.dpad_centerY - GlobalVars.icon_vertical_spacing), 30, "e",0);
 
         // Layout do D-Pad
-        this.layoutHB_up    = new DPadLayout(new Vector2D(GlobalVars.dpad_centerX, GlobalVars.dpad_centerY - GlobalVars.offset), 70, this.PlayerId);
-        this.layoutHB_down  = new DPadLayout(new Vector2D(GlobalVars.dpad_centerX, GlobalVars.dpad_centerY + GlobalVars.offset), 70, this.PlayerId);
-        this.layoutHB_left  = new DPadLayout(new Vector2D(GlobalVars.dpad_centerX - GlobalVars.offset, GlobalVars.dpad_centerY), 70, this.PlayerId);
-        this.layoutHB_right = new DPadLayout(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.offset, GlobalVars.dpad_centerY), 70, this.PlayerId);
+        this.layoutHB_up    = new Layout(new Vector2D(GlobalVars.dpad_centerX, GlobalVars.dpad_centerY - GlobalVars.offset), 70, this.PlayerId);
+        this.layoutHB_down  = new Layout(new Vector2D(GlobalVars.dpad_centerX, GlobalVars.dpad_centerY + GlobalVars.offset), 70, this.PlayerId);
+        this.layoutHB_left  = new Layout(new Vector2D(GlobalVars.dpad_centerX - GlobalVars.offset, GlobalVars.dpad_centerY), 70, this.PlayerId);
+        this.layoutHB_right = new Layout(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.offset, GlobalVars.dpad_centerY), 70, this.PlayerId);                
+
+        //Icones das habilidades - itens
+        this.iconHB_up    = new Icons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.loading_offset, GlobalVars.dpad_centerY - GlobalVars.offset + GlobalVars.loading_offset), 50, `${this.PlayerId}-q`,2);
+        this.iconHB_down  = new Icons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.offset + GlobalVars.loading_offset), 50, `${this.PlayerId}-x`,2);
+        this.iconHB_left  = new Icons(new Vector2D(GlobalVars.dpad_centerX - GlobalVars.offset + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.loading_offset), 50, `${this.PlayerId}-z`,2);
+        this.iconHB_right = new Icons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.offset + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.loading_offset), 50, `${this.PlayerId}-wp-${this.currentWeapon.WeaponId}`,2);
 
         // Loadings centralizado
         this.loadingHB_up    = new loadingicon(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.loading_offset, GlobalVars.dpad_centerY - GlobalVars.offset + GlobalVars.loading_offset), 50);
@@ -89,7 +102,6 @@ export default class Player extends GameObject {
 
         this.texture.flipX = mouseX < CenterX;
     }
-
 
     #move() {        
         let direction = Vector2D.zero();
@@ -135,12 +147,17 @@ export default class Player extends GameObject {
         //Prioridade - MOUSE
         this.#updateFacing();
         this.#move();                                
-        this.currentAnim.update(deltaTime);                   
+        this.currentAnim.update(deltaTime);  
+        
+        //Barra superior
+        this.CharacterLayout.updateIcon();        
         
         //D-Pad - Up
         //KEY
-        if(this.keyboard.isKey("KeyQ") == KeysState.PRESSED)
-            this.loadingHB_up.startCooldown(1); 
+        if(this.keyboard.isKey("KeyQ") == KeysState.CLICKED)
+            if(!this.loadingHB_up.loading){
+                this.loadingHB_up.startCooldown(3); 
+            }
 
         //Update
         this.layoutHB_up.updateIcon();
@@ -153,8 +170,13 @@ export default class Player extends GameObject {
 
         //D-Pad - Right
         //KEY
-        if(this.keyboard.isKey("KeyE") == KeysState.PRESSED)
-            this.loadingHB_right.startCooldown(1)
+        if(this.keyboard.isKey("KeyE") == KeysState.CLICKED){
+            if(!this.loadingHB_right.loading){
+                this.currentWeapon.nextWeapon();
+                this.iconHB_right.switchKey(`${this.PlayerId}-wp-${this.currentWeapon.WeaponId}`);
+                this.loadingHB_right.startCooldown(1)
+            }
+        }
 
         //Update
         this.layoutHB_right.updateIcon();
@@ -167,7 +189,7 @@ export default class Player extends GameObject {
 
         //D-Pad - Left
         //KEY
-        if(this.keyboard.isKey("KeyZ") == KeysState.PRESSED)
+        if(this.keyboard.isKey("KeyZ") == KeysState.CLICKED)
             this.loadingHB_left.startCooldown(8); 
 
         //Update
@@ -181,7 +203,7 @@ export default class Player extends GameObject {
 
         //D-Pad - Down
         //KEY
-        if(this.keyboard.isKey("KeyX") == KeysState.PRESSED)
+        if(this.keyboard.isKey("KeyX") == KeysState.CLICKED)
             this.loadingHB_down.startCooldown(15)
 
         //Update
@@ -205,7 +227,7 @@ export default class Player extends GameObject {
         }   
 
         //Teste - vida
-        if (this.keyboard.isKey("KeyO") == KeysState.PRESSED && this.counter == 0) {
+        if (this.keyboard.isKey("KeyO") == KeysState.CLICKED && this.counter == 0) {
             this.HealthBar.addStartX();                                             
             this.live--;
             this.counter = 1
@@ -214,7 +236,9 @@ export default class Player extends GameObject {
         }
 
         if(this.live == 0)
-            console.log('morte');            
+            console.log('morte');  
+        
+        this.keyboard.reset();
     }
 
     /** @param {CanvasRenderingContext2D} ctx */
@@ -222,28 +246,34 @@ export default class Player extends GameObject {
         this.hitbox.draw(ctx);
         this.currentAnim.draw(ctx, this.position);      
         
-        //VIDA e XP
+        //VIDA e XP - barrra superior
+        this.CharacterLayout.draw(hudctx);
+        this.CharacterIcon.draw(hudctx);
         this.HealthBar.draw(hudctx);        
         this.XPBar.draw(hudctx);
 
         // D-Pad - Up
         this.icon_up.draw(hudctx);
         this.layoutHB_up.draw(hudctx);        
+        this.iconHB_up.draw(hudctx);
         this.loadingHB_up.draw(hudctx);
 
         // D-Pad - Right
         this.icon_right.draw(hudctx);
-        this.layoutHB_right.draw(hudctx);        
+        this.layoutHB_right.draw(hudctx);   
+        this.iconHB_right.draw(hudctx);     
         this.loadingHB_right.draw(hudctx);
 
         // D-Pad - Left
         this.icon_left.draw(hudctx);
         this.layoutHB_left.draw(hudctx);
+        this.iconHB_left.draw(hudctx);
         this.loadingHB_left.draw(hudctx);
 
         // D-Pad - Down
         this.icon_down.draw(hudctx);
-        this.layoutHB_down.draw(hudctx);        
+        this.layoutHB_down.draw(hudctx); 
+        this.iconHB_down.draw(hudctx);       
         this.loadingHB_down.draw(hudctx);   
         
         //MOUSE
