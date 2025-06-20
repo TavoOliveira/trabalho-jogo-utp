@@ -28,13 +28,19 @@ export default class Game {
         this.HUDCanvas.height = this.height;
 
         this.keyboard = new Keyboard();
-        this.mouse    = new Mouse();        
+        this.mouse    = new Mouse();  
+
+        this.sharedPosition = new Vector2D(this.width / 2, this.height / 2);
         
-        this.player = new Player(new Texture("Game/Assets/global.png"), new Vector2D(this.width / 2, this.height / 2), this.keyboard,this.mouse);
+        this.player1 = new Player(new Texture("Game/Assets/global.png"), this.sharedPosition, this.keyboard,this.mouse,1);
+        this.player2 = new Player(new Texture("Game/Assets/global.png"), this.sharedPosition, this.keyboard,this.mouse,2);
+        this.player4 = new Player(new Texture("Game/Assets/global.png"), this.sharedPosition, this.keyboard,this.mouse,4);
+
+        this.player1.switchPlayer(true);
 
         this.enemy = new Enemy(null, new Vector2D(100, 100));
 
-        this.camera = new Camera(this.player.position, 4);
+        this.camera = new Camera(new Vector2D(0,0).position, 4);
 
         this.tilemap = null;
 
@@ -48,6 +54,12 @@ export default class Game {
         this.loop(0);             
     }
 
+    clearSwitches(refChar){
+        this.player1.switchPlayer(refChar == 1 ? true : false);
+        this.player2.switchPlayer(refChar == 2 ? true : false);
+        this.player4.switchPlayer(refChar == 4 ? true : false);
+    }
+
     loop(timestamp) {
         if (!this.lastTime) this.lastTime = timestamp;
 
@@ -55,11 +67,31 @@ export default class Game {
 
         this.lastTime = timestamp;        
         
-        this.draw(this.ctx, this.HUDctx);                     
-        this.player.update(deltaTime);  
+        //=== / Player-Switch / ===
+        if(this.keyboard.isKey("AltLeft") == KeysState.PRESSED){
+            if(this.keyboard.isKey("ArrowUp") == KeysState.CLICKED){
+                if(!this.player1.currentPlayer)
+                    this.clearSwitches(1);
+            } else if(this.keyboard.isKey("ArrowLeft") == KeysState.CLICKED){
+                if(!this.player2.currentPlayer)
+                    this.clearSwitches(2);               
+            } else if(this.keyboard.isKey("ArrowRight") == KeysState.CLICKED){
+                if(!this.player4.currentPlayer)
+                    this.clearSwitches(4);       
+            }
+        }
+
+        this.draw(this.ctx, this.HUDctx);
+        
+        if(this.player1.currentPlayer)
+            this.player1.update(deltaTime);
+        else if(this.player2.currentPlayer)
+            this.player2.update(deltaTime);
+        else if(this.player4.currentPlayer)
+            this.player4.update(deltaTime);
 
         requestAnimationFrame(this.loop.bind(this));
-    }
+    }    
 
     /** @param {CanvasRenderingContext2D} ctx */
     draw(ctx, hudctx) {                        
@@ -69,16 +101,29 @@ export default class Game {
 
         hudctx.clearRect(0,0,this.width,this.height)
 
-        this.camera.setPosition(this.player.position);
+        this.camera.setPosition(this.currentPlayer.position);
         this.camera.applyTransform(ctx, this.canvas);        
 
         if (this.tilemap != null)
-            this.tilemap.draw(ctx);    
-
-        this.player.draw(ctx,hudctx);
+            this.tilemap.draw(ctx); 
+        
+        if(this.player1.currentPlayer)
+            this.player1.draw(ctx,hudctx);
+        else if(this.player2.currentPlayer)
+            this.player2.draw(ctx,hudctx);
+        else if(this.player4.currentPlayer)
+            this.player4.draw(ctx,hudctx);
+        
         this.enemy.draw(ctx);        
 
         this.camera.resetTransform(ctx, this.canvas);    
+    }
+
+    get currentPlayer() {
+        if (this.player1.currentPlayer) return this.player1;
+        if (this.player2.currentPlayer) return this.player2;
+        if (this.player4.currentPlayer) return this.player4;
+        return this.player1;  // fallback se nenhum estiver ativo
     }
     
 }

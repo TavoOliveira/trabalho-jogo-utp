@@ -22,7 +22,7 @@ export default class Player extends GameObject {
      * @param {Texture} texture
      * @param {Vector2D} position
      */
-    constructor(texture, position, keyboard, mouse) {
+    constructor(texture, position, keyboard, mouse, playerId) {
         const global_width    = document.documentElement.clientWidth;
         const global_height   = document.documentElement.clientHeight;        
 
@@ -42,7 +42,9 @@ export default class Player extends GameObject {
         this.currentAnim = this.animations.idle;
         this.currentAnim.play();
 
-        this.PlayerId = 1;
+        //player
+        this.PlayerId      = playerId;
+        this.currentPlayer = false;
 
         this.LevelId  = 1;
         this.XPNum    = 0.0; 
@@ -152,13 +154,25 @@ export default class Player extends GameObject {
         }        
     }
 
+    switchPlayer(setCurrent = false){        
+        this.currentPlayer = setCurrent;
+    }    
+
     update(deltaTime) {        
         this.Mousedot.setMousePos(this.mouse.x, this.mouse.y);
 
         //Prioridade - MOUSE
         this.#updateFacing();
-        this.#move();                                
-        this.currentAnim.update(deltaTime);  
+
+        if(!this.keyboard.isKey("AltLeft") == KeysState.PRESSED){
+            this.#move();                                
+            this.currentAnim.update(deltaTime);  
+        }
+
+        //=== / MENU / ===
+        if(this.keyboard.isKey("Escape") == KeysState.CLICKED){
+            console.log('entra');            
+        }        
         
         //Barra superior
         this.CharacterLayout.updateIcon();  
@@ -178,11 +192,11 @@ export default class Player extends GameObject {
         }
 
         //Update     
+        this.layoutHB_potion.updateIcon();
         if(this.iconCancel_potion.cansee){
             this.iconCancel_potion.updateIconTimer();
         }
-        
-        this.layoutHB_potion.updateIcon();
+                
         if(this.loadingHB_potion.loading){
             this.loadingHB_potion.updateIconTimer()
             this.layoutHB_potion.setMoving(false);
@@ -198,7 +212,7 @@ export default class Player extends GameObject {
             }
         }
 
-        //Update
+        //Update        
         this.layoutHB_up.updateIcon();
         if(this.loadingHB_up.loading){
             this.loadingHB_up.updateIconTimer()
@@ -265,11 +279,11 @@ export default class Player extends GameObject {
             }
         }   
 
-        //=== / Teste - vida / ===
+        //=== / Teste - VIDA / ===
         if (this.keyboard.isKey("KeyO") == KeysState.CLICKED) {
             this.HealthBar.addOrSubStartX(true);                                             
             this.live--;            
-        }
+        }        
 
         if(this.live == 0)
             console.log('morte');  
