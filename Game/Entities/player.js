@@ -42,12 +42,12 @@ export default class Player extends GameObject {
         this.currentAnim = this.animations.idle;
         this.currentAnim.play();
 
-        this.PlayerId = 4;
+        this.PlayerId = 1;
+
         this.LevelId  = 1;
         this.XPNum    = 0.0; 
 
-        this.live    = 5;   
-        this.counter = 0;           
+        this.live    = 5;                   
         
         // HUD  
         this.Mousedot = new mouse_dots(new Texture(Enums.dots_Id[this.PlayerId]),35);   
@@ -59,7 +59,18 @@ export default class Player extends GameObject {
         this.CharacterLayout = new Layout(new Vector2D(global_width * 0.01, global_height * 0.02), 70, this.PlayerId, 1);
         this.CharacterIcon   = new Icons(new Vector2D(global_width * 0.015, global_height * 0.035), 50, this.PlayerId, 3);
         this.HealthBar       = new HealthBar(new Vector2D(global_width * 0.07, global_height * 0.01), this.PlayerId);                
-        this.XPBar           = new XPBar(new Vector2D(global_width * 0.07, global_height * 0.08),this.LevelId,this.XPNum);        
+        this.XPBar           = new XPBar(new Vector2D(global_width * 0.07, global_height * 0.08),this.LevelId,this.XPNum);         
+                
+        //Barra Inferior
+
+        // Poção de Cura
+        this.icon_potion       = new Icons(new Vector2D(GlobalVars.potionX + GlobalVars.potionIconOffset, GlobalVars.potionY - 30),20,"v",0);
+        this.layoutHB_potion   = new Layout(new Vector2D(GlobalVars.potionX, GlobalVars.potionY),50,this.PlayerId);      
+        this.iconCancel_potion = new Icons(new Vector2D(GlobalVars.potionX + GlobalVars.potionOffset, GlobalVars.potionY + GlobalVars.potionOffset),30,"x",2);
+        this.iconHB_potion     = new Icons(new Vector2D(GlobalVars.potionX + GlobalVars.potionOffset, GlobalVars.potionY + GlobalVars.potionOffset),30,"hpt",2);
+        this.loadingHB_potion  = new loadingicon(new Vector2D(GlobalVars.potionX + GlobalVars.potionOffset, GlobalVars.potionY + GlobalVars.potionOffset),30);
+
+        this.iconCancel_potion.updateSee(false);//Desliga o aviso de cancelado
 
         // Icone de Botão no D-Pad      
         this.icon_up    = new Icons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.icon_offset, GlobalVars.dpad_centerY - GlobalVars.offset - GlobalVars.icon_vertical_spacing), 30, "q",0);
@@ -150,14 +161,42 @@ export default class Player extends GameObject {
         this.currentAnim.update(deltaTime);  
         
         //Barra superior
-        this.CharacterLayout.updateIcon();        
+        this.CharacterLayout.updateIcon();  
         
-        //D-Pad - Up
+        //=== / Poção de cura / ===
         //KEY
-        if(this.keyboard.isKey("KeyQ") == KeysState.CLICKED)
+        if(this.keyboard.isKey("KeyV") == KeysState.CLICKED){
+            if(!this.loadingHB_potion.loading){
+                if(this.live <= 4){  
+                    this.HealthBar.addOrSubStartX(false);                
+                    this.live++;                
+                    this.loadingHB_potion.startCooldown(10)
+                } else {
+                    this.iconCancel_potion.startCooldown(1);
+                }                
+            }
+        }
+
+        //Update     
+        if(this.iconCancel_potion.cansee){
+            this.iconCancel_potion.updateIconTimer();
+        }
+        
+        this.layoutHB_potion.updateIcon();
+        if(this.loadingHB_potion.loading){
+            this.loadingHB_potion.updateIconTimer()
+            this.layoutHB_potion.setMoving(false);
+        } else {
+            this.layoutHB_potion.setMoving(true);
+        }
+        
+        //=== / D-Pad - Up / ===
+        //KEY
+        if(this.keyboard.isKey("KeyQ") == KeysState.CLICKED){
             if(!this.loadingHB_up.loading){
                 this.loadingHB_up.startCooldown(3); 
             }
+        }
 
         //Update
         this.layoutHB_up.updateIcon();
@@ -168,7 +207,7 @@ export default class Player extends GameObject {
             this.layoutHB_up.setMoving(true);
         }
 
-        //D-Pad - Right
+        //=== / D-Pad - Right / ===
         //KEY
         if(this.keyboard.isKey("KeyE") == KeysState.CLICKED){
             if(!this.loadingHB_right.loading){
@@ -187,7 +226,7 @@ export default class Player extends GameObject {
             this.layoutHB_right.setMoving(true);
         }
 
-        //D-Pad - Left
+        //=== / D-Pad - Left / ===
         //KEY
         if(this.keyboard.isKey("KeyZ") == KeysState.CLICKED)
             this.loadingHB_left.startCooldown(8); 
@@ -215,7 +254,7 @@ export default class Player extends GameObject {
             this.layoutHB_down.setMoving(true);
         }                
         
-        //teste - XP
+        //=== / teste - XP / ===
         if (this.keyboard.isKey("KeyJ") == KeysState.PRESSED) {
             this.XPNum++;
             this.XPBar.updateXPNum(this.XPNum);
@@ -226,13 +265,10 @@ export default class Player extends GameObject {
             }
         }   
 
-        //Teste - vida
-        if (this.keyboard.isKey("KeyO") == KeysState.CLICKED && this.counter == 0) {
-            this.HealthBar.addStartX();                                             
-            this.live--;
-            this.counter = 1
-        } else{            
-            this.counter = 0
+        //=== / Teste - vida / ===
+        if (this.keyboard.isKey("KeyO") == KeysState.CLICKED) {
+            this.HealthBar.addOrSubStartX(true);                                             
+            this.live--;            
         }
 
         if(this.live == 0)
@@ -251,6 +287,13 @@ export default class Player extends GameObject {
         this.CharacterIcon.draw(hudctx);
         this.HealthBar.draw(hudctx);        
         this.XPBar.draw(hudctx);
+        
+        // Poção de cura
+        this.icon_potion.draw(hudctx);
+        this.layoutHB_potion.draw(hudctx);
+        this.iconHB_potion.draw(hudctx);
+        this.iconCancel_potion.draw(hudctx);
+        this.loadingHB_potion.draw(hudctx);
 
         // D-Pad - Up
         this.icon_up.draw(hudctx);

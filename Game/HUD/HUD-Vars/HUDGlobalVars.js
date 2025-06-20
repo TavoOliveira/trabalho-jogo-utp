@@ -5,4 +5,20 @@ const icon_vertical_spacing = 40;                                          // Es
 const dpad_centerX          = document.documentElement.clientWidth * 0.1;  // Ajuste - centralizar na horizontal
 const dpad_centerY          = document.documentElement.clientHeight * 0.7; // Ajuste - Altura
 
-export default {dpad_centerX,dpad_centerY,offset,loading_offset,icon_vertical_spacing,icon_offset}
+const potionX          = 65;
+const potionY          = dpad_centerY + offset * 1.25;
+const potionOffset     = (50 - 30) / 2;
+const potionIconOffset = (50 - 20) / 2;
+
+export default {
+    dpad_centerX,
+    dpad_centerY,
+    offset,
+    loading_offset,
+    icon_vertical_spacing,
+    icon_offset,
+    potionX,
+    potionY,
+    potionOffset,
+    potionIconOffset
+}

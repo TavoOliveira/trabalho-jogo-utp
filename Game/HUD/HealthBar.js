@@ -11,12 +11,11 @@ export default class HealthBar{
         this.startX = 3;        
     }
 
-    addStartX() {
-        this.startX += 48;        
-    }
-
-    subStartX() {
-        this.startX -= 48;                
+    addOrSubStartX(type) {
+        if(type)
+            this.startX += 48;        
+        else
+            this.startX -= 48;    
     }
 
     draw(ctx){                

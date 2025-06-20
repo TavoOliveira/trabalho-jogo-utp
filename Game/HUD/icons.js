@@ -14,11 +14,44 @@ export default class Icons{
         this.typeId       = type;    
         this.keyId        = key;                  
 
-        //Valor nulo padrão
+        //Valor nulo padrão        
         this.icontexture = new Texture("/Game/Assets/HUD/iconset.png"); 
-        this.KeyMap = {x: 0,y: 0,sW: 0,sH: 0};            
+        this.KeyMap      = {x: 0,y: 0,sW: 0,sH: 0};            
+
+        //Tempo e vizualização
+        this.cansee   = true;
+        this.counter  = 0;
+        this.cooldown = 0;  
+        this.timer    = 0;         
 
         this.setKeyMapAndTexture(this.typeId);
+    }
+
+    updateIconTimer(){
+        if(!this.cansee){
+            ctx.clearRect(this.position.x, this.position.y, this.size, this.size);
+            return
+        }
+
+        if(this.timer == this.cooldown){
+            this.counter++;  
+            this.timer = 0            
+        } else
+            this.timer++;
+
+        if(this.counter == 5){   
+            this.counter  = 0;                     
+            this.cooldown = 0;
+            this.cansee   = false;
+        }
+    }
+
+    /** @param {number} cooldown -tempo em Segundos */
+    startCooldown(cooldown){
+        this.cooldown = cooldown * 12,5;
+        this.cansee   = true;
+
+        this.updateIconTimer();
     }
 
     setKeyMapAndTexture(Type){
@@ -45,6 +78,10 @@ export default class Icons{
                 this.KeyMap = {x: 0,y: 0,sW: 0,sH: 0};
                 break;
         }
+
+        if(this.KeyMap == null || this.KeyMap == undefined){
+            this.KeyMap = {x: 0,y: 0,sW: 0,sH: 0};
+        }
     }
 
     switchKey(newKey) {
@@ -53,10 +90,15 @@ export default class Icons{
         this.setKeyMapAndTexture(this.typeId)
     }
 
-    draw(ctx){                            
-        this.icontexture.draw(ctx, this.position.x,this.position.y,
-                                   this.size,this.size,
-                                   this.KeyMap.x,this.KeyMap.y,
-                                   this.KeyMap.sW,this.KeyMap.sH);                     
+    updateSee(cansee){
+        this.cansee = cansee;
+    }
+
+    draw(ctx){     
+        if(this.cansee)                       
+            this.icontexture.draw(ctx, this.position.x,this.position.y,
+                                       this.size,this.size,
+                                       this.KeyMap.x,this.KeyMap.y,
+                                       this.KeyMap.sW,this.KeyMap.sH);                     
     }
 }
