@@ -40,10 +40,10 @@ export default class Camera {
      * @param { number } viewportHeight  
      */
     applyTransform(ctx, viewportWidth, viewportHeight) {
-    ctx.translate(viewportWidth / 2, viewportHeight / 2);
-    ctx.scale(this.zoom, this.zoom);
-    ctx.translate(-this.position.x, -this.position.y);
-}
+        ctx.translate(viewportWidth / 2, viewportHeight / 2);
+        ctx.scale(this.zoom, this.zoom);
+        ctx.translate(-this.position.x, -this.position.y);
+    }
 
     /**
      * @param { CanvasRenderingContext2D } ctx

@@ -44,7 +44,7 @@ export default class Game {
 
         //minimapa e camera
         this.camera    = new Camera(new Vector2D(0,0).position, 3);
-        this.minMapCam = new Camera(new Vector2D(0,0).position, 1);
+        this.minMapCam = new Camera(new Vector2D(0,0).position, 0.3);
 
         this.tilemap = null;
 
@@ -130,7 +130,7 @@ export default class Game {
     adjustmentMinimap(ctx) {
         const minimapX      = this.currentPlayer.MinimapLayout.position.x;
         const minimapY      = this.currentPlayer.MinimapLayout.position.y;            
-        const minimapOffset = 250 - 32; //tamanho do mapa - tamanho da animação do player
+        const minimapOffset = 250 - this.currentPlayer.currentAnim.width / 2; //tamanho do mapa - tamanho da animação do player
 
         ctx.save();
         
@@ -146,10 +146,7 @@ export default class Game {
 
         if (this.tilemap != null)
             this.tilemap.draw(ctx);
-
-        /*this.player1.drawWorld(ctx);
-        this.player2.drawWorld(ctx);
-        this.player4.drawWorld(ctx);*/
+        
         this.enemy.draw(ctx);
 
         this.minMapCam.resetTransform(ctx, minimapOffset, minimapOffset);
