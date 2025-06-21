@@ -22,6 +22,8 @@ export default class Layout{
         this.timer        = 0;
         
         this.moving       = false
+
+        this.cansee       = true;
     }
 
     addStartX() {
@@ -51,7 +53,12 @@ export default class Layout{
         }    
     }
 
-    draw(ctx){                            
-        this.icontexture.draw(ctx, this.position.x,this.position.y,this.size,this.size,this.startX,this.startY,16,16);                     
+    updateSee(cansee){
+        this.cansee = cansee;
+    }
+
+    draw(ctx){         
+        if(this.cansee)                   
+            this.icontexture.draw(ctx, this.position.x,this.position.y,this.size,this.size,this.startX,this.startY,16,16);                     
     }
 }

@@ -70,7 +70,7 @@ export default class Icons{
                 this.KeyMap      = Enums.icons[this.keyId];                
                 break;
             case 3:
-                this.icontexture = new Texture("/Game/Assets/HUD/PlayersIcons.png");
+                this.icontexture = new Texture("/Game/Assets/HUD/customsIcons.png");
                 this.KeyMap = Enums.playerIcon[this.keyId];
                 break;
             default:

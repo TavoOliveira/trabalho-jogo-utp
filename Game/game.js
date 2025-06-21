@@ -68,7 +68,7 @@ export default class Game {
         this.lastTime = timestamp;        
         
         //=== / Player-Switch / ===
-        if(this.keyboard.isKey("AltLeft") == KeysState.PRESSED){
+        if(this.keyboard.isKey("AltLeft") == KeysState.PRESSED || this.keyboard.isKey("AltRight") == KeysState.PRESSED){
             if(this.keyboard.isKey("ArrowUp") == KeysState.CLICKED){
                 if(!this.player1.currentPlayer)
                     this.clearSwitches(1);
@@ -82,13 +82,10 @@ export default class Game {
         }
 
         this.draw(this.ctx, this.HUDctx);
-        
-        if(this.player1.currentPlayer)
-            this.player1.update(deltaTime);
-        else if(this.player2.currentPlayer)
-            this.player2.update(deltaTime);
-        else if(this.player4.currentPlayer)
-            this.player4.update(deltaTime);
+                
+        this.player1.update(deltaTime);
+        this.player2.update(deltaTime);
+        this.player4.update(deltaTime);
 
         requestAnimationFrame(this.loop.bind(this));
     }    
@@ -123,7 +120,6 @@ export default class Game {
         if (this.player1.currentPlayer) return this.player1;
         if (this.player2.currentPlayer) return this.player2;
         if (this.player4.currentPlayer) return this.player4;
-        return this.player1;  // fallback se nenhum estiver ativo
-    }
-    
+        return this.player1;  // padrão inicial
+    }    
 }

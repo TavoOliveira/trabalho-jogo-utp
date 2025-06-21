@@ -5,6 +5,12 @@ const icon_vertical_spacing = 40;                                          // Es
 const dpad_centerX          = document.documentElement.clientWidth * 0.1;  // Ajuste - centralizar na horizontal
 const dpad_centerY          = document.documentElement.clientHeight * 0.7; // Ajuste - Altura
 
+// Para o novo layout
+const dpad2_centerX = document.documentElement.clientWidth * 0.8;
+
+const dpad2_offsetX = 60;  // Distância horizontal entre Center, Left e Right
+
+
 const potionX          = 65;
 const potionY          = dpad_centerY + offset * 1.25;
 const potionOffset     = (50 - 30) / 2;
@@ -20,5 +26,7 @@ export default {
     potionX,
     potionY,
     potionOffset,
-    potionIconOffset
+    potionIconOffset,
+    dpad2_centerX,    
+    dpad2_offsetX
 }

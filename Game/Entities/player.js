@@ -97,6 +97,38 @@ export default class Player extends GameObject {
         this.loadingHB_down  = new loadingicon(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.offset + GlobalVars.loading_offset), 50);
         this.loadingHB_left  = new loadingicon(new Vector2D(GlobalVars.dpad_centerX - GlobalVars.offset + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.loading_offset), 50);
         this.loadingHB_right = new loadingicon(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.offset + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.loading_offset), 50);                
+
+        //Player Switch      
+        this.switchMode = false;
+        
+        //Centro
+        this.layoutSwitch_center   = new Layout(new Vector2D(GlobalVars.dpad2_centerX, GlobalVars.dpad_centerY + GlobalVars.offset),70,this.PlayerId);
+        this.iconSwitch_center     = new Icons(new Vector2D(GlobalVars.dpad2_centerX + GlobalVars.icon_offset, GlobalVars.dpad_centerY + 90 - 40),30,"alt",0);                        
+        this.CharacterIcon_Center  = new Icons(new Vector2D(GlobalVars.dpad2_centerX + 10, GlobalVars.dpad_centerY + 100),50,'switch',2);
+
+        //Cima - player 1
+        this.layoutSwitch_up       = new Layout(new Vector2D(GlobalVars.dpad2_centerX + 5, GlobalVars.dpad_centerY - GlobalVars.offset + 70),60,1,1);
+        this.iconSwitch_ArrowUp    = new Icons(new Vector2D(GlobalVars.dpad2_centerX + GlobalVars.icon_offset, GlobalVars.dpad_centerY + 90 - 40),30,"up",0);        
+        this.CharacterIcon_Up      = new Icons(new Vector2D(GlobalVars.dpad2_centerX + 15, GlobalVars.dpad_centerY - 5),40,1,3);
+        this.iconCancel_player1    = new Icons(new Vector2D(GlobalVars.dpad2_centerX + 15, GlobalVars.dpad_centerY - 5),40,"x",2);
+        if(this.PlayerId != 1) this.iconCancel_player1.updateSee(false);
+
+        //Esquerda - player 2 
+        this.layoutSwitch_left     = new Layout(new Vector2D(GlobalVars.dpad2_centerX - GlobalVars.dpad2_offsetX * 1.8, GlobalVars.dpad_centerY + GlobalVars.offset),60,2,1);
+        this.iconSwitch_ArrowLeft  = new Icons(new Vector2D(GlobalVars.dpad2_centerX - GlobalVars.dpad2_offsetX + GlobalVars.icon_offset, GlobalVars.dpad_centerY + 110), 30,"left",0);                
+        this.CharacterIcon_Left    = new Icons(new Vector2D(GlobalVars.dpad2_centerX - 95, GlobalVars.dpad_centerY + GlobalVars.offset + 15),40,2,3);
+        this.iconCancel_player2    = new Icons(new Vector2D(GlobalVars.dpad2_centerX - 95, GlobalVars.dpad_centerY + GlobalVars.offset + 15),40,"x",2);
+        if(this.PlayerId != 2) this.iconCancel_player2.updateSee(false);
+
+        //Direita - player 4
+        this.layoutSwitch_Right    = new Layout(new Vector2D(GlobalVars.dpad2_centerX + GlobalVars.dpad2_offsetX * 2, GlobalVars.dpad_centerY + GlobalVars.offset),60,4,1);
+        this.iconSwitch_ArrowRight = new Icons(new Vector2D(GlobalVars.dpad2_centerX + GlobalVars.dpad2_offsetX + GlobalVars.icon_offset, GlobalVars.dpad_centerY + 110), 30, "right",0);                
+        this.CharacterIcon_Right   = new Icons(new Vector2D(GlobalVars.dpad2_centerX + 125, GlobalVars.dpad_centerY + GlobalVars.offset + 15),40,4,3);
+        this.iconCancel_player4    = new Icons(new Vector2D(GlobalVars.dpad2_centerX + 125, GlobalVars.dpad_centerY + GlobalVars.offset + 15),40,"x",2);
+        if(this.PlayerId != 4) this.iconCancel_player4.updateSee(false);
+
+        this.updateSwtichDesign();
+
     }
 
     #setAction(name) {
@@ -116,7 +148,7 @@ export default class Player extends GameObject {
         this.texture.flipX = mouseX < CenterX;
     }
 
-    #move() {        
+    #move() {
         let direction = Vector2D.zero();
         let moving    = false;    
 
@@ -154,21 +186,67 @@ export default class Player extends GameObject {
         }        
     }
 
-    switchPlayer(setCurrent = false){        
+    switchPlayer(setCurrent = false) {
         this.currentPlayer = setCurrent;
+
+        this.updateSwtichDesign();
     }    
 
-    update(deltaTime) {        
+    updateSwtichDesign(cansee = false) {
+        this.switchMode = cansee;
+        
+        this.iconSwitch_center.updateSee(!cansee);       
+
+        //Cima
+        this.iconSwitch_ArrowUp.updateSee(cansee);
+        this.layoutSwitch_up.updateSee(cansee);
+        this.CharacterIcon_Up.updateSee(cansee);
+        if(this.PlayerId == 1) this.iconCancel_player1.updateSee(cansee);
+
+        //Esquerda
+        this.iconSwitch_ArrowLeft.updateSee(cansee);
+        this.layoutSwitch_left.updateSee(cansee);
+        this.CharacterIcon_Left.updateSee(cansee);
+        if(this.PlayerId == 2) this.iconCancel_player2.updateSee(cansee);
+
+        //Direita
+        this.iconSwitch_ArrowRight.updateSee(cansee);
+        this.layoutSwitch_Right.updateSee(cansee);
+        this.CharacterIcon_Right.updateSee(cansee);
+        if(this.PlayerId == 4) this.iconCancel_player4.updateSee(cansee);
+    }
+
+    update(deltaTime) {
+        if(!this.currentPlayer){
+            if(this.loadingHB_potion.loading) this.loadingHB_potion.updateIconTimer() //poção
+            if(this.loadingHB_up.loading)     this.loadingHB_up.updateIconTimer()     //habilidade rapida
+            if(this.loadingHB_right.loading)  this.loadingHB_right.updateIconTimer()  //arma
+            if(this.loadingHB_left.loading)   this.loadingHB_left.updateIconTimer()   //Habilidade 1
+            if(this.loadingHB_down.loading)   this.loadingHB_down.updateIconTimer()   //Habilidade 2
+
+            return;
+        }
+
         this.Mousedot.setMousePos(this.mouse.x, this.mouse.y);
 
         //Prioridade - MOUSE
         this.#updateFacing();
 
-        if(!this.keyboard.isKey("AltLeft") == KeysState.PRESSED){
+        //Player Swtich            
+        if(!this.keyboard.isKey("AltLeft") == KeysState.PRESSED && !this.keyboard.isKey("AltRight") == KeysState.PRESSED){
             this.#move();                                
             this.currentAnim.update(deltaTime);  
+            this.updateSwtichDesign()
+        } else {                            
+            this.updateSwtichDesign(true);
         }
 
+        if(this.switchMode){
+            this.layoutSwitch_up.updateIcon();
+            this.layoutSwitch_left.updateIcon();
+            this.layoutSwitch_Right.updateIcon();
+        }
+                
         //=== / MENU / ===
         if(this.keyboard.isKey("Escape") == KeysState.CLICKED){
             console.log('entra');            
@@ -212,7 +290,7 @@ export default class Player extends GameObject {
             }
         }
 
-        //Update        
+        //Update       
         this.layoutHB_up.updateIcon();
         if(this.loadingHB_up.loading){
             this.loadingHB_up.updateIconTimer()
@@ -292,7 +370,7 @@ export default class Player extends GameObject {
     }
 
     /** @param {CanvasRenderingContext2D} ctx */
-    draw(ctx, hudctx) {                    
+    draw(ctx, hudctx) {
         this.hitbox.draw(ctx);
         this.currentAnim.draw(ctx, this.position);      
         
@@ -332,7 +410,31 @@ export default class Player extends GameObject {
         this.layoutHB_down.draw(hudctx); 
         this.iconHB_down.draw(hudctx);       
         this.loadingHB_down.draw(hudctx);   
-        
+
+        //Player Switch
+        //Centro
+        this.iconSwitch_center.draw(hudctx);
+        this.layoutSwitch_center.draw(hudctx);
+        this.CharacterIcon_Center.draw(hudctx);
+
+        //Cima
+        this.iconSwitch_ArrowUp.draw(hudctx);
+        this.layoutSwitch_up.draw(hudctx);
+        this.CharacterIcon_Up.draw(hudctx);
+        this.iconCancel_player1.draw(hudctx);
+
+        //Esquerda
+        this.iconSwitch_ArrowLeft.draw(hudctx);
+        this.layoutSwitch_left.draw(hudctx);
+        this.CharacterIcon_Left.draw(hudctx);
+        this.iconCancel_player2.draw(hudctx);
+
+        //Direita
+        this.iconSwitch_ArrowRight.draw(hudctx);
+        this.layoutSwitch_Right.draw(hudctx);
+        this.CharacterIcon_Right.draw(hudctx);
+        this.iconCancel_player4.draw(hudctx);
+
         //MOUSE
         this.Mousedot.draw(hudctx);
     }

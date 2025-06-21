@@ -22,11 +22,26 @@ const UtilityIcon_type = {
 };
 
 const Key_type = {
+    //GERAIS
+    'a': {x:1  ,y:33 ,sW: 14,sH: 13},    
+    's': {x:17 ,y:33 ,sW: 14,sH: 13},
+    'd': {x:33 ,y:33 ,sW: 14,sH: 13},
+    'w': {x:17 ,y:17 ,sW: 14,sH: 13},
     'q': {x:1  ,y:17 ,sW: 14,sH: 13},
     'e': {x:33 ,y:17 ,sW: 14,sH: 13},
     'z': {x:81 ,y:17 ,sW: 14,sH: 13},
     'x': {x:17 ,y:49 ,sW: 14,sH: 13},
-    'v': {x:49 ,y:49 ,sW: 14,sH: 13}    
+    'v': {x:49 ,y:49 ,sW: 14,sH: 13},
+
+    //ESPECIFICOS
+    'alt': {x:17 ,y:65 ,sW: 14,sH: 13},  
+    'esc': {x:97 ,y:65 ,sW: 14,sH: 13},    
+
+    //D-PAD
+    'up':    {x:113 ,y:65 ,sW: 14,sH: 13}, 
+    'down':  {x:113 ,y:81 ,sW: 14,sH: 13}, 
+    'left':  {x:97 ,y:81 ,sW: 14,sH: 13}, 
+    'right': {x:129 ,y:81 ,sW: 14,sH: 13}
 };
 
 /*
@@ -64,10 +79,11 @@ const icons = {
     '2-wp-2': {x: 64,y: 3392,sW: 32,sH: 32},  //Arco   - player 2
 
     '4-wp-1': {x: 96,y: 3360,sW: 32,sH: 32},  //Espada - player 4
-    '4-wp-2': {x: 417,y: 3584,sW: 32,sH: 32},  //Arco   - player 4    
+    '4-wp-2': {x: 417,y: 3584,sW: 32,sH: 32}, //Arco   - player 4    
 
     //UTILIDADES
-    'x' : {x: 479,y: 1279,sW: 32,sH: 32} //X
+    'x': {x: 479,y: 1279,sW: 32,sH: 32},  //X
+    'switch': {x: 415,y: 0,sW: 32,sH: 32} //Jogadores
 };
 
 const playerIcon = {
