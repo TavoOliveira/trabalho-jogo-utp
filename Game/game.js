@@ -27,20 +27,24 @@ export default class Game {
         this.HUDCanvas.width  = this.width;
         this.HUDCanvas.height = this.height;
 
+        //Inputs
         this.keyboard = new Keyboard();
         this.mouse    = new Mouse();  
 
+        //PLayers
         this.sharedPosition = new Vector2D(this.width / 2, this.height / 2);
-        
+                
         this.player1 = new Player(new Texture("Game/Assets/global.png"), this.sharedPosition, this.keyboard,this.mouse,1);
         this.player2 = new Player(new Texture("Game/Assets/global.png"), this.sharedPosition, this.keyboard,this.mouse,2);
         this.player4 = new Player(new Texture("Game/Assets/global.png"), this.sharedPosition, this.keyboard,this.mouse,4);
-
         this.player1.switchPlayer(true);
 
+        //inimgos
         this.enemy = new Enemy(null, new Vector2D(100, 100));
 
-        this.camera = new Camera(new Vector2D(0,0).position, 4);
+        //minimapa e camera
+        this.camera    = new Camera(new Vector2D(0,0).position, 3);
+        this.minMapCam = new Camera(new Vector2D(0,0).position, 2);
 
         this.tilemap = null;
 
@@ -51,15 +55,11 @@ export default class Game {
 
         this.lastTime = 0;
 
+        window.addEventListener('resize', () => this.onResize());
+
         this.loop(0);             
     }
-
-    clearSwitches(refChar){
-        this.player1.switchPlayer(refChar == 1 ? true : false);
-        this.player2.switchPlayer(refChar == 2 ? true : false);
-        this.player4.switchPlayer(refChar == 4 ? true : false);
-    }
-
+    
     loop(timestamp) {
         if (!this.lastTime) this.lastTime = timestamp;
 
@@ -91,35 +91,78 @@ export default class Game {
     }    
 
     /** @param {CanvasRenderingContext2D} ctx */
-    draw(ctx, hudctx) {                        
+    draw(ctx, hudctx) {
+        //=== LIMPA TELA PRINCIPAL ===
         ctx.clearRect(0, 0, this.width, this.height);
         ctx.fillStyle = "black";
         ctx.fillRect(0, 0, this.width, this.height);        
 
         hudctx.clearRect(0,0,this.width,this.height)
 
+        //=== CAMERA PRINCIPAL ===
         this.camera.setPosition(this.currentPlayer.position);
         this.camera.applyTransform(ctx, this.canvas);        
 
         if (this.tilemap != null)
             this.tilemap.draw(ctx); 
-        
-        if(this.player1.currentPlayer)
-            this.player1.draw(ctx,hudctx);
-        else if(this.player2.currentPlayer)
-            this.player2.draw(ctx,hudctx);
-        else if(this.player4.currentPlayer)
-            this.player4.draw(ctx,hudctx);
-        
+
+        this.currentPlayer.draw(ctx, hudctx);        
         this.enemy.draw(ctx);        
 
         this.camera.resetTransform(ctx, this.canvas);    
+
+        //=== MINIMAPA ===
+        this.adjustmentMinimap(hudctx);
     }
 
+    //utilidades
     get currentPlayer() {
         if (this.player1.currentPlayer) return this.player1;
         if (this.player2.currentPlayer) return this.player2;
         if (this.player4.currentPlayer) return this.player4;
         return this.player1;  // padrão inicial
     }    
+
+    adjustmentMinimap(ctx){        
+        /*const minimapX    = this.currentPlayer.MinimapLayout.position.x;
+        const minimapY    = this.currentPlayer.MinimapLayout.position.y;
+        const minimapSize = 250;        
+            
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(minimapX, minimapY, minimapSize, minimapSize);
+        ctx.clip();
+        ctx.translate(minimapX, minimapY);*/
+
+        this.minMapCam.setPosition(this.camera.position);
+        this.minMapCam.applyTransform(ctx, this.canvas);
+
+        if (this.tilemap != null)
+            this.tilemap.draw(ctx);        
+
+        this.minMapCam.resetTransform(ctx, this.canvas);
+        ctx.restore();
+    }
+
+    clearSwitches(refChar){
+        this.player1.switchPlayer(refChar == 1 ? true : false);
+        this.player2.switchPlayer(refChar == 2 ? true : false);
+        this.player4.switchPlayer(refChar == 4 ? true : false);
+    }
+
+    onResize(){
+        this.width  = document.documentElement.clientWidth;
+        this.height = document.documentElement.clientHeight;
+
+        this.canvas.width  = this.width;
+        this.canvas.height = this.height;
+
+        this.HUDCanvas.width  = this.width;
+        this.HUDCanvas.height = this.height;
+
+        this.player1.onResizeHUD(this.width, this.height);
+        this.player2.onResizeHUD(this.width, this.height);
+        this.player4.onResizeHUD(this.width, this.height);
+    }
+
 }

@@ -61,7 +61,10 @@ export default class Player extends GameObject {
         this.CharacterLayout = new Layout(new Vector2D(global_width * 0.01, global_height * 0.02), 70, this.PlayerId, 1);
         this.CharacterIcon   = new Icons(new Vector2D(global_width * 0.015, global_height * 0.035), 50, this.PlayerId, 3);
         this.HealthBar       = new HealthBar(new Vector2D(global_width * 0.07, global_height * 0.01), this.PlayerId);                
-        this.XPBar           = new XPBar(new Vector2D(global_width * 0.07, global_height * 0.08),this.LevelId,this.XPNum);         
+        this.XPBar           = new XPBar(new Vector2D(global_width * 0.07, global_height * 0.08),this.LevelId,this.XPNum);
+        
+        this.MinimapLayout      = new Layout(new Vector2D(global_width * 0.8, global_height * 0.04), 250, `m-${this.PlayerId}`, 0);
+        this.minimapCenter_icon = new Icons(new Vector2D((global_width * 0.8) + (250 / 2) - 15, (global_height * 0.04) + (250 / 2) - 15), 30, 'map-icon', 2);        
                 
         //Barra Inferior
 
@@ -186,36 +189,6 @@ export default class Player extends GameObject {
         }        
     }
 
-    switchPlayer(setCurrent = false) {
-        this.currentPlayer = setCurrent;
-
-        this.updateSwtichDesign();
-    }    
-
-    updateSwtichDesign(cansee = false) {
-        this.switchMode = cansee;
-        
-        this.iconSwitch_center.updateSee(!cansee);       
-
-        //Cima
-        this.iconSwitch_ArrowUp.updateSee(cansee);
-        this.layoutSwitch_up.updateSee(cansee);
-        this.CharacterIcon_Up.updateSee(cansee);
-        if(this.PlayerId == 1) this.iconCancel_player1.updateSee(cansee);
-
-        //Esquerda
-        this.iconSwitch_ArrowLeft.updateSee(cansee);
-        this.layoutSwitch_left.updateSee(cansee);
-        this.CharacterIcon_Left.updateSee(cansee);
-        if(this.PlayerId == 2) this.iconCancel_player2.updateSee(cansee);
-
-        //Direita
-        this.iconSwitch_ArrowRight.updateSee(cansee);
-        this.layoutSwitch_Right.updateSee(cansee);
-        this.CharacterIcon_Right.updateSee(cansee);
-        if(this.PlayerId == 4) this.iconCancel_player4.updateSee(cansee);
-    }
-
     update(deltaTime) {
         if(!this.currentPlayer){
             if(this.loadingHB_potion.loading) this.loadingHB_potion.updateIconTimer() //poção
@@ -252,7 +225,7 @@ export default class Player extends GameObject {
             console.log('entra');            
         }        
         
-        //Barra superior
+        //Barra superior        
         this.CharacterLayout.updateIcon();  
         
         //=== / Poção de cura / ===
@@ -375,10 +348,12 @@ export default class Player extends GameObject {
         this.currentAnim.draw(ctx, this.position);      
         
         //VIDA e XP - barrra superior
+        this.MinimapLayout.draw(hudctx);
+        this.minimapCenter_icon.draw(hudctx);
         this.CharacterLayout.draw(hudctx);
         this.CharacterIcon.draw(hudctx);
         this.HealthBar.draw(hudctx);        
-        this.XPBar.draw(hudctx);
+        this.XPBar.draw(hudctx);        
         
         // Poção de cura
         this.icon_potion.draw(hudctx);
@@ -438,4 +413,100 @@ export default class Player extends GameObject {
         //MOUSE
         this.Mousedot.draw(hudctx);
     }
+
+    //utilidades
+    switchPlayer(setCurrent = false) {
+        this.currentPlayer = setCurrent;
+
+        this.updateSwtichDesign();
+    }    
+
+    updateSwtichDesign(cansee = false) {
+        this.switchMode = cansee;
+        
+        this.iconSwitch_center.updateSee(!cansee);       
+
+        //Cima
+        this.iconSwitch_ArrowUp.updateSee(cansee);
+        this.layoutSwitch_up.updateSee(cansee);
+        this.CharacterIcon_Up.updateSee(cansee);
+        if(this.PlayerId == 1) this.iconCancel_player1.updateSee(cansee);
+
+        //Esquerda
+        this.iconSwitch_ArrowLeft.updateSee(cansee);
+        this.layoutSwitch_left.updateSee(cansee);
+        this.CharacterIcon_Left.updateSee(cansee);
+        if(this.PlayerId == 2) this.iconCancel_player2.updateSee(cansee);
+
+        //Direita
+        this.iconSwitch_ArrowRight.updateSee(cansee);
+        this.layoutSwitch_Right.updateSee(cansee);
+        this.CharacterIcon_Right.updateSee(cansee);
+        if(this.PlayerId == 4) this.iconCancel_player4.updateSee(cansee);
+    }
+
+    onResizeHUD(newWidth, newHeight) {
+        GlobalVars.updateVars(newWidth, newHeight);
+
+        // Atualiza HUD barra superior        
+        this.CharacterLayout.position.set(newWidth * 0.01, newHeight * 0.02);
+        this.CharacterIcon.position.set(newWidth * 0.015, newHeight * 0.035);
+        this.HealthBar.position.set(newWidth * 0.07, newHeight * 0.01);
+        this.XPBar.position.set(newWidth * 0.07, newHeight * 0.08);
+
+        this.MinimapLayout.position.set(newWidth * 0.8, newHeight * 0.04);
+        this.minimapCenter_icon.position.set((newWidth * 0.8) + (250 / 2) - 15, (newHeight * 0.04) + (250 / 2) - 15);        
+
+        // Poção
+        this.layoutHB_potion.position.set(GlobalVars.potionX, GlobalVars.potionY);
+        this.icon_potion.position.set(GlobalVars.potionX + GlobalVars.potionIconOffset, GlobalVars.potionY - 30);
+        this.iconHB_potion.position.set(GlobalVars.potionX + GlobalVars.potionOffset, GlobalVars.potionY + GlobalVars.potionOffset);
+        this.iconCancel_potion.position.set(GlobalVars.potionX + GlobalVars.potionOffset, GlobalVars.potionY + GlobalVars.potionOffset);
+        this.loadingHB_potion.position.set(GlobalVars.potionX + GlobalVars.potionOffset, GlobalVars.potionY + GlobalVars.potionOffset);
+
+        // D-Pad principal
+        this.layoutHB_up.position.set(GlobalVars.dpad_centerX, GlobalVars.dpad_centerY - GlobalVars.offset);
+        this.layoutHB_down.position.set(GlobalVars.dpad_centerX, GlobalVars.dpad_centerY + GlobalVars.offset);
+        this.layoutHB_left.position.set(GlobalVars.dpad_centerX - GlobalVars.offset, GlobalVars.dpad_centerY);
+        this.layoutHB_right.position.set(GlobalVars.dpad_centerX + GlobalVars.offset, GlobalVars.dpad_centerY);
+
+        this.icon_up.position.set(GlobalVars.dpad_centerX + GlobalVars.icon_offset, GlobalVars.dpad_centerY - GlobalVars.offset - GlobalVars.icon_vertical_spacing);
+        this.icon_down.position.set(GlobalVars.dpad_centerX + GlobalVars.icon_offset, GlobalVars.dpad_centerY + GlobalVars.offset - GlobalVars.icon_vertical_spacing);
+        this.icon_left.position.set(GlobalVars.dpad_centerX - GlobalVars.offset + GlobalVars.icon_offset, GlobalVars.dpad_centerY - GlobalVars.icon_vertical_spacing);
+        this.icon_right.position.set(GlobalVars.dpad_centerX + GlobalVars.offset + GlobalVars.icon_offset, GlobalVars.dpad_centerY - GlobalVars.icon_vertical_spacing);
+
+        this.iconHB_up.position.set(GlobalVars.dpad_centerX + GlobalVars.loading_offset, GlobalVars.dpad_centerY - GlobalVars.offset + GlobalVars.loading_offset);
+        this.iconHB_down.position.set(GlobalVars.dpad_centerX + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.offset + GlobalVars.loading_offset);
+        this.iconHB_left.position.set(GlobalVars.dpad_centerX - GlobalVars.offset + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.loading_offset);
+        this.iconHB_right.position.set(GlobalVars.dpad_centerX + GlobalVars.offset + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.loading_offset);
+
+        this.loadingHB_up.position.set(GlobalVars.dpad_centerX + GlobalVars.loading_offset, GlobalVars.dpad_centerY - GlobalVars.offset + GlobalVars.loading_offset);
+        this.loadingHB_down.position.set(GlobalVars.dpad_centerX + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.offset + GlobalVars.loading_offset);
+        this.loadingHB_left.position.set(GlobalVars.dpad_centerX - GlobalVars.offset + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.loading_offset);
+        this.loadingHB_right.position.set(GlobalVars.dpad_centerX + GlobalVars.offset + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.loading_offset);
+
+        // Switch Center
+        this.layoutSwitch_center.position.set(GlobalVars.dpad2_centerX, GlobalVars.dpad_centerY + GlobalVars.offset);
+        this.iconSwitch_center.position.set(GlobalVars.dpad2_centerX + GlobalVars.icon_offset, GlobalVars.dpad_centerY + 90 - 40);
+        this.CharacterIcon_Center.position.set(GlobalVars.dpad2_centerX + 10, GlobalVars.dpad_centerY + 100);
+
+        // Switch Up - Player 1
+        this.layoutSwitch_up.position.set(GlobalVars.dpad2_centerX + 5, GlobalVars.dpad_centerY - GlobalVars.offset + 70);
+        this.iconSwitch_ArrowUp.position.set(GlobalVars.dpad2_centerX + GlobalVars.icon_offset, GlobalVars.dpad_centerY + 90 - 40);
+        this.CharacterIcon_Up.position.set(GlobalVars.dpad2_centerX + 15, GlobalVars.dpad_centerY - 5);
+        this.iconCancel_player1.position.set(GlobalVars.dpad2_centerX + 15, GlobalVars.dpad_centerY - 5);
+
+        // Switch Left - Player 2
+        this.layoutSwitch_left.position.set(GlobalVars.dpad2_centerX - GlobalVars.dpad2_offsetX * 1.8, GlobalVars.dpad_centerY + GlobalVars.offset);
+        this.iconSwitch_ArrowLeft.position.set(GlobalVars.dpad2_centerX - GlobalVars.dpad2_offsetX + GlobalVars.icon_offset, GlobalVars.dpad_centerY + 110);
+        this.CharacterIcon_Left.position.set(GlobalVars.dpad2_centerX - 95, GlobalVars.dpad_centerY + GlobalVars.offset + 15);
+        this.iconCancel_player2.position.set(GlobalVars.dpad2_centerX - 95, GlobalVars.dpad_centerY + GlobalVars.offset + 15);
+
+        // Switch Right - Player 4
+        this.layoutSwitch_Right.position.set(GlobalVars.dpad2_centerX + GlobalVars.dpad2_offsetX * 2, GlobalVars.dpad_centerY + GlobalVars.offset);
+        this.iconSwitch_ArrowRight.position.set(GlobalVars.dpad2_centerX + GlobalVars.dpad2_offsetX + GlobalVars.icon_offset, GlobalVars.dpad_centerY + 110);
+        this.CharacterIcon_Right.position.set(GlobalVars.dpad2_centerX + 125, GlobalVars.dpad_centerY + GlobalVars.offset + 15);
+        this.iconCancel_player4.position.set(GlobalVars.dpad2_centerX + 130, GlobalVars.dpad_centerY + GlobalVars.offset + 15);
+    }
+
 }

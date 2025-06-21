@@ -18,7 +18,13 @@ const UtilityIcon_type = {
     1: {x: 0,   y: 80}, //tipo - 1 - azul
     2: {x: 0,   y: 0},  //tipo - 2 - verde
     3: {x: 128, y: 0},  //tipo - 3 - Laranja
-    4: {x: 128, y: 80}  //tipo - 4 - roxo
+    4: {x: 128, y: 80}, //tipo - 4 - roxo
+
+    'm-1': {x: 64,  y: 80}, //minimapa tipo - 1 - azul
+    'm-2': {x: 64,  y: 0},  //minimapa tipo - 2 - verde
+    'm-3': {x: 192, y: 0},  //minimapa tipo - 3 - Laranja
+    'm-4': {x: 192, y: 80}  //minimapa tipo - 4 - roxo
+
 };
 
 const Key_type = {
@@ -82,8 +88,9 @@ const icons = {
     '4-wp-2': {x: 417,y: 3584,sW: 32,sH: 32}, //Arco   - player 4    
 
     //UTILIDADES
-    'x': {x: 479,y: 1279,sW: 32,sH: 32},  //X
-    'switch': {x: 415,y: 0,sW: 32,sH: 32} //Jogadores
+    'x': {x: 479,y: 1279,sW: 32,sH: 32},    //X
+    'switch': {x: 415,y: 0,sW: 32,sH: 32},  //Jogadores
+    'map-icon': {x: 128,y: 0,sW: 32,sH: 32} //Jogador no minimapa
 };
 
 const playerIcon = {
