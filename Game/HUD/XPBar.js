@@ -61,15 +61,17 @@ export default class XPBar {
 
         this.xptexture.draw(ctx, this.position.x, this.position.y, 200, 40, this.startX, this.bartype, 18, 6);
 
-        ctx.font = "2rem MONOGRAM";
-        ctx.fillStyle = "white";
-        ctx.textBaseline = "top";
-        ctx.fillText(`Level ${this.levelId}`, this.position.x + 210, this.position.y + 2);
+        if(ctx != null){
+            ctx.font = "2rem MONOGRAM";
+            ctx.fillStyle = "white";
+            ctx.textBaseline = "top";
+            ctx.fillText(`Level ${this.levelId}`, this.position.x + 210, this.position.y + 2);
 
-        let xpNeeded = this.getXPNeededForLevel(this.levelId);
-        let percent  = Math.floor((this.xpnum / xpNeeded) * 100);
+            let xpNeeded = this.getXPNeededForLevel(this.levelId);
+            let percent  = Math.floor((this.xpnum / xpNeeded) * 100);
 
-        ctx.font = "1.25rem MONOGRAM";
-        ctx.fillText(`${percent}%`, this.position.x + 210, this.position.y + 30);
+            ctx.font = "1.25rem MONOGRAM";
+            ctx.fillText(`${percent}%`, this.position.x + 210, this.position.y + 30);
+        }
     }
 }

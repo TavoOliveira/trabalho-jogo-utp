@@ -99,20 +99,24 @@ export default class Game {
 
         hudctx.clearRect(0,0,this.width,this.height)
 
-        //=== MINIMAPA ===
-        this.adjustmentMinimap(ctx);
+        //=== PREENCHE O FUNDO DO MINIMAPA ===
+        hudctx.fillStyle = "black";     
+        hudctx.fillRect(this.currentPlayer.MinimapLayout.position.x,this.currentPlayer.MinimapLayout.position.y,250,250)             
 
         //=== CAMERA PRINCIPAL ===
         this.camera.setPosition(this.currentPlayer.position);
-        this.camera.applyTransform(ctx, this.canvas);        
+        this.camera.applyTransform(ctx, this.canvas.width, this.canvas.height);                  
 
         if (this.tilemap != null)
-            this.tilemap.draw(ctx); 
+            this.tilemap.draw(ctx);         
 
         this.currentPlayer.draw(ctx, hudctx);        
-        this.enemy.draw(ctx);        
+        this.enemy.draw(ctx);                      
 
-        this.camera.resetTransform(ctx, this.canvas);            
+        this.camera.resetTransform(ctx, this.canvas.width, this.canvas.height);    
+
+        //=== MINIMAPA ===
+        this.adjustmentMinimap(hudctx);          
     }
 
     //utilidades
@@ -123,22 +127,34 @@ export default class Game {
         return this.player1;  // padrão inicial
     }    
 
-    adjustmentMinimap(ctx){        
-        const minimapX    = this.currentPlayer.MinimapLayout.position.x;
-        const minimapY    = this.currentPlayer.MinimapLayout.position.y;            
-                        
-        this.minMapCam.setPosition(this.currentPlayer.position); 
+    adjustmentMinimap(ctx) {
+        const minimapX      = this.currentPlayer.MinimapLayout.position.x;
+        const minimapY      = this.currentPlayer.MinimapLayout.position.y;            
+        const minimapOffset = 250 - 32; //tamanho do mapa - tamanho da animação do player
 
-        ctx.translate(minimapX, minimapY);
-        ctx.scale(this.minMapCam.zoom,this.minMapCam.zoom);
-        ctx.translate(-this.minMapCam.position.x, -this.minMapCam.position.y);               
+        ctx.save();
+        
+        ctx.beginPath();
+        ctx.rect(minimapX, minimapY, minimapOffset, minimapOffset);
+        ctx.clip();
+
+        ctx.translate(minimapX, minimapY);        
+        
+        this.minMapCam.setPosition(this.currentPlayer.position);
+
+        this.minMapCam.applyTransform(ctx, minimapOffset, minimapOffset);
 
         if (this.tilemap != null)
-            this.tilemap.draw(ctx);                
+            this.tilemap.draw(ctx);
 
-        ctx.translate(this.minMapCam.position.x, this.minMapCam.position.y);
-        ctx.scale(1 / this.minMapCam.zoom, 1 / this.minMapCam.zoom);
-        ctx.translate(-minimapX, -minimapY);        
+        /*this.player1.drawWorld(ctx);
+        this.player2.drawWorld(ctx);
+        this.player4.drawWorld(ctx);*/
+        this.enemy.draw(ctx);
+
+        this.minMapCam.resetTransform(ctx, minimapOffset, minimapOffset);
+
+        ctx.restore();
     }
 
     clearSwitches(refChar){

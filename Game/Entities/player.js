@@ -414,6 +414,11 @@ export default class Player extends GameObject {
         this.Mousedot.draw(hudctx);
     }
 
+    drawWorld(ctx) {
+        this.hitbox.draw(ctx);
+        this.currentAnim.draw(ctx, this.position);
+    }
+
     //utilidades
     switchPlayer(setCurrent = false) {
         this.currentPlayer = setCurrent;
