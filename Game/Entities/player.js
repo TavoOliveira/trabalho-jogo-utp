@@ -124,7 +124,7 @@ export default class Player extends GameObject {
         this.layoutSwitch_Right    = new Layout(new Vector2D(GlobalVars.dpad2_centerX + GlobalVars.dpad2_offsetX * 2, GlobalVars.dpad_centerY + GlobalVars.offset),60,4,1);
         this.iconSwitch_ArrowRight = new Icons(new Vector2D(GlobalVars.dpad2_centerX + GlobalVars.dpad2_offsetX + GlobalVars.icon_offset, GlobalVars.dpad_centerY + 110), 30, "right",0);                
         this.CharacterIcon_Right   = new Icons(new Vector2D(GlobalVars.dpad2_centerX + 125, GlobalVars.dpad_centerY + GlobalVars.offset + 15),40,4,3);
-        this.iconCancel_player4    = new Icons(new Vector2D(GlobalVars.dpad2_centerX + 125, GlobalVars.dpad_centerY + GlobalVars.offset + 15),40,"x",2);
+        this.iconCancel_player4    = new Icons(new Vector2D(GlobalVars.dpad2_centerX + 130, GlobalVars.dpad_centerY + GlobalVars.offset + 15),40,"x",2);
         if(this.PlayerId != 4) this.iconCancel_player4.updateSee(false);
 
         this.updateSwtichDesign();
