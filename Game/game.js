@@ -44,7 +44,7 @@ export default class Game {
 
         //minimapa e camera
         this.camera    = new Camera(new Vector2D(0,0).position, 3);
-        this.minMapCam = new Camera(new Vector2D(0,0).position, 2);
+        this.minMapCam = new Camera(new Vector2D(0,0).position, 1);
 
         this.tilemap = null;
 
@@ -99,6 +99,9 @@ export default class Game {
 
         hudctx.clearRect(0,0,this.width,this.height)
 
+        //=== MINIMAPA ===
+        this.adjustmentMinimap(ctx);
+
         //=== CAMERA PRINCIPAL ===
         this.camera.setPosition(this.currentPlayer.position);
         this.camera.applyTransform(ctx, this.canvas);        
@@ -109,10 +112,7 @@ export default class Game {
         this.currentPlayer.draw(ctx, hudctx);        
         this.enemy.draw(ctx);        
 
-        this.camera.resetTransform(ctx, this.canvas);    
-
-        //=== MINIMAPA ===
-        this.adjustmentMinimap(hudctx);
+        this.camera.resetTransform(ctx, this.canvas);            
     }
 
     //utilidades
@@ -124,24 +124,21 @@ export default class Game {
     }    
 
     adjustmentMinimap(ctx){        
-        /*const minimapX    = this.currentPlayer.MinimapLayout.position.x;
-        const minimapY    = this.currentPlayer.MinimapLayout.position.y;
-        const minimapSize = 250;        
-            
-        ctx.save();
-        ctx.beginPath();
-        ctx.rect(minimapX, minimapY, minimapSize, minimapSize);
-        ctx.clip();
-        ctx.translate(minimapX, minimapY);*/
+        const minimapX    = this.currentPlayer.MinimapLayout.position.x;
+        const minimapY    = this.currentPlayer.MinimapLayout.position.y;            
+                        
+        this.minMapCam.setPosition(this.currentPlayer.position); 
 
-        this.minMapCam.setPosition(this.camera.position);
-        this.minMapCam.applyTransform(ctx, this.canvas);
+        ctx.translate(minimapX, minimapY);
+        ctx.scale(this.minMapCam.zoom,this.minMapCam.zoom);
+        ctx.translate(-this.minMapCam.position.x, -this.minMapCam.position.y);               
 
         if (this.tilemap != null)
-            this.tilemap.draw(ctx);        
+            this.tilemap.draw(ctx);                
 
-        this.minMapCam.resetTransform(ctx, this.canvas);
-        ctx.restore();
+        ctx.translate(this.minMapCam.position.x, this.minMapCam.position.y);
+        ctx.scale(1 / this.minMapCam.zoom, 1 / this.minMapCam.zoom);
+        ctx.translate(-minimapX, -minimapY);        
     }
 
     clearSwitches(refChar){
