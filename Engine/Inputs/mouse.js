@@ -5,6 +5,17 @@ export default class Mouse {
     this.isLeft = false;
     this.isRight = false;
 
+    this.scrollUp = false;
+    this.scrollDown = false;
+
+    window.addEventListener('wheel', e => {
+      if (e.deltaY < 0) {
+        this.scrollUp = true;
+      } else if (e.deltaY > 0) {
+        this.scrollDown = true;
+      }
+    });
+
     window.addEventListener('mousedown', e => {
       if (e.button === 0) {
         this.isLeft = true;
@@ -56,5 +67,10 @@ export default class Mouse {
       return this.isOver(obj) && this.isRight;   
     else
       return false;
+  }
+
+  resetScroll() {
+    this.scrollUp = false;
+    this.scrollDown = false;
   }
 }

@@ -35,6 +35,7 @@ const Key_type = {
     'w': {x:17 ,y:17 ,sW: 14,sH: 13},
     'q': {x:1  ,y:17 ,sW: 14,sH: 13},
     'e': {x:33 ,y:17 ,sW: 14,sH: 13},
+    'r': {x:49 ,y:17 ,sW: 14,sH: 13},
     'z': {x:81 ,y:17 ,sW: 14,sH: 13},
     'x': {x:17 ,y:49 ,sW: 14,sH: 13},
     'v': {x:49 ,y:49 ,sW: 14,sH: 13},
@@ -75,7 +76,7 @@ const icons = {
     //ITEMS
     'hpt': {x: 448,y: 1887,sW: 32,sH: 32}, //Poção de cura
 
-    //ARMADURAS
+    //ARMADURAS    
 
     //ARMAS
     '1-wp-1': {x: 160,y: 3328,sW: 32,sH: 32}, //Espada - player 1
@@ -94,21 +95,45 @@ const icons = {
 };
 
 const menus_positions = {
-    'menu-1': {x: 128,y: 131,sW: 64,sH: 76}, //Menu 1
+    'menu-1': {x: 128,y: 131,sW: 64,sH: 76},   //Menu 1
+    'slotMenu-1': {x: 136,y: 3,sW: 96,sH: 60}, //Menu 1 - slots
 
     'mn-btn-style-0': {x: 70,y: 234,sW: 52,sH: 15}, //Botão de start/play - não clicado
     'mn-btn-style-1': {x: 6,y: 234,sW: 52,sH: 15},  //Botão de start/play - clicado
+
+    'icon-select-0': {x: 198,y: 132,sW: 24,sH: 25}, //Icon para o inventario
+    'icon-select-1': {x: 198,y: 196,sW: 24,sH: 25}, //Icon para o inventario
 }
 
 const inventPositions = {
+    'slots-1':    {x: 252,y: 0,sW: 75,sH: 75},  //slots - cinza
+    'slot-1':     {x: 224,y: 79,sW: 24,sH: 24}, //1 slot - cinza
+    'slotPack-1': {x: 224,y: 0,sW: 24,sH: 75},  //4 slot - cinza
 
+    'slots-2': {x: 476,y: 0,sW: 75,sH: 75}, //slots - branco
+    'slots-3': {x: 364,y: 0,sW: 75,sH: 75}, //slots - marrom
+    'slots-4': {x: 140,y: 0,sW: 75,sH: 75}, //slots - marrom
 }
 
-const playerIcon = {
+const customIcons = {
     1: {x: 28,y: 4,sW: 15,sH: 12},
     2: {x: 0,y: 0,sW: 27,sH: 21},
     3: {x: 0,y: 0,sW: 0,sH: 0},
     4: {x: 48,y: 4,sW: 13,sH: 12},
+
+    'bd-1': {x: 31,y: 38,sW: 15,sH: 18},
+    'bd-2': {x: 0,y: 26,sW: 30,sH: 31},
+    'bd-3': {x: 0,y: 0,sW: 0,sH: 0},
+    'bd-4': {x: 47,y: 24,sW: 28,sH: 33},
+    
+    'null-H': {x: 38,y: 70,sW: 20,sH: 24 }, //Armadura Nula - cabeça
+    'null-T': {x: 98,y: 70,sW: 28,sH: 24},  //Armadura Nula - torso
+    'null-B': {x: 67,y: 69,sW: 26,sH: 26},  //Armadura Nula - botas
+    'null-C': {x: 3,y: 68,sW: 24,sH: 24},   //Armadura Nula - colar  
+    
+    'part-1': {x: 67,y: 4,sW: 27,sH: 12 },  //parte 1 do avião
+    'part-2': {x: 95,y: 1,sW: 33,sH: 15 },  //parte 2 do avião
+    'part-3': {x: 131,y: 0,sW: 28,sH: 21 }, //parte 3 do avião
 }
 
 const dots_Id = { 
@@ -119,4 +144,4 @@ const dots_Id = {
     4: "/Game/Assets/HUD/mouseIcons/purple_dots.png",                           
 }
 
-export default {UtilityIcon_type,bar_type,Key_type,dots_Id,XP_BarLevel,icons,playerIcon,menus_positions,inventPositions};
+export default {UtilityIcon_type,bar_type,Key_type,dots_Id,XP_BarLevel,icons,customIcons,menus_positions,inventPositions};

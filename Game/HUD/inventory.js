@@ -1,6 +1,6 @@
 export default class Inventory {
 	constructor() {
-		this.itemSet = [];
+		this.itemSet = [{keyID:"part-1",textureId:3},{keyID:"part-2",textureId:3},{keyID:"part-3",textureId:3},{keyID:"4-wp-2",textureId:2}];
 	}
 
 	/**

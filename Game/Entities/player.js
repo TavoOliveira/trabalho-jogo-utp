@@ -64,7 +64,7 @@ export default class Player extends GameObject {
         
         // MENUS
         this.mainMenu      = new menu(new Vector2D((global_width / 2) - 200,(global_height / 2) - 250),new Vector2D(350,500));
-        this.InventoryMenu = new InventoryMenu(new Vector2D((global_width / 2) - 600,(global_height / 2) - 300),new Vector2D(1200,600));
+        this.InventoryMenu = new InventoryMenu(new Vector2D((global_width / 2) - 650,(global_height / 2) - 370),new Vector2D(1300,750),this.PlayerId);
 
         // HUD  
         this.Mousedot = new mouse_dots(new Texture(Enums.dots_Id[this.PlayerId]),35);   
@@ -241,7 +241,35 @@ export default class Player extends GameObject {
                 this.mainMenu.switchHover('btn3',false);
             } 
         } else if (this.InventoryMenu.cansee) { //Menu do inventario
+            const selectedRow = Math.floor(this.InventoryMenu.selectedSlotIndex / 4);
+            const visibleRows = 4; 
 
+            // Mantém visível
+            const scrollTarget = Math.max(0, (selectedRow - visibleRows + 1) * 79); 
+
+            this.InventoryMenu.scrollOffset = Math.min(scrollTarget, this.InventoryMenu.maxScroll);
+
+            this.InventoryMenu.updateIcons();
+            this.InventoryMenu.updateInventoryIcons(this.inventory);
+
+            if (this.keyboard.isKey("ArrowRight") == KeysState.CLICKED) {
+                this.InventoryMenu.selectedSlotIndex++;
+            }
+            if (this.keyboard.isKey("ArrowLeft") == KeysState.CLICKED) {
+                this.InventoryMenu.selectedSlotIndex--;
+            }
+            if (this.keyboard.isKey("ArrowDown") == KeysState.CLICKED) {
+                this.InventoryMenu.selectedSlotIndex += 4;
+            }
+            if (this.keyboard.isKey("ArrowUp") == KeysState.CLICKED) {
+                this.InventoryMenu.selectedSlotIndex -= 4;
+            }
+
+            const max = this.InventoryMenu.slotPositions.length - 1;
+            if (this.InventoryMenu.selectedSlotIndex < 0) this.InventoryMenu.selectedSlotIndex = 0;
+            if (this.InventoryMenu.selectedSlotIndex > max) this.InventoryMenu.selectedSlotIndex = max;
+
+            this.InventoryMenu.updateSelectionIcon();            
         }
 
         // === ATUALIZAÇÕES PRINCIPAIS ===
@@ -254,26 +282,28 @@ export default class Player extends GameObject {
 
             return;
         } else if(this.mainMenu.cansee && this.keyboard.isKey("Escape") != KeysState.CLICKED){
+            this.mouse.resetScroll();
+            this.keyboard.reset();
             return;                    
-        } else if(this.InventoryMenu.cansee && this.keyboard.isKey("KeyI") != KeysState.CLICKED){
+        } else if(this.InventoryMenu.cansee && (this.keyboard.isKey("KeyI") != KeysState.CLICKED && this.keyboard.isKey("Escape") != KeysState.CLICKED)){
+            this.mouse.resetScroll();
+            this.keyboard.reset();
             return;                    
         }             
 
-        // === MENU - PAUSA ===        
-        if(this.keyboard.isKey("Escape") == KeysState.CLICKED){
-            if(this.mainMenu.cansee)
-                this.mainMenu.updateSee(false);
-            else
-                this.mainMenu.updateSee(true);
-        }                
+        // === MENU - INVENTARIO  E PAUSA ===                  
+        if (this.InventoryMenu.cansee && this.keyboard.isKey("Escape") == KeysState.CLICKED) {
+            this.InventoryMenu.updateSee(false);
+        } else if (this.keyboard.isKey("KeyI") == KeysState.CLICKED) {
+            if (!this.isMenuBlocking('inventory')) {
+                this.InventoryMenu.updateSee(!this.InventoryMenu.cansee);
+            }
+        } else if (this.keyboard.isKey("Escape") == KeysState.CLICKED) {
+            if (!this.isMenuBlocking('pause')) {
+                this.mainMenu.updateSee(!this.mainMenu.cansee);
+            }
+        }                      
 
-        // === MENU - INVENTARIO ===
-        if(this.keyboard.isKey("KeyI") == KeysState.CLICKED){
-            if(this.InventoryMenu.cansee)
-                this.InventoryMenu.updateSee(false);
-            else
-                this.InventoryMenu.updateSee(true);
-        } 
         //Prioridade - MOUSE
         this.#updateFacing();        
 
@@ -406,6 +436,7 @@ export default class Player extends GameObject {
         if(this.live == 0)
             console.log('morte');  
         
+        this.mouse.resetScroll();
         this.keyboard.reset();
     }
 
@@ -491,6 +522,12 @@ export default class Player extends GameObject {
     }
 
     //utilidades
+    isMenuBlocking(input){
+        if(input == 'pause' && this.InventoryMenu.cansee) return true;
+        if(input == 'inventory' && this.mainMenu.cansee) return true;
+        return false;
+    }
+
     switchPlayer(setCurrent = false) {
         this.currentPlayer = setCurrent;
 
@@ -527,6 +564,9 @@ export default class Player extends GameObject {
         //Menus
         this.mainMenu.position.set(newWidth/2 - 200,newHeight/2 - 250);
         this.mainMenu.updateOnresize();
+
+        this.InventoryMenu.position.set(newWidth/2 - 650,newHeight/2 - 370);
+        this.InventoryMenu.updateOnresize();
 
         // Atualiza HUD barra superior        
         this.CharacterLayout.position.set(newWidth * 0.01, newHeight * 0.02);
