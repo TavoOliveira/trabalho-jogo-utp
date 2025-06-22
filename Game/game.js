@@ -50,11 +50,13 @@ export default class Game {
         this.camera    = new Camera(new Vector2D(0,0).position, 3);
         this.minMapCam = new Camera(new Vector2D(0,0).position, 0.3);        
 
-        this.tilemap = null;
+        this.tilemap     = null;
+        this.tilemapMini = null;
 
         JsonLoader.load("Game/Maps/teste.json")
         .then(data => {
-            this.tilemap = new TileMap(data);
+            this.tilemap     = new TileMap(data);
+            this.tilemapMini = new TileMap(data);;
         });
 
         this.lastTime = 0;
@@ -109,6 +111,9 @@ export default class Game {
         hudctx.fillStyle = "black";     
         hudctx.fillRect(this.currentPlayer.MinimapLayout.position.x,this.currentPlayer.MinimapLayout.position.y,250,250)             
 
+        //=== MINIMAPA ===
+        this.adjustmentMinimap(hudctx);          
+
         //=== CAMERA PRINCIPAL ===
         this.camera.setPosition(this.currentPlayer.position);
         this.camera.applyTransform(ctx, this.canvas.width, this.canvas.height);                  
@@ -119,10 +124,7 @@ export default class Game {
         this.currentPlayer.draw(ctx, hudctx);        
         this.enemy.draw(ctx);                      
 
-        this.camera.resetTransform(ctx, this.canvas.width, this.canvas.height);    
-
-        //=== MINIMAPA ===
-        this.adjustmentMinimap(hudctx);          
+        this.camera.resetTransform(ctx, this.canvas.width, this.canvas.height);            
     }
 
     //utilidades
@@ -150,8 +152,8 @@ export default class Game {
 
         this.minMapCam.applyTransform(ctx, minimapOffset, minimapOffset);
 
-        if (this.tilemap != null)
-            this.tilemap.draw(ctx);
+        if (this.tilemapMini != null)
+            this.tilemapMini.draw(ctx);
         
         this.enemy.draw(ctx);
 

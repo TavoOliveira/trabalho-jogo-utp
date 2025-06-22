@@ -37,7 +37,7 @@ export default class Player extends GameObject {
         super(texture, position);
         this.keyboard = keyboard;
         this.mouse    = mouse;
-        this.speed    = Vector2D.one(2);
+        this.speed    = Vector2D.one(5); //5 para testes
         this.moveDir  = Vector2D.zero();
 
         this.animations = {
