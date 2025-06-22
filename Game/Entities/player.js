@@ -9,6 +9,9 @@ import loadingicon from "../HUD/loadingIcon.js";
 import Enums from "../HUD/HUD-enums/HUD_Enums.js";
 import GlobalVars from "../HUD/HUD-Vars/HUDGlobalVars.js";
 
+//Menus gerais
+import menu from "../HUD/menu.js";
+
 //Util
 import Texture from "../../Engine/Utils/texture.js";
 import Vector2D from "../../Engine/Utils/vector2d.js";
@@ -51,6 +54,9 @@ export default class Player extends GameObject {
 
         this.live    = 5;                   
         
+        // MENUS
+        this.mainMenu = new menu(new Vector2D((global_width / 2) - 200,(global_height / 2) - 250),new Vector2D(350,500));
+
         // HUD  
         this.Mousedot = new mouse_dots(new Texture(Enums.dots_Id[this.PlayerId]),35);   
         
@@ -59,29 +65,29 @@ export default class Player extends GameObject {
         
         //Barra Superior
         this.CharacterLayout = new Layout(new Vector2D(global_width * 0.01, global_height * 0.02), 70, this.PlayerId, 1);
-        this.CharacterIcon   = new Icons(new Vector2D(global_width * 0.015, global_height * 0.035), 50, this.PlayerId, 3);
+        this.CharacterIcon   = new Icons(new Vector2D(global_width * 0.015, global_height * 0.035),new Vector2D(50,50), this.PlayerId, 3);
         this.HealthBar       = new HealthBar(new Vector2D(global_width * 0.07, global_height * 0.01), this.PlayerId);                
         this.XPBar           = new XPBar(new Vector2D(global_width * 0.07, global_height * 0.08),this.LevelId,this.XPNum);
         
         this.MinimapLayout      = new Layout(new Vector2D(global_width * 0.8, global_height * 0.04), 250, `m-${this.PlayerId}`, 0);
-        this.minimapCenter_icon = new Icons(new Vector2D((global_width * 0.8) + (250 / 2) - 15, (global_height * 0.04) + (250 / 2) - 15), 30, 'map-icon', 2);        
+        this.minimapCenter_icon = new Icons(new Vector2D((global_width * 0.8) + (250 / 2) - 15, (global_height * 0.04) + (250 / 2) - 15),new Vector2D(30,30), 'map-icon', 2);        
                 
         //Barra Inferior
 
         // Poção de Cura
-        this.icon_potion       = new Icons(new Vector2D(GlobalVars.potionX + GlobalVars.potionIconOffset, GlobalVars.potionY - 30),20,"v",0);
+        this.icon_potion       = new Icons(new Vector2D(GlobalVars.potionX + GlobalVars.potionIconOffset, GlobalVars.potionY - 30),new Vector2D(20,20),"v",0);
         this.layoutHB_potion   = new Layout(new Vector2D(GlobalVars.potionX, GlobalVars.potionY),50,this.PlayerId);      
-        this.iconCancel_potion = new Icons(new Vector2D(GlobalVars.potionX + GlobalVars.potionOffset, GlobalVars.potionY + GlobalVars.potionOffset),30,"x",2);
-        this.iconHB_potion     = new Icons(new Vector2D(GlobalVars.potionX + GlobalVars.potionOffset, GlobalVars.potionY + GlobalVars.potionOffset),30,"hpt",2);
+        this.iconCancel_potion = new Icons(new Vector2D(GlobalVars.potionX + GlobalVars.potionOffset, GlobalVars.potionY + GlobalVars.potionOffset),new Vector2D(30,30),"x",2);
+        this.iconHB_potion     = new Icons(new Vector2D(GlobalVars.potionX + GlobalVars.potionOffset, GlobalVars.potionY + GlobalVars.potionOffset),new Vector2D(30,30),"hpt",2);
         this.loadingHB_potion  = new loadingicon(new Vector2D(GlobalVars.potionX + GlobalVars.potionOffset, GlobalVars.potionY + GlobalVars.potionOffset),30);
 
         this.iconCancel_potion.updateSee(false);//Desliga o aviso de cancelado
 
         // Icone de Botão no D-Pad      
-        this.icon_up    = new Icons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.icon_offset, GlobalVars.dpad_centerY - GlobalVars.offset - GlobalVars.icon_vertical_spacing), 30, "q",0);
-        this.icon_down  = new Icons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.icon_offset, GlobalVars.dpad_centerY + GlobalVars.offset - GlobalVars.icon_vertical_spacing), 30, "x",0);
-        this.icon_left  = new Icons(new Vector2D(GlobalVars.dpad_centerX - GlobalVars.offset + GlobalVars.icon_offset, GlobalVars.dpad_centerY - GlobalVars.icon_vertical_spacing), 30, "z",0);
-        this.icon_right = new Icons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.offset + GlobalVars.icon_offset, GlobalVars.dpad_centerY - GlobalVars.icon_vertical_spacing), 30, "e",0);
+        this.icon_up    = new Icons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.icon_offset, GlobalVars.dpad_centerY - GlobalVars.offset - GlobalVars.icon_vertical_spacing), new Vector2D(30,30), "q",0);
+        this.icon_down  = new Icons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.icon_offset, GlobalVars.dpad_centerY + GlobalVars.offset - GlobalVars.icon_vertical_spacing), new Vector2D(30,30), "x",0);
+        this.icon_left  = new Icons(new Vector2D(GlobalVars.dpad_centerX - GlobalVars.offset + GlobalVars.icon_offset, GlobalVars.dpad_centerY - GlobalVars.icon_vertical_spacing), new Vector2D(30,30), "z",0);
+        this.icon_right = new Icons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.offset + GlobalVars.icon_offset, GlobalVars.dpad_centerY - GlobalVars.icon_vertical_spacing), new Vector2D(30,30), "e",0);
 
         // Layout do D-Pad
         this.layoutHB_up    = new Layout(new Vector2D(GlobalVars.dpad_centerX, GlobalVars.dpad_centerY - GlobalVars.offset), 70, this.PlayerId);
@@ -90,10 +96,10 @@ export default class Player extends GameObject {
         this.layoutHB_right = new Layout(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.offset, GlobalVars.dpad_centerY), 70, this.PlayerId);                
 
         //Icones das habilidades - itens
-        this.iconHB_up    = new Icons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.loading_offset, GlobalVars.dpad_centerY - GlobalVars.offset + GlobalVars.loading_offset), 50, `${this.PlayerId}-q`,2);
-        this.iconHB_down  = new Icons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.offset + GlobalVars.loading_offset), 50, `${this.PlayerId}-x`,2);
-        this.iconHB_left  = new Icons(new Vector2D(GlobalVars.dpad_centerX - GlobalVars.offset + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.loading_offset), 50, `${this.PlayerId}-z`,2);
-        this.iconHB_right = new Icons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.offset + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.loading_offset), 50, `${this.PlayerId}-wp-${this.currentWeapon.WeaponId}`,2);
+        this.iconHB_up    = new Icons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.loading_offset, GlobalVars.dpad_centerY - GlobalVars.offset + GlobalVars.loading_offset), new Vector2D(50,50), `${this.PlayerId}-q`,2);
+        this.iconHB_down  = new Icons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.offset + GlobalVars.loading_offset), new Vector2D(50,50), `${this.PlayerId}-x`,2);
+        this.iconHB_left  = new Icons(new Vector2D(GlobalVars.dpad_centerX - GlobalVars.offset + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.loading_offset), new Vector2D(50,50), `${this.PlayerId}-z`,2);
+        this.iconHB_right = new Icons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.offset + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.loading_offset), new Vector2D(50,50), `${this.PlayerId}-wp-${this.currentWeapon.WeaponId}`,2);
 
         // Loadings centralizado
         this.loadingHB_up    = new loadingicon(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.loading_offset, GlobalVars.dpad_centerY - GlobalVars.offset + GlobalVars.loading_offset), 50);
@@ -106,28 +112,28 @@ export default class Player extends GameObject {
         
         //Centro
         this.layoutSwitch_center   = new Layout(new Vector2D(GlobalVars.dpad2_centerX, GlobalVars.dpad_centerY + GlobalVars.offset),70,this.PlayerId);
-        this.iconSwitch_center     = new Icons(new Vector2D(GlobalVars.dpad2_centerX + GlobalVars.icon_offset, GlobalVars.dpad_centerY + 90 - 40),30,"alt",0);                        
-        this.CharacterIcon_Center  = new Icons(new Vector2D(GlobalVars.dpad2_centerX + 10, GlobalVars.dpad_centerY + 100),50,'switch',2);
+        this.iconSwitch_center     = new Icons(new Vector2D(GlobalVars.dpad2_centerX + GlobalVars.icon_offset, GlobalVars.dpad_centerY + 90 - 40),new Vector2D(30,30),"alt",0);                        
+        this.CharacterIcon_Center  = new Icons(new Vector2D(GlobalVars.dpad2_centerX + 10, GlobalVars.dpad_centerY + 100),new Vector2D(50,50),'switch',2);
 
         //Cima - player 1
         this.layoutSwitch_up       = new Layout(new Vector2D(GlobalVars.dpad2_centerX + 5, GlobalVars.dpad_centerY - GlobalVars.offset + 70),60,1,1);
-        this.iconSwitch_ArrowUp    = new Icons(new Vector2D(GlobalVars.dpad2_centerX + GlobalVars.icon_offset, GlobalVars.dpad_centerY + 90 - 40),30,"up",0);        
-        this.CharacterIcon_Up      = new Icons(new Vector2D(GlobalVars.dpad2_centerX + 15, GlobalVars.dpad_centerY - 5),40,1,3);
-        this.iconCancel_player1    = new Icons(new Vector2D(GlobalVars.dpad2_centerX + 15, GlobalVars.dpad_centerY - 5),40,"x",2);
+        this.iconSwitch_ArrowUp    = new Icons(new Vector2D(GlobalVars.dpad2_centerX + GlobalVars.icon_offset, GlobalVars.dpad_centerY + 90 - 40),new Vector2D(30,30),"up",0);        
+        this.CharacterIcon_Up      = new Icons(new Vector2D(GlobalVars.dpad2_centerX + 15, GlobalVars.dpad_centerY - 5),new Vector2D(40,40),1,3);
+        this.iconCancel_player1    = new Icons(new Vector2D(GlobalVars.dpad2_centerX + 15, GlobalVars.dpad_centerY - 5),new Vector2D(40,40),"x",2);
         if(this.PlayerId != 1) this.iconCancel_player1.updateSee(false);
 
         //Esquerda - player 2 
         this.layoutSwitch_left     = new Layout(new Vector2D(GlobalVars.dpad2_centerX - GlobalVars.dpad2_offsetX * 1.8, GlobalVars.dpad_centerY + GlobalVars.offset),60,2,1);
-        this.iconSwitch_ArrowLeft  = new Icons(new Vector2D(GlobalVars.dpad2_centerX - GlobalVars.dpad2_offsetX + GlobalVars.icon_offset, GlobalVars.dpad_centerY + 110), 30,"left",0);                
-        this.CharacterIcon_Left    = new Icons(new Vector2D(GlobalVars.dpad2_centerX - 95, GlobalVars.dpad_centerY + GlobalVars.offset + 15),40,2,3);
-        this.iconCancel_player2    = new Icons(new Vector2D(GlobalVars.dpad2_centerX - 95, GlobalVars.dpad_centerY + GlobalVars.offset + 15),40,"x",2);
+        this.iconSwitch_ArrowLeft  = new Icons(new Vector2D(GlobalVars.dpad2_centerX - GlobalVars.dpad2_offsetX + GlobalVars.icon_offset, GlobalVars.dpad_centerY + 110), new Vector2D(30,30),"left",0);                
+        this.CharacterIcon_Left    = new Icons(new Vector2D(GlobalVars.dpad2_centerX - 95, GlobalVars.dpad_centerY + GlobalVars.offset + 15),new Vector2D(40,40),2,3);
+        this.iconCancel_player2    = new Icons(new Vector2D(GlobalVars.dpad2_centerX - 95, GlobalVars.dpad_centerY + GlobalVars.offset + 15),new Vector2D(40,40),"x",2);
         if(this.PlayerId != 2) this.iconCancel_player2.updateSee(false);
 
         //Direita - player 4
         this.layoutSwitch_Right    = new Layout(new Vector2D(GlobalVars.dpad2_centerX + GlobalVars.dpad2_offsetX * 2, GlobalVars.dpad_centerY + GlobalVars.offset),60,4,1);
-        this.iconSwitch_ArrowRight = new Icons(new Vector2D(GlobalVars.dpad2_centerX + GlobalVars.dpad2_offsetX + GlobalVars.icon_offset, GlobalVars.dpad_centerY + 110), 30, "right",0);                
-        this.CharacterIcon_Right   = new Icons(new Vector2D(GlobalVars.dpad2_centerX + 125, GlobalVars.dpad_centerY + GlobalVars.offset + 15),40,4,3);
-        this.iconCancel_player4    = new Icons(new Vector2D(GlobalVars.dpad2_centerX + 130, GlobalVars.dpad_centerY + GlobalVars.offset + 15),40,"x",2);
+        this.iconSwitch_ArrowRight = new Icons(new Vector2D(GlobalVars.dpad2_centerX + GlobalVars.dpad2_offsetX + GlobalVars.icon_offset, GlobalVars.dpad_centerY + 110), new Vector2D(30,30), "right",0);                
+        this.CharacterIcon_Right   = new Icons(new Vector2D(GlobalVars.dpad2_centerX + 125, GlobalVars.dpad_centerY + GlobalVars.offset + 15),new Vector2D(40,40),4,3);
+        this.iconCancel_player4    = new Icons(new Vector2D(GlobalVars.dpad2_centerX + 130, GlobalVars.dpad_centerY + GlobalVars.offset + 15),new Vector2D(40,40),"x",2);
         if(this.PlayerId != 4) this.iconCancel_player4.updateSee(false);
 
         this.updateSwtichDesign();
@@ -190,6 +196,43 @@ export default class Player extends GameObject {
     }
 
     update(deltaTime) {
+        this.Mousedot.setMousePos(this.mouse.x, this.mouse.y);  
+        
+        if(this.mainMenu.cansee){
+            //botão 1
+            const btn1_data = {x:this.mainMenu.btn1.position.x,y:this.mainMenu.btn1.position.y,sW:this.mainMenu.btn1.size.x,sH:this.mainMenu.btn1.size.y}
+            if(this.mouse.isOver(btn1_data)){
+                if(this.mouse.isClick(btn1_data,0))
+                    this.mainMenu.updateSee(false); 
+
+                this.mainMenu.switchHover('btn1',true);
+            } else {
+                this.mainMenu.switchHover('btn1',false);
+            } 
+
+            //botão 2
+            const btn2_data = {x:this.mainMenu.btn2.position.x,y:this.mainMenu.btn2.position.y,sW:this.mainMenu.btn2.size.x,sH:this.mainMenu.btn2.size.y}
+            if(this.mouse.isOver(btn2_data)){
+                if(this.mouse.isClick(btn2_data,0))
+                    console.log('não tem configurações');
+                    
+                this.mainMenu.switchHover('btn2',true);
+            } else {
+                this.mainMenu.switchHover('btn2',false);
+            } 
+
+            //botão 3
+            const btn3_data = {x:this.mainMenu.btn3.position.x,y:this.mainMenu.btn3.position.y,sW:this.mainMenu.btn3.size.x,sH:this.mainMenu.btn3.size.y}
+            if(this.mouse.isOver(btn3_data)){
+                if(this.mouse.isClick(btn3_data,0))
+                    window.close();
+
+                this.mainMenu.switchHover('btn3',true);
+            } else {
+                this.mainMenu.switchHover('btn3',false);
+            } 
+        }
+
         if(!this.currentPlayer){
             if(this.loadingHB_potion.loading) this.loadingHB_potion.updateIconTimer() //poção
             if(this.loadingHB_up.loading)     this.loadingHB_up.updateIconTimer()     //habilidade rapida
@@ -198,12 +241,19 @@ export default class Player extends GameObject {
             if(this.loadingHB_down.loading)   this.loadingHB_down.updateIconTimer()   //Habilidade 2
 
             return;
-        }
+        } else if(this.mainMenu.cansee && this.keyboard.isKey("Escape") != KeysState.CLICKED){
+            return;                    
+        }             
 
-        this.Mousedot.setMousePos(this.mouse.x, this.mouse.y);
+        if(this.keyboard.isKey("Escape") == KeysState.CLICKED){
+            if(this.mainMenu.cansee)
+                this.mainMenu.updateSee(false);
+            else
+                this.mainMenu.updateSee(true);
+        }                
 
         //Prioridade - MOUSE
-        this.#updateFacing();
+        this.#updateFacing();        
 
         //Player Swtich            
         if(!this.keyboard.isKey("AltLeft") == KeysState.PRESSED && !this.keyboard.isKey("AltRight") == KeysState.PRESSED){
@@ -218,12 +268,7 @@ export default class Player extends GameObject {
             this.layoutSwitch_up.updateIcon();
             this.layoutSwitch_left.updateIcon();
             this.layoutSwitch_Right.updateIcon();
-        }
-                
-        //=== / MENU / ===
-        if(this.keyboard.isKey("Escape") == KeysState.CLICKED){
-            console.log('entra');            
-        }        
+        }                              
         
         //Barra superior        
         this.CharacterLayout.updateIcon();  
@@ -345,7 +390,7 @@ export default class Player extends GameObject {
     /** @param {CanvasRenderingContext2D} ctx */
     draw(ctx, hudctx) {
         this.hitbox.draw(ctx);
-        this.currentAnim.draw(ctx, this.position);      
+        this.currentAnim.draw(ctx, this.position);                   
         
         //VIDA e XP - barrra superior
         this.MinimapLayout.draw(hudctx);
@@ -408,7 +453,10 @@ export default class Player extends GameObject {
         this.iconSwitch_ArrowRight.draw(hudctx);
         this.layoutSwitch_Right.draw(hudctx);
         this.CharacterIcon_Right.draw(hudctx);
-        this.iconCancel_player4.draw(hudctx);
+        this.iconCancel_player4.draw(hudctx);        
+
+        //MENU 
+        this.mainMenu.draw(hudctx);
 
         //MOUSE
         this.Mousedot.draw(hudctx);
@@ -452,6 +500,10 @@ export default class Player extends GameObject {
 
     onResizeHUD(newWidth, newHeight) {
         GlobalVars.updateVars(newWidth, newHeight);
+
+        //Menus
+        this.mainMenu.position.set(newWidth/2 - 200,newHeight/2 - 250);
+        this.mainMenu.updateOnresize();
 
         // Atualiza HUD barra superior        
         this.CharacterLayout.position.set(newWidth * 0.01, newHeight * 0.02);

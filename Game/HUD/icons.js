@@ -4,9 +4,9 @@ import Enums from "./HUD-enums/HUD_Enums.js";
 export default class Icons{
     /**     
      * @param {Vector2D} position -Posição na tela
-     * @param {number}   size     -tamanho do icone
+     * @param {Vector2D} size     -tamanho do icone
      * @param {any}      key      -KEY - Minusculo ou numerico    
-     * @param {number}   type     - 0-Teclado / 1-Mouse / 2-Icones uteis / 3-icones personagens     
+     * @param {number}   type     - 0-Teclado / 1-Mouse / 2-Icones uteis / 3-icones personagens / 4 - menu - 01 / 5 - inventario   
      */
     constructor(position,size,key, type){
         this.position     = position;        
@@ -73,6 +73,14 @@ export default class Icons{
                 this.icontexture = new Texture("/Game/Assets/HUD/customsIcons.png");
                 this.KeyMap = Enums.playerIcon[this.keyId];
                 break;
+            case 4:
+                this.icontexture = new Texture("/Game/Assets/HUD/InventPack_02.png");
+                this.KeyMap = Enums.menus_positions[this.keyId];
+                break;
+            case 5:
+                this.icontexture = new Texture("/Game/Assets/HUD/inventorySlotSet.png.png");
+                this.KeyMap = Enums.inventPositions[this.keyId];
+                break;
             default:
                 this.icontexture = new Texture("/Game/Assets/HUD/iconset.png");
                 this.KeyMap = {x: 0,y: 0,sW: 0,sH: 0};
@@ -97,7 +105,7 @@ export default class Icons{
     draw(ctx){     
         if(this.cansee)                       
             this.icontexture.draw(ctx, this.position.x,this.position.y,
-                                       this.size,this.size,
+                                       this.size.x,this.size.y,
                                        this.KeyMap.x,this.KeyMap.y,
                                        this.KeyMap.sW,this.KeyMap.sH);                     
     }

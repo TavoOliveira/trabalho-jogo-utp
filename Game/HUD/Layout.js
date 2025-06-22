@@ -4,8 +4,9 @@ import Enums from "./HUD-enums/HUD_Enums.js";
 export default class Layout{
     /**
      * @param {Vector2D} position -Posição na tela
-     * @param {number} size -tamanho do loading
-     * @param {number} type -tipo do estilo
+     * @param {number} size       -tamanho do loading
+     * @param {number} type       -tipo do estilo
+     * @param {number} cooldown   - tempo de atualização
      */
     constructor(position,size,type,cooldown = 2){
         this.position     = position;        

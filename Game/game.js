@@ -31,7 +31,7 @@ export default class Game {
         this.keyboard = new Keyboard();
         this.mouse    = new Mouse();  
 
-        //PLayers
+        //Players
         this.sharedPosition = new Vector2D(this.width / 2, this.height / 2);
                 
         this.player1 = new Player(new Texture("Game/Assets/global.png"), this.sharedPosition, this.keyboard,this.mouse,1);
@@ -44,7 +44,7 @@ export default class Game {
 
         //minimapa e camera
         this.camera    = new Camera(new Vector2D(0,0).position, 3);
-        this.minMapCam = new Camera(new Vector2D(0,0).position, 0.3);
+        this.minMapCam = new Camera(new Vector2D(0,0).position, 0.3);        
 
         this.tilemap = null;
 
@@ -79,7 +79,7 @@ export default class Game {
                 if(!this.player4.currentPlayer)
                     this.clearSwitches(4);       
             }
-        }
+        }        
 
         this.draw(this.ctx, this.HUDctx);
                 

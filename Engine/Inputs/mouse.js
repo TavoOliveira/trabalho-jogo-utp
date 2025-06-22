@@ -30,4 +30,31 @@ export default class Mouse {
   getPosition() {
     return { x: this.x, y: this.y };
   }
+
+  /**
+   * @param {{x: number, y: number, sW: number, height: sH}} obj -tamanho em {-x,-y,-sX,-sW}
+   * @returns {boolean} 
+   */
+  isOver(obj) {
+    return (
+      this.x >= obj.x          &&
+      this.x <= obj.x + obj.sW &&
+      this.y >= obj.y          &&
+      this.y <= obj.y + obj.sH
+    );
+  }
+
+  /**
+   * @param {{x: number, y: number, sW: number, height: sH}} obj -tamanho em {-x,-y,-sX,-sW}
+   * @param {number} type -tipo: 0 - esquerda / 1 - direita
+   * @returns {boolean} 
+   */
+  isClick(obj,type) {
+    if(type == 0)
+      return this.isOver(obj) && this.isLeft;   
+    else if(type == 1)
+      return this.isOver(obj) && this.isRight;   
+    else
+      return false;
+  }
 }

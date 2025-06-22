@@ -58,7 +58,7 @@ Armaduras: playerID + -arm- + numeração chave
 
 itens: (nome chave)
 */
-const icons = {   
+const icons = {
     //HABILIDADES
     '1-q': {x: 352,y: 1504,sW: 32,sH: 32}, //Bomba        - player 1
     '1-z': {x: 416,y: 1440,sW: 32,sH: 32}, //Habilidade 1 - player 1
@@ -93,6 +93,17 @@ const icons = {
     'map-icon': {x: 128,y: 0,sW: 32,sH: 32} //Jogador no minimapa
 };
 
+const menus_positions = {
+    'menu-1': {x: 128,y: 131,sW: 64,sH: 76}, //Menu 1
+
+    'mn-btn-style-0': {x: 70,y: 234,sW: 52,sH: 15}, //Botão de start/play - não clicado
+    'mn-btn-style-1': {x: 6,y: 234,sW: 52,sH: 15},  //Botão de start/play - clicado
+}
+
+const inventPositions = {
+
+}
+
 const playerIcon = {
     1: {x: 28,y: 4,sW: 15,sH: 12},
     2: {x: 0,y: 0,sW: 27,sH: 21},
@@ -108,4 +119,4 @@ const dots_Id = {
     4: "/Game/Assets/HUD/mouseIcons/purple_dots.png",                           
 }
 
-export default {UtilityIcon_type,bar_type,Key_type,dots_Id,XP_BarLevel,icons,playerIcon};
+export default {UtilityIcon_type,bar_type,Key_type,dots_Id,XP_BarLevel,icons,playerIcon,menus_positions,inventPositions};
