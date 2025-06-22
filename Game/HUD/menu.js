@@ -4,7 +4,7 @@ import Vector2D from "../../Engine/Utils/vector2d.js";
 export default class menu{
     /**
      * @param {Vector2D} position -Posição na tela
-     * @param {number} size       -tamanho do menu     
+     * @param {Vector2D} size       -tamanho do menu     
      */
     constructor(position,size){
         this.position     = position;        

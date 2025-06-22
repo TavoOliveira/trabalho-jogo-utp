@@ -1,5 +1,6 @@
 import Player from "./Entities/player.js";
 import Enemy from "./Entities/enemy.js";
+import inventory from "../Game/HUD/inventory.js"
 import Vector2D from "../Engine/Utils/vector2d.js";
 import Texture from "../Engine/Utils/texture.js";
 import Keyboard from "../Engine/Inputs/keyboard.js";
@@ -31,13 +32,16 @@ export default class Game {
         this.keyboard = new Keyboard();
         this.mouse    = new Mouse();  
 
+        //inventario
+        this.inventory = new inventory();
+
         //Players
         this.sharedPosition = new Vector2D(this.width / 2, this.height / 2);
                 
-        this.player1 = new Player(new Texture("Game/Assets/global.png"), this.sharedPosition, this.keyboard,this.mouse,1);
-        this.player2 = new Player(new Texture("Game/Assets/global.png"), this.sharedPosition, this.keyboard,this.mouse,2);
-        this.player4 = new Player(new Texture("Game/Assets/global.png"), this.sharedPosition, this.keyboard,this.mouse,4);
-        this.player1.switchPlayer(true);
+        this.player1 = new Player(new Texture("Game/Assets/global.png"), this.sharedPosition, this.keyboard,this.mouse,1,this.inventory);
+        this.player2 = new Player(new Texture("Game/Assets/global.png"), this.sharedPosition, this.keyboard,this.mouse,2,this.inventory);
+        this.player4 = new Player(new Texture("Game/Assets/global.png"), this.sharedPosition, this.keyboard,this.mouse,4,this.inventory);
+        this.player1.switchPlayer(true);        
 
         //inimgos
         this.enemy = new Enemy(null, new Vector2D(100, 100));
@@ -68,18 +72,20 @@ export default class Game {
         this.lastTime = timestamp;        
         
         //=== / Player-Switch / ===
-        if(this.keyboard.isKey("AltLeft") == KeysState.PRESSED || this.keyboard.isKey("AltRight") == KeysState.PRESSED){
-            if(this.keyboard.isKey("ArrowUp") == KeysState.CLICKED){
-                if(!this.player1.currentPlayer)
-                    this.clearSwitches(1);
-            } else if(this.keyboard.isKey("ArrowLeft") == KeysState.CLICKED){
-                if(!this.player2.currentPlayer)
-                    this.clearSwitches(2);               
-            } else if(this.keyboard.isKey("ArrowRight") == KeysState.CLICKED){
-                if(!this.player4.currentPlayer)
-                    this.clearSwitches(4);       
-            }
-        }        
+        if(!this.currentPlayer.mainMenu.cansee && !this.currentPlayer.InventoryMenu.cansee){
+            if(this.keyboard.isKey("AltLeft") == KeysState.PRESSED || this.keyboard.isKey("AltRight") == KeysState.PRESSED){
+                if(this.keyboard.isKey("ArrowUp") == KeysState.CLICKED){
+                    if(!this.player1.currentPlayer)
+                        this.clearSwitches(1);
+                } else if(this.keyboard.isKey("ArrowLeft") == KeysState.CLICKED){
+                    if(!this.player2.currentPlayer)
+                        this.clearSwitches(2);               
+                } else if(this.keyboard.isKey("ArrowRight") == KeysState.CLICKED){
+                    if(!this.player4.currentPlayer)
+                        this.clearSwitches(4);       
+                }
+            }      
+        }  
 
         this.draw(this.ctx, this.HUDctx);
                 

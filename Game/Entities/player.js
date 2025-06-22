@@ -11,6 +11,7 @@ import GlobalVars from "../HUD/HUD-Vars/HUDGlobalVars.js";
 
 //Menus gerais
 import menu from "../HUD/menu.js";
+import InventoryMenu from "../HUD/inventoryMenu.js"
 
 //Util
 import Texture from "../../Engine/Utils/texture.js";
@@ -22,10 +23,14 @@ import { Hitbox, RectHitbox } from "../../Engine/Collision/index.js";
 
 export default class Player extends GameObject {
     /**
-     * @param {Texture} texture
-     * @param {Vector2D} position
+     * @param {Texture}   texture
+     * @param {Vector2D}  position
+     * @param {keyboard}  keyboard
+     * @param {mouse}     mouse
+     * @param {number}    playerId
+     * @param {inventory} inventory
      */
-    constructor(texture, position, keyboard, mouse, playerId) {
+    constructor(texture, position, keyboard, mouse, playerId, inventory) {
         const global_width    = document.documentElement.clientWidth;
         const global_height   = document.documentElement.clientHeight;        
 
@@ -45,6 +50,9 @@ export default class Player extends GameObject {
         this.currentAnim = this.animations.idle;
         this.currentAnim.play();
 
+        //inventario
+        this.inventory = inventory;        
+
         //player
         this.PlayerId      = playerId;
         this.currentPlayer = false;
@@ -55,7 +63,8 @@ export default class Player extends GameObject {
         this.live    = 5;                   
         
         // MENUS
-        this.mainMenu = new menu(new Vector2D((global_width / 2) - 200,(global_height / 2) - 250),new Vector2D(350,500));
+        this.mainMenu      = new menu(new Vector2D((global_width / 2) - 200,(global_height / 2) - 250),new Vector2D(350,500));
+        this.InventoryMenu = new InventoryMenu(new Vector2D((global_width / 2) - 600,(global_height / 2) - 300),new Vector2D(1200,600));
 
         // HUD  
         this.Mousedot = new mouse_dots(new Texture(Enums.dots_Id[this.PlayerId]),35);   
@@ -63,7 +72,7 @@ export default class Player extends GameObject {
         //armas
         this.currentWeapon = new Weapons(1);
         
-        //Barra Superior
+        // === BARRA SUPERIOR ===
         this.CharacterLayout = new Layout(new Vector2D(global_width * 0.01, global_height * 0.02), 70, this.PlayerId, 1);
         this.CharacterIcon   = new Icons(new Vector2D(global_width * 0.015, global_height * 0.035),new Vector2D(50,50), this.PlayerId, 3);
         this.HealthBar       = new HealthBar(new Vector2D(global_width * 0.07, global_height * 0.01), this.PlayerId);                
@@ -72,8 +81,7 @@ export default class Player extends GameObject {
         this.MinimapLayout      = new Layout(new Vector2D(global_width * 0.8, global_height * 0.04), 250, `m-${this.PlayerId}`, 0);
         this.minimapCenter_icon = new Icons(new Vector2D((global_width * 0.8) + (250 / 2) - 15, (global_height * 0.04) + (250 / 2) - 15),new Vector2D(30,30), 'map-icon', 2);        
                 
-        //Barra Inferior
-
+        // === BARRA INFERIOR ===
         // Poção de Cura
         this.icon_potion       = new Icons(new Vector2D(GlobalVars.potionX + GlobalVars.potionIconOffset, GlobalVars.potionY - 30),new Vector2D(20,20),"v",0);
         this.layoutHB_potion   = new Layout(new Vector2D(GlobalVars.potionX, GlobalVars.potionY),50,this.PlayerId);      
@@ -198,7 +206,8 @@ export default class Player extends GameObject {
     update(deltaTime) {
         this.Mousedot.setMousePos(this.mouse.x, this.mouse.y);  
         
-        if(this.mainMenu.cansee){
+        // === MENUS ===
+        if(this.mainMenu.cansee){ //Menu de pausa
             //botão 1
             const btn1_data = {x:this.mainMenu.btn1.position.x,y:this.mainMenu.btn1.position.y,sW:this.mainMenu.btn1.size.x,sH:this.mainMenu.btn1.size.y}
             if(this.mouse.isOver(btn1_data)){
@@ -231,8 +240,11 @@ export default class Player extends GameObject {
             } else {
                 this.mainMenu.switchHover('btn3',false);
             } 
+        } else if (this.InventoryMenu.cansee) { //Menu do inventario
+
         }
 
+        // === ATUALIZAÇÕES PRINCIPAIS ===
         if(!this.currentPlayer){
             if(this.loadingHB_potion.loading) this.loadingHB_potion.updateIconTimer() //poção
             if(this.loadingHB_up.loading)     this.loadingHB_up.updateIconTimer()     //habilidade rapida
@@ -243,8 +255,11 @@ export default class Player extends GameObject {
             return;
         } else if(this.mainMenu.cansee && this.keyboard.isKey("Escape") != KeysState.CLICKED){
             return;                    
+        } else if(this.InventoryMenu.cansee && this.keyboard.isKey("KeyI") != KeysState.CLICKED){
+            return;                    
         }             
 
+        // === MENU - PAUSA ===        
         if(this.keyboard.isKey("Escape") == KeysState.CLICKED){
             if(this.mainMenu.cansee)
                 this.mainMenu.updateSee(false);
@@ -252,6 +267,13 @@ export default class Player extends GameObject {
                 this.mainMenu.updateSee(true);
         }                
 
+        // === MENU - INVENTARIO ===
+        if(this.keyboard.isKey("KeyI") == KeysState.CLICKED){
+            if(this.InventoryMenu.cansee)
+                this.InventoryMenu.updateSee(false);
+            else
+                this.InventoryMenu.updateSee(true);
+        } 
         //Prioridade - MOUSE
         this.#updateFacing();        
 
@@ -457,6 +479,7 @@ export default class Player extends GameObject {
 
         //MENU 
         this.mainMenu.draw(hudctx);
+        this.InventoryMenu.draw(hudctx);
 
         //MOUSE
         this.Mousedot.draw(hudctx);
