@@ -1,6 +1,8 @@
 import Icons from "../HUD/icons.js";
 import Vector2D from "../../Engine/Utils/vector2d.js";
 
+import descriptions from "../HUD/description.js";
+
 export default class InventoryMenu{
     /**
      * @param {Vector2D} position -Posição na tela
@@ -8,6 +10,9 @@ export default class InventoryMenu{
      * @param {number}   playerId -Id do player
      */
     constructor(position,size,playerId){
+		const global_width    = document.documentElement.clientWidth;
+        const global_height   = document.documentElement.clientHeight;       
+
         this.position    = position;               
         this.size        = size;  
         this.playerId    = playerId;    
@@ -16,7 +21,7 @@ export default class InventoryMenu{
         this.inventSize  = 0;
 
         //SELECT
-        this.selectedSlotIndex = 0;  
+        this.selectedSlotIndex = 0;  		
         this.selectionIcon = new Icons(new Vector2D(0, 0), new Vector2D(65, 65), 'icon-select-0', 4);
         
         //SLOTS E MENUS
@@ -44,15 +49,19 @@ export default class InventoryMenu{
         this.null_armorIcon_B = new Icons(new Vector2D(this.position.x + 430,this.position.y + 201),new Vector2D(25,25),'null-B',3);
         this.null_armorIcon_C = new Icons(new Vector2D(this.position.x + 430,this.position.y + 271),new Vector2D(25,25),'null-C',3);
 
-        this.armorIcon_H = new Icons(new Vector2D(this.position.x + 243,this.position.y + 197),new Vector2D(35,35),'',0);
-        this.armorIcon_T = new Icons(new Vector2D(this.position.x + 243,this.position.y + 267),new Vector2D(35,35),'',0);
-        this.armorIcon_B = new Icons(new Vector2D(this.position.x + 428,this.position.y + 195),new Vector2D(35,35),'',0);
-        this.armorIcon_C = new Icons(new Vector2D(this.position.x + 425,this.position.y + 270),new Vector2D(35,35),'',0);
+        this.armorIcon_H = new Icons(new Vector2D(this.position.x + 243,this.position.y + 197),new Vector2D(35,35),'',2);
+        this.armorIcon_T = new Icons(new Vector2D(this.position.x + 243,this.position.y + 267),new Vector2D(35,35),'',2);
+        this.armorIcon_B = new Icons(new Vector2D(this.position.x + 428,this.position.y + 195),new Vector2D(35,35),'',2);
+        this.armorIcon_C = new Icons(new Vector2D(this.position.x + 425,this.position.y + 270),new Vector2D(35,35),'',2);
 
 		//AJUDA
-		this.equipHelp   = new Icons(new Vector2D(this.position.x + 155,this.position.y + 620),new Vector2D(40,40),'e',0);
-		this.discartHelp = new Icons(new Vector2D(this.position.x + 490,this.position.y + 620),new Vector2D(40,40),'r',0);
+		this.equipHelp   = new Icons(new Vector2D(this.position.x + 125,this.position.y + 620),new Vector2D(40,40),'e',0);
+		this.discartHelp = new Icons(new Vector2D(this.position.x + 510,this.position.y + 620),new Vector2D(40,40),'r',0);
 		this.infoHelp    = new Icons(new Vector2D(this.position.x + 820,this.position.y + 620),new Vector2D(40,40),'d',0);
+		this.outHelp     = new Icons(new Vector2D(this.position.x + 1200,this.position.y + 20),new Vector2D(40,40),'esc',0);
+
+		//DESCRIÇÃO
+		this.descriptions = new descriptions(new Vector2D(global_width / 2 - 310,global_height / 2 - 200), new Vector2D(600,400), "");
 
         //ARMAS                
         this.weapon1 = new Icons(new Vector2D(this.position.x + 255, this.position.y + 440), new Vector2D(50,50), `${this.playerId}-wp-1`,2);
@@ -77,6 +86,7 @@ export default class InventoryMenu{
     
     updateIcons() {
 		if (!this.cansee) {
+			this.inventSize = 0;
 			return;
 		}		                
 		
@@ -106,54 +116,85 @@ export default class InventoryMenu{
 		}
 	}
 
-    updateInventoryIcons(inventory) {        
-        const items = inventory.getItems();
+    updateInventoryIcons(inventory,obrigatoryUpdate = false) {
+        const items 		= inventory.getItems();
+		const notUsingItens = inventory.getNotUsingItems();
 
         const slotsPerRow = 4;
         const slotSize    = new Vector2D(50, 50);        
 
         const slotAreaSize = 79; 
         const startX = this.position.x + 770;
-        const startY = this.position.y + 195;
+        const startY = this.position.y + 195;		
+		
+        if(this.inventSize != notUsingItens.length || obrigatoryUpdate){			
+            this.inventIcons = [];  
+			this.armorIcon_H.switchKey("");
+			this.armorIcon_T.switchKey("");
+			this.armorIcon_B.switchKey("");
+			this.armorIcon_C.switchKey("");  												
 
-        if(this.inventSize != items.length){
-            this.inventIcons   = [];       
-            
-            this.maxScroll = Math.max(0, (Math.ceil(items.length / slotsPerRow) * slotAreaSize) - this.inventSlots.size.y);
+			let nextIndex = 0;			
 
-            items.forEach((itemId, index) => {
-                const col = index % slotsPerRow;
-                const row = Math.floor(index / slotsPerRow);
+            items.forEach((itemId) => {
+				if(!itemId.using && nextIndex < 16) {									
+					const col = nextIndex % slotsPerRow;
+					const row = Math.floor(nextIndex / slotsPerRow);
 
-                const slotX = startX + (col * slotAreaSize);
-                const slotY = startY + (row * slotAreaSize);
-                
-                const posX = slotX + ((slotAreaSize - slotSize.x) / 2);
-                const posY = slotY + ((slotAreaSize - slotSize.y) / 2);                
+					const slotX = startX + (col * slotAreaSize);
+					const slotY = startY + (row * slotAreaSize);
+					
+					const posX = slotX + ((slotAreaSize - slotSize.x) / 2);
+					const posY = slotY + ((slotAreaSize - slotSize.y) / 2);  
+					
+					if(!itemId.using){										
+						const icon = new Icons(new Vector2D(posX, posY), slotSize, `${itemId.keyID}`, itemId.textureId);								
 
-                const icon = new Icons(new Vector2D(posX, posY), slotSize, `${itemId.keyID}`, itemId.textureId);
-                this.inventIcons.push(icon);
-            });
+						this.inventIcons.push(icon);
 
-            this.inventSize = items.length;
+						nextIndex++;
+					}					
+				} 
+
+				if(itemId.using && itemId.playerId == this.playerId && itemId.type == 'ARM'){
+					const key = itemId.keyID;
+					const armorType = key[key.length - 1];
+
+					switch (armorType){
+						case 'H': this.armorIcon_H.switchKey(itemId.keyID); break;
+						case 'T': this.armorIcon_T.switchKey(itemId.keyID); break;
+						case 'B': this.armorIcon_B.switchKey(itemId.keyID); break;
+						case 'C': this.armorIcon_C.switchKey(itemId.keyID); break;
+					}	
+				}
+            });			
+			
+            this.inventSize = notUsingItens.length;
         }
     }
 
     updateSelectionIcon() {
-        if (this.slotPositions.length > 0 && this.selectedSlotIndex >= 0 && this.selectedSlotIndex < this.slotPositions.length) {
-            const targetPos = this.slotPositions[this.selectedSlotIndex];
-            this.selectionIcon.position.set(
-                targetPos.x + (50 / 2) - (70 / 2),  
-                targetPos.y + (50 / 2) - (65 / 2)  
-            );
-        }
-    }
+		if (this.slotPositions.length > 0 && this.selectedSlotIndex >= 0 && this.selectedSlotIndex < this.slotPositions.length) {
+			const targetPos = this.slotPositions[this.selectedSlotIndex];
 
-    updateOnresize(){  		
+			const isArmorSlot = this.selectedSlotIndex >= 16;  // Os últimos 4 slots são de armadura
+			const targetSize = isArmorSlot ? 50 : 50;			
+
+			this.selectionIcon.position.set(
+				targetPos.x + (targetSize / 2) - (70 / 2),  
+				targetPos.y + (targetSize / 2) - (65 / 2)  
+			);
+		}
+	}
+
+    updateOnresize(){
 		this.inventMenu.position.set(this.position.x + 700,this.position.y + 100);
         this.inventSlots.position.set(this.position.x + 750,this.position.y + 180);
 
 		this.weaponsSlots.position.set(this.position.x + 200,this.position.y + 370);
+
+		this.descriptions.position.set(document.documentElement.clientWidth / 2 - 310,document.documentElement.clientHeight / 2 - 200);
+		this.descriptions.OnResize();
 
         //PLAYER
         this.playerMenu.position.set(this.position.x + 150,this.position.y + 100);
@@ -178,9 +219,10 @@ export default class InventoryMenu{
         this.armorIcon_C.position.set(this.position.x + 425,this.position.y + 270);
 
 		//AJUDA
-		this.equipHelp.position.set(this.position.x + 155,this.position.y + 620);
-		this.discartHelp.position.set(this.position.x + 490,this.position.y + 620);
+		this.equipHelp.position.set(this.position.x + 125,this.position.y + 620);
+		this.discartHelp.position.set(this.position.x + 510,this.position.y + 620);
 		this.infoHelp.position.set(this.position.x + 820,this.position.y + 620);
+		this.outHelp.position.set(this.position.x + 1200,this.position.y + 20);
 
         //ARMAS                
         this.weapon1.position.set(this.position.x + 255,this.position.y + 440);
@@ -193,30 +235,37 @@ export default class InventoryMenu{
     }
 
     setSlots() {
-        this.slotPositions = [];
+		this.slotPositions = [];
 
-        const slotsPerRow = 4;
-        const slotSize = new Vector2D(50, 50);
-        const slotAreaSize = 79;
-        const startX = this.position.x + 770;
-        const startY = this.position.y + 195;
+		const slotsPerRow = 4;
+		const slotSize = new Vector2D(50, 50);
+		const slotAreaSize = 79;
+		const startX = this.position.x + 770;
+		const startY = this.position.y + 195;
 
-        for (let i = 0; i < 16; i++) {
-            const col = i % slotsPerRow;
-            const row = Math.floor(i / slotsPerRow);
+		// Inventário (16 slots)
+		for (let i = 0; i < 16; i++) {
+			const col = i % slotsPerRow;
+			const row = Math.floor(i / slotsPerRow);
 
-            const slotX = startX + (col * slotAreaSize);
-            const slotY = startY + (row * slotAreaSize);
+			const slotX = startX + (col * slotAreaSize);
+			const slotY = startY + (row * slotAreaSize);
 
-            const posX = slotX + ((slotAreaSize - slotSize.x) / 2);
-            const posY = slotY + ((slotAreaSize - slotSize.y) / 2);
+			const posX = slotX + ((slotAreaSize - slotSize.x) / 2);
+			const posY = slotY + ((slotAreaSize - slotSize.y) / 2);
 
-            this.slotPositions.push(new Vector2D(posX, posY));
-        }
-    }
+			this.slotPositions.push(new Vector2D(posX, posY));
+		}
 
-    draw(ctx){         
-        if(this.cansee){
+		// Armaduras
+		this.slotPositions.push(this.armor_H.position);
+		this.slotPositions.push(this.armor_T.position);
+		this.slotPositions.push(this.armor_B.position);
+		this.slotPositions.push(this.armor_C.position);
+	}
+
+    draw(ctx){
+        if(this.cansee){						
             //=== MENUS E SLOTS ===
             this.centralMenu.draw(ctx);
             this.playerMenu.draw(ctx);
@@ -246,6 +295,7 @@ export default class InventoryMenu{
 
             //INFORMATIVOS
             this.playerIcon.draw(ctx);
+			this.outHelp.draw(ctx);
 
             //=== ARMAS E ITENS ===
             this.weapon1.draw(ctx);
@@ -256,12 +306,7 @@ export default class InventoryMenu{
 			this.discartHelp.draw(ctx);
 			this.infoHelp.draw(ctx);
 
-            this.inventIcons.forEach(icon => {
-                const originalY = icon.position.y;
-                icon.position.y = originalY - this.scrollOffset;
-                icon.draw(ctx);
-                icon.position.y = originalY; 
-            });
+            this.inventIcons.forEach(icon => {icon.draw(ctx);});
 
             this.selectionIcon.draw(ctx);
 
@@ -272,23 +317,27 @@ export default class InventoryMenu{
 
                 ctx.fillText(`INVENTARIO`, this.position.x + 520, this.position.y+5);  //TOPO    
                 
-                ctx.font = "3rem MONOGRAM"; //sub titulos
-
-				//=== AJUDA ===
-				ctx.fillText(`- EQUIPAR ITEM`, this.position.x + 210, this.position.y + 615);  //- ajuda
-				ctx.fillText(`- REMOVER ITEM`, this.position.x + 540, this.position.y + 615);  //- ajuda
-				ctx.fillText(`- DADOS DO ITEM`, this.position.x + 870, this.position.y + 615);  //- ajuda
+                ctx.font = "3rem MONOGRAM"; //sub titulos				
 
 				//PLAYER E ITENS
                 ctx.fillText(`JOGADOR`, this.position.x + 283, this.position.y + 105);  //- player
                 ctx.fillText(`ITENS`, this.position.x + 880, this.position.y + 105);    //- Itens
 
                 ctx.font = "2rem MONOGRAM"; //textos
+				//=== AJUDA ===
+				ctx.fillText(`- EQUIPAR/DESEQUIPAR ITEM`, this.position.x + 170, this.position.y + 622);  //- ajuda
+				ctx.fillText(`- DESCARTAR ITEM`, this.position.x + 560, this.position.y + 622);  //- ajuda
+				ctx.fillText(`- DADOS DO ITEM`, this.position.x + 870, this.position.y + 622);  //- ajuda
+
                 ctx.fillText(`ARMAS`, this.position.x + 319, this.position.y + 368);  //- player
                 ctx.fillText(`${this.playerId == 1 ? "Gustren" :
                                 this.playerId == 2 ? "Otavion" : 
                                 this.playerId == 4 ? "Nikarel" : ""}`, this.position.x + 305, this.position.y + 330); //TOPO - player Name
             }
+
+			if(this.descriptions.cansee){
+				this.descriptions.draw(ctx);
+			}
         }
     }
 }

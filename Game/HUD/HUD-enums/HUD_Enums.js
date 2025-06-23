@@ -77,6 +77,10 @@ const icons = {
     'hpt': {x: 448,y: 1887,sW: 32,sH: 32}, //Poção de cura
 
     //ARMADURAS    
+    'old-hat-H': {x: 64,y: 3808,sW: 32,sH: 32},    //capacete velho 
+    'old-torso-T': {x: 64,y: 3840,sW: 32,sH: 32},  //Torso velho 
+    'old-boots-B': {x: 64,y: 3872,sW: 32,sH: 32},  //Botas velhas 
+    'old-colar-C': {x: 352,y: 3679,sW: 32,sH: 32}, //colar velho 
 
     //ARMAS
     '1-wp-1': {x: 160,y: 3328,sW: 32,sH: 32}, //Espada - player 1
@@ -131,9 +135,9 @@ const customIcons = {
     'null-B': {x: 67,y: 69,sW: 26,sH: 26},  //Armadura Nula - botas
     'null-C': {x: 3,y: 68,sW: 24,sH: 24},   //Armadura Nula - colar  
     
-    'part-1': {x: 67,y: 4,sW: 27,sH: 12 },  //parte 1 do avião
-    'part-2': {x: 95,y: 1,sW: 33,sH: 15 },  //parte 2 do avião
-    'part-3': {x: 131,y: 0,sW: 28,sH: 21 }, //parte 3 do avião
+    'part-1': {x: 67,y: 4,sW: 27,sH: 12},  //parte 1 do avião
+    'part-2': {x: 95,y: 1,sW: 33,sH: 15},  //parte 2 do avião
+    'part-3': {x: 131,y: 0,sW: 28,sH: 21}, //parte 3 do avião
 }
 
 const dots_Id = { 
@@ -144,4 +148,11 @@ const dots_Id = {
     4: "/Game/Assets/HUD/mouseIcons/purple_dots.png",                           
 }
 
-export default {UtilityIcon_type,bar_type,Key_type,dots_Id,XP_BarLevel,icons,customIcons,menus_positions,inventPositions};
+const descriptions = {
+    'not': "este item nao pode ser removido",
+    'part-1': "Parte de aviao quebrada\n\nParte frontal do aviao quebrada no acidente...\nRaridade: Comum\nUso - Item de historia\n(NAO PODE SER DESCARTADO)",
+    'part-2': "Parte de aviao quebrada\n\nParte medial do aviao quebrada no acidente...\nRaridade: Comum\nUso - Item de historia\n(NAO PODE SER DESCARTADO)",
+    'part-3': "Parte de aviao quebrada\n\nParte traseira do aviao quebrada no acidente...\nRaridade: Comum\nUso - Item de historia\n(NAO PODE SER DESCARTADO)",
+}
+
+export default {UtilityIcon_type,bar_type,Key_type,dots_Id,XP_BarLevel,icons,customIcons,menus_positions,inventPositions,descriptions};

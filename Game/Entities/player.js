@@ -64,12 +64,12 @@ export default class Player extends GameObject {
         
         // MENUS
         this.mainMenu      = new menu(new Vector2D((global_width / 2) - 200,(global_height / 2) - 250),new Vector2D(350,500));
-        this.InventoryMenu = new InventoryMenu(new Vector2D((global_width / 2) - 650,(global_height / 2) - 370),new Vector2D(1300,750),this.PlayerId);
+        this.InventoryMenu = new InventoryMenu(new Vector2D((global_width / 2) - 650,(global_height / 2) - 370),new Vector2D(1300,750),this.PlayerId);        
 
         // HUD  
         this.Mousedot = new mouse_dots(new Texture(Enums.dots_Id[this.PlayerId]),35);   
         
-        //armas
+        //ARMAS
         this.currentWeapon = new Weapons(1);
         
         // === BARRA SUPERIOR ===
@@ -145,7 +145,6 @@ export default class Player extends GameObject {
         if(this.PlayerId != 4) this.iconCancel_player4.updateSee(false);
 
         this.updateSwtichDesign();
-
     }
 
     #setAction(name) {
@@ -240,36 +239,95 @@ export default class Player extends GameObject {
             } else {
                 this.mainMenu.switchHover('btn3',false);
             } 
-        } else if (this.InventoryMenu.cansee) { //Menu do inventario
-            const selectedRow = Math.floor(this.InventoryMenu.selectedSlotIndex / 4);
-            const visibleRows = 4; 
-
-            // Mantém visível
-            const scrollTarget = Math.max(0, (selectedRow - visibleRows + 1) * 79); 
-
-            this.InventoryMenu.scrollOffset = Math.min(scrollTarget, this.InventoryMenu.maxScroll);
-
+        } else if (this.InventoryMenu.cansee) { // Menu do inventário
             this.InventoryMenu.updateIcons();
-            this.InventoryMenu.updateInventoryIcons(this.inventory);
+            this.InventoryMenu.updateInventoryIcons(this.inventory);            
 
-            if (this.keyboard.isKey("ArrowRight") == KeysState.CLICKED) {
-                this.InventoryMenu.selectedSlotIndex++;
-            }
-            if (this.keyboard.isKey("ArrowLeft") == KeysState.CLICKED) {
-                this.InventoryMenu.selectedSlotIndex--;
-            }
-            if (this.keyboard.isKey("ArrowDown") == KeysState.CLICKED) {
-                this.InventoryMenu.selectedSlotIndex += 4;
-            }
-            if (this.keyboard.isKey("ArrowUp") == KeysState.CLICKED) {
-                this.InventoryMenu.selectedSlotIndex -= 4;
-            }
-
+            const idx = this.InventoryMenu.selectedSlotIndex;
             const max = this.InventoryMenu.slotPositions.length - 1;
+
+            // === Direita ===
+            if (this.keyboard.isKey("ArrowRight") == KeysState.CLICKED) {
+                if (idx >= 16 && idx <= 19) {
+                    // Movimento horizontal nos armors
+                    if (idx === 16) this.InventoryMenu.selectedSlotIndex = 18; // H - B
+                    else if (idx === 17) this.InventoryMenu.selectedSlotIndex = 19; // T - C
+                    else if (idx === 18 || idx === 19) {                        
+                        const inventoryTargets = [0, 4, 8, 12];
+                        this.InventoryMenu.selectedSlotIndex = inventoryTargets[idx - 16];
+                    }
+                } else {
+                    this.InventoryMenu.selectedSlotIndex++;
+                }
+            }
+
+            // === Esquerda ===
+            if (this.keyboard.isKey("ArrowLeft") == KeysState.CLICKED) {
+                if (idx === 0) this.InventoryMenu.selectedSlotIndex = 18;  // inventário coluna 1 - armor_B
+                else if (idx === 4) this.InventoryMenu.selectedSlotIndex = 19;  // coluna 2 - armor_C
+                else if (idx === 8) this.InventoryMenu.selectedSlotIndex = 18;  // coluna 1 - armor_B
+                else if (idx === 12) this.InventoryMenu.selectedSlotIndex = 19; // coluna 2 - armor_C
+                else if (idx === 18) this.InventoryMenu.selectedSlotIndex = 16; // B - H
+                else if (idx === 19) this.InventoryMenu.selectedSlotIndex = 17; // C - T
+                else {
+                    this.InventoryMenu.selectedSlotIndex--;
+                }
+            }
+
+            // === Baixo ===
+            if (this.keyboard.isKey("ArrowDown") == KeysState.CLICKED) {
+                if (idx === 16) this.InventoryMenu.selectedSlotIndex = 17; // H - T
+                else if (idx === 18) this.InventoryMenu.selectedSlotIndex = 19; // B - C
+                else {
+                    this.InventoryMenu.selectedSlotIndex += 4;
+                }
+            }
+
+            // === Cima ===
+            if (this.keyboard.isKey("ArrowUp") == KeysState.CLICKED) {
+                if (idx === 17) this.InventoryMenu.selectedSlotIndex = 16; // T - H
+                else if (idx === 19) this.InventoryMenu.selectedSlotIndex = 18; // C - B
+                else {
+                    this.InventoryMenu.selectedSlotIndex -= 4;
+                }
+            }
+
+            // Limites
             if (this.InventoryMenu.selectedSlotIndex < 0) this.InventoryMenu.selectedSlotIndex = 0;
             if (this.InventoryMenu.selectedSlotIndex > max) this.InventoryMenu.selectedSlotIndex = max;
 
-            this.InventoryMenu.updateSelectionIcon();            
+            //=== DESCRIÇÃO / REMOVER / EQUIPAR-DESEQUIPAR ===
+            if(!this.InventoryMenu.descriptions.cansee){                
+
+                const item = this.inventory.getSelectedItemData(this.InventoryMenu.selectedSlotIndex,this.PlayerId)                
+
+                if(this.keyboard.isKey("KeyE") == KeysState.CLICKED){//EQUIPAR                
+                    if(item){
+                        if(item.type == 'ARM'){                                                     
+                            this.inventory.setUseItem(item.keyID, !item.using, this.PlayerId);    
+                            this.InventoryMenu.updateInventoryIcons(this.inventory);                                                                                                                                         
+                        }
+                    }
+                } else if(this.keyboard.isKey("KeyR") == KeysState.CLICKED){//REMOVER
+                    if(item){
+                        if(item.keyID == "part-1" || item.keyID == "part-3" || item.keyID == "part-3"){
+                            this.InventoryMenu.descriptions.switchItemId();
+                            this.InventoryMenu.descriptions.updateSee(true);
+                        } else {
+                            this.inventory.addOrRemoveItem(item.keyID,false);
+                            this.InventoryMenu.updateInventoryIcons(this.inventory,true);
+                        }
+                    }
+                } else if(this.keyboard.isKey("KeyD") == KeysState.CLICKED){//DADOS                    
+                    if(item){
+                        this.InventoryMenu.descriptions.switchItemId(item.keyID);
+                        this.InventoryMenu.descriptions.updateSee(true);
+                    }
+                }
+            }
+
+            if(!this.InventoryMenu.descriptions.cansee)
+                this.InventoryMenu.updateSelectionIcon();
         }
 
         // === ATUALIZAÇÕES PRINCIPAIS ===
@@ -284,19 +342,23 @@ export default class Player extends GameObject {
         } else if(this.mainMenu.cansee && this.keyboard.isKey("Escape") != KeysState.CLICKED){
             this.mouse.resetScroll();
             this.keyboard.reset();
-            return;                    
+            return;        
         } else if(this.InventoryMenu.cansee && (this.keyboard.isKey("KeyI") != KeysState.CLICKED && this.keyboard.isKey("Escape") != KeysState.CLICKED)){
             this.mouse.resetScroll();
             this.keyboard.reset();
             return;                    
         }             
 
-        // === MENU - INVENTARIO  E PAUSA ===                  
-        if (this.InventoryMenu.cansee && this.keyboard.isKey("Escape") == KeysState.CLICKED) {
+        // === MENU - INVENTARIO  E PAUSA ===    
+        if (this.InventoryMenu.descriptions.cansee && this.keyboard.isKey("Escape") == KeysState.CLICKED){
+            this.InventoryMenu.descriptions.updateSee(false);
+        } else if (this.InventoryMenu.cansee && this.keyboard.isKey("Escape") == KeysState.CLICKED) {
             this.InventoryMenu.updateSee(false);
         } else if (this.keyboard.isKey("KeyI") == KeysState.CLICKED) {
-            if (!this.isMenuBlocking('inventory')) {
-                this.InventoryMenu.updateSee(!this.InventoryMenu.cansee);
+            if(!this.InventoryMenu.descriptions.cansee){
+                if (!this.isMenuBlocking('inventory')) {
+                    this.InventoryMenu.updateSee(!this.InventoryMenu.cansee);
+                }
             }
         } else if (this.keyboard.isKey("Escape") == KeysState.CLICKED) {
             if (!this.isMenuBlocking('pause')) {
@@ -522,7 +584,7 @@ export default class Player extends GameObject {
     }
 
     //utilidades
-    isMenuBlocking(input){
+    isMenuBlocking(input){        
         if(input == 'pause' && this.InventoryMenu.cansee) return true;
         if(input == 'inventory' && this.mainMenu.cansee) return true;
         return false;
