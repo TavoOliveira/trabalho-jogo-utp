@@ -35,22 +35,24 @@ export default class Camera {
     }
 
     /**
-     * @param { CanvasRenderingContext2D } ctx
-     * @param { HTMLCanvasElement } canvas
+     * @param { CanvasRenderingContext2D } ctx   
+     * @param { number } viewportWidth
+     * @param { number } viewportHeight  
      */
-    applyTransform(ctx, canvas) {
-        ctx.translate(canvas.width / 2, canvas.height / 2);
+    applyTransform(ctx, viewportWidth, viewportHeight) {
+        ctx.translate(viewportWidth / 2, viewportHeight / 2);
         ctx.scale(this.zoom, this.zoom);
         ctx.translate(-this.position.x, -this.position.y);
     }
 
     /**
      * @param { CanvasRenderingContext2D } ctx
-     * @param { HTMLCanvasElement } canvas
+     * @param { number } viewportWidth
+     * @param { number } viewportHeight
      */
-    resetTransform(ctx, canvas) {
+    resetTransform(ctx, viewportWidth, viewportHeight) {
         ctx.translate(this.position.x, this.position.y);
         ctx.scale(1 / this.zoom, 1 / this.zoom);
-        ctx.translate(-canvas.width / 2, -canvas.height / 2);
+        ctx.translate(-viewportWidth / 2, -viewportHeight / 2);
     }
 }
