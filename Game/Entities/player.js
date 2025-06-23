@@ -59,19 +59,19 @@ export default class Player extends GameObject {
         if(this.PlayerId == 1){
             this.hitbox = new RectHitbox(this, new Vector2D(-10,-15), 20, 30);
             this.animations = {
-                idle: new Animator('idle', this.texture, 100, 100, 0, 0, 6, 8),
+                idle: new Animator('idle', this.texture, 100, 100, 0, 0, 6, 7),
                 walk: new Animator('walk', this.texture, 100, 100, 0, 100, 6, 12)
             }
         } else if(this.PlayerId == 2){
             this.hitbox = new RectHitbox(this, new Vector2D(-25,-20), 30, 40);
             this.animations = {
-                idle: new Animator('idle', this.texture, 80, 64, 0, 128, 7, 8),
-                walk: new Animator('walk', this.texture, 80, 64, 0, 192, 6, 12)
+                idle: new Animator('idle', this.texture, 80, 64, 0, 128, 7, 6),
+                walk: new Animator('walk', this.texture, 80, 64, 0, 192, 8, 12)
             } 
         } else if(this.PlayerId == 4) {
             this.hitbox = new RectHitbox(this, new Vector2D(-30,-20), 35, 40);
             this.animations = {
-                idle: new Animator('idle', this.texture, 80, 80, 0, 0, 9, 8),
+                idle: new Animator('idle', this.texture, 80, 80, 0, 0, 8, 7),
                 walk: new Animator('walk', this.texture, 80, 80, 0, 80, 6, 12)
             }            
         }                                 
