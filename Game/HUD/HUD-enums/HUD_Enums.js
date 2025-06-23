@@ -155,4 +155,11 @@ const descriptions = {
     'part-3': "Parte de aviao quebrada\n\nParte traseira do aviao quebrada no acidente...\nRaridade: Comum\nUso - Item de historia\n(NAO PODE SER DESCARTADO)",
 }
 
-export default {UtilityIcon_type,bar_type,Key_type,dots_Id,XP_BarLevel,icons,customIcons,menus_positions,inventPositions,descriptions};
+const sprites_offset = {
+    1: 50,
+    2: 31,
+    3: 0,
+    4: 40
+}
+
+export default {UtilityIcon_type,bar_type,Key_type,dots_Id,XP_BarLevel,icons,customIcons,menus_positions,inventPositions,descriptions,sprites_offset};

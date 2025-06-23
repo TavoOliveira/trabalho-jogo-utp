@@ -36,11 +36,11 @@ export default class Game {
         this.inventory = new inventory();
 
         //Players
-        this.sharedPosition = new Vector2D(this.width / 2, this.height / 2);
+        this.sharedPosition = new Vector2D(this.width / 2, this.height / 2);        
                 
-        this.player1 = new Player(new Texture("Game/Assets/global.png"), this.sharedPosition, this.keyboard,this.mouse,1,this.inventory);
-        this.player2 = new Player(new Texture("Game/Assets/global.png"), this.sharedPosition, this.keyboard,this.mouse,2,this.inventory);
-        this.player4 = new Player(new Texture("Game/Assets/global.png"), this.sharedPosition, this.keyboard,this.mouse,4,this.inventory);
+        this.player1 = new Player(new Texture("Game/Assets/players/Soldier100x100.png"),  this.sharedPosition, this.keyboard,this.mouse,1,this.inventory);
+        this.player2 = new Player(new Texture("Game/Assets/players/mushroom64x80.png"),   this.sharedPosition, this.keyboard,this.mouse,2,this.inventory);
+        this.player4 = new Player(new Texture("Game/Assets/players/NightBorne80x80.png"), this.sharedPosition, this.keyboard,this.mouse,4,this.inventory);
         this.player1.switchPlayer(true);        
 
         //inimgos
@@ -114,7 +114,7 @@ export default class Game {
         //=== MINIMAPA ===
         this.adjustmentMinimap(hudctx);          
 
-        //=== CAMERA PRINCIPAL ===
+        //=== CAMERA PRINCIPAL ===        
         this.camera.setPosition(this.currentPlayer.position);
         this.camera.applyTransform(ctx, this.canvas.width, this.canvas.height);                  
 
@@ -137,8 +137,9 @@ export default class Game {
 
     adjustmentMinimap(ctx) {
         const minimapX      = this.currentPlayer.MinimapLayout.position.x;
-        const minimapY      = this.currentPlayer.MinimapLayout.position.y;            
-        const minimapOffset = 250 - this.currentPlayer.currentAnim.width / 2; //tamanho do mapa - tamanho da animação do player
+        const minimapY      = this.currentPlayer.MinimapLayout.position.y; 
+        const diff          = this.currentPlayer.PlayerId == 4 ? 40 : this.currentPlayer.PlayerId == 1 ? 50 : 35;           
+        const minimapOffset = 250 - this.currentPlayer.currentAnim.width / 2 + diff; //tamanho do mapa - tamanho da animação do player
 
         ctx.save();
         

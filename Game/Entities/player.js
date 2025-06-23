@@ -40,27 +40,47 @@ export default class Player extends GameObject {
         this.speed    = Vector2D.one(5); //5 para testes
         this.moveDir  = Vector2D.zero();
 
-        this.animations = {
-            walk: new Animator('walk', this.texture, 32, 32, 0, 0, 8, 10),
-            idle: new Animator('idle', this.texture, 32, 32, 0, 0, 1, 0)
-        }
+        //player
+        this.PlayerId      = playerId;
+        this.currentPlayer = false;
+        this.LevelId       = 1;
+        this.XPNum         = 0.0; 
+        this.live          = 5;   
+        
+        /*if(this.PlayerId == 0){
+            this.animations = {
+                walk: new Animator('walk', this.texture, 32, 32, 0, 0, 8, 10),
+                idle: new Animator('idle', this.texture, 32, 32, 0, 0, 1, 0)
+            }
+        }*/
+        
+        this.SpriteOffset = Enums.sprites_offset[this.playerId];
 
-        this.hitbox = new RectHitbox(this, new Vector2D(10, 12), 12, 20);
+        if(this.PlayerId == 1){
+            this.hitbox = new RectHitbox(this, new Vector2D(-10,-15), 20, 30);
+            this.animations = {
+                idle: new Animator('idle', this.texture, 100, 100, 0, 0, 6, 8),
+                walk: new Animator('walk', this.texture, 100, 100, 0, 100, 6, 12)
+            }
+        } else if(this.PlayerId == 2){
+            this.hitbox = new RectHitbox(this, new Vector2D(-25,-20), 30, 40);
+            this.animations = {
+                idle: new Animator('idle', this.texture, 80, 64, 0, 128, 7, 8),
+                walk: new Animator('walk', this.texture, 80, 64, 0, 192, 6, 12)
+            } 
+        } else if(this.PlayerId == 4) {
+            this.hitbox = new RectHitbox(this, new Vector2D(-30,-20), 35, 40);
+            this.animations = {
+                idle: new Animator('idle', this.texture, 80, 80, 0, 0, 9, 8),
+                walk: new Animator('walk', this.texture, 80, 80, 0, 80, 6, 12)
+            }            
+        }                                 
 
         this.currentAnim = this.animations.idle;
         this.currentAnim.play();
 
         //inventario
-        this.inventory = inventory;        
-
-        //player
-        this.PlayerId      = playerId;
-        this.currentPlayer = false;
-
-        this.LevelId  = 1;
-        this.XPNum    = 0.0; 
-
-        this.live    = 5;                   
+        this.inventory = inventory;                         
         
         // MENUS
         this.mainMenu      = new menu(new Vector2D((global_width / 2) - 200,(global_height / 2) - 250),new Vector2D(350,500));
@@ -161,7 +181,7 @@ export default class Player extends GameObject {
         const mouseX  = this.mouse.x;
         const CenterX = document.documentElement.clientWidth / 2 + (32*2);                
 
-        this.texture.flipX = mouseX < CenterX;
+        this.texture.flipX = (this.PlayerId == 2) ? !(mouseX < CenterX) : (mouseX < CenterX);
     }
 
     #move() {
@@ -169,13 +189,13 @@ export default class Player extends GameObject {
         let moving    = false;    
 
         if (this.keyboard.isKey("ArrowLeft") == KeysState.PRESSED || this.keyboard.isKey("KeyA") == KeysState.PRESSED) {
-            this.texture.flipX = true;
+            this.texture.flipX = (this.PlayerId == 2) ? false : true;
             moving = true;
             direction.x -= 1;
         }
 
         if (this.keyboard.isKey("ArrowRight") == KeysState.PRESSED || this.keyboard.isKey("KeyD") == KeysState.PRESSED) {
-            this.texture.flipX = false;
+            this.texture.flipX = (this.PlayerId == 2) ? true : false;
             moving = true;
             direction.x += 1;
         }
@@ -382,6 +402,8 @@ export default class Player extends GameObject {
             this.layoutSwitch_up.updateIcon();
             this.layoutSwitch_left.updateIcon();
             this.layoutSwitch_Right.updateIcon();
+
+            this.currentAnim.update(deltaTime);
         }                              
         
         //Barra superior        
@@ -505,7 +527,7 @@ export default class Player extends GameObject {
     /** @param {CanvasRenderingContext2D} ctx */
     draw(ctx, hudctx) {
         this.hitbox.draw(ctx);
-        this.currentAnim.draw(ctx, this.position);                   
+        this.currentAnim.draw(ctx, new Vector2D(this.position.x - 50, this.position.y - 50));
         
         //VIDA e XP - barrra superior
         this.MinimapLayout.draw(hudctx);
