@@ -56,53 +56,60 @@ export default class Player extends GameObject {
             }
         }*/
         
-        this.SpriteOffset = Enums.sprites_offset[this.playerId];
+        this.SpriteOffset = Enums.sprites_offset[`p-this.playerId`];        
 
-        if(this.PlayerId == 1){
-            this.hitbox = new RectHitbox(this, new Vector2D(-10,-15), 20, 30);
-            this.animations = {
-                hit:      new Animator('hit',      this.texture, 100, 100, 0, 500, 4,  7),
-                die:      new Animator('die',      this.texture, 100, 100, 0, 600, 4,  3),
-                idle:     new Animator('idle',     this.texture, 100, 100, 0, 0,   6,  7),
-                walk:     new Animator('walk',     this.texture, 100, 100, 0, 100, 6, 12),                
-                attack_1: new Animator('attack_1', this.texture, 100, 100, 0, 200, 6, 12),
-                attack_2: new Animator('attack_2', this.texture, 100, 100, 0, 400, 9,  8),
-                HB_01:    new Animator('HB_01',    this.texture, 100, 100, 0, 300, 6,  9),
-                HB_02:    new Animator('HB_02',    this.texture, 100, 100, 0, 711, 8,  5),
-                HB_03:    new Animator('HB_02',    this.texture, 100, 100, 0, 711, 8,  5)              
-            }
-            this.times = {attack: 2,die: 12,hit: 3,HB_01: 7,HB_02: 13,HB_03: 0}            
-        } else if(this.PlayerId == 2){
-            this.hitbox = new RectHitbox(this, new Vector2D(-25,-20), 30, 40);
-            this.animations = {
-                hit:      new Animator('hit',      this.texture, 80, 64, 0,   64,   5,  6),
-                die:      new Animator('die',      this.texture, 80, 64, 0,   0,   10,  7),
-                idle:     new Animator('idle',     this.texture, 80, 64, 0,   128,  7,  6),
-                walk:     new Animator('walk',     this.texture, 80, 64, 0,   192,  8, 12),
-                attack_1: new Animator('attack_1', this.texture, 80, 64, 0,   256, 10, 12),
-                attack_2: new Animator('attack_2', this.texture, 80, 64, 0,   256, 10, 12),
-                HB_01:    new Animator('HB_01',    this.texture, 80, 64, 720, 192,  6,  7),
-                HB_02:    new Animator('HB_02',    this.texture, 80, 64, 320,  64, 13,  4),
-                HB_03:    new Animator('HB_03',    this.texture, 80, 64, 480, 128,  8,  8),
-            } 
-            this.times = {attack: 3,die: 12,hit: 3,HB_01: 7,HB_02: 18,HB_03: 7};           
-        } else if(this.PlayerId == 4){
-            this.hitbox = new RectHitbox(this, new Vector2D(-30,-20), 35, 40);
-            this.animations = {
-                hit:      new Animator('hit',      this.texture, 80, 80, 0,   240,  5,  7),
-                die:      new Animator('die',      this.texture, 80, 80, 0,   320,  5,  7),
-                idle:     new Animator('idle',     this.texture, 80, 80, 0,     0,  8,  7),
-                walk:     new Animator('walk',     this.texture, 80, 80, 0,    80,  6, 12),
-                attack_1: new Animator('attack_1', this.texture, 80, 80, 0,   160, 12, 22),
-                attack_2: new Animator('attack_2', this.texture, 80, 80, 0,   160, 12, 22),
-                HB_01:    new Animator('HB_01',    this.texture, 80, 80, 0,   160,  9,  6),
-                HB_02:    new Animator('HB_02',    this.texture, 80, 80, 160, 320, 24, 10),
-                HB_03:    new Animator('HB_03',    this.texture, 80, 80, 160, 320,  9, 10),
-            }     
-            this.times = {attack: 2,die: 7,hit: 4,HB_01: 15,HB_02: 15,HB_03: 5};            
-        }    
-        
-        this.Counters = {die: 0, attack: 0, HB: 0,hit: 0};
+        // === HITBOX / ANIMATIONS / TIMES / COUNTER ===        
+        this.Counters   = {die: 0, attack: 0, HB: 0,hit: 0};
+
+        switch(this.PlayerId){
+            case 1:
+                this.hitbox     = new RectHitbox(this, new Vector2D(-10,-15), 20, 30);
+                this.animations = {
+                    hit:      new Animator('hit',      this.texture, 100, 100, 0, 500, 4,  7),
+                    die:      new Animator('die',      this.texture, 100, 100, 0, 600, 4,  3),
+                    idle:     new Animator('idle',     this.texture, 100, 100, 0, 0,   6,  7),
+                    walk:     new Animator('walk',     this.texture, 100, 100, 0, 100, 6, 12),                
+                    attack_1: new Animator('attack_1', this.texture, 100, 100, 0, 200, 6, 12),
+                    attack_2: new Animator('attack_2', this.texture, 100, 100, 0, 400, 9,  8),
+                    HB_01:    new Animator('HB_01',    this.texture, 100, 100, 0, 300, 6,  9),
+                    HB_02:    new Animator('HB_02',    this.texture, 100, 100, 0, 711, 8,  5),
+                    HB_03:    new Animator('HB_02',    this.texture, 100, 100, 0, 711, 8,  5)              
+                }
+                this.times = {attack: 2,die: 12,hit: 3,HB_01: 7,HB_02: 13,HB_03: 0}  
+                break;
+            case 2:
+                this.hitbox = new RectHitbox(this, new Vector2D(-25,-20), 30, 40);
+                this.animations = {
+                    hit:      new Animator('hit',      this.texture, 80, 64, 0,   64,   5,  6),
+                    die:      new Animator('die',      this.texture, 80, 64, 0,   0,   10,  7),
+                    idle:     new Animator('idle',     this.texture, 80, 64, 0,   128,  7,  6),
+                    walk:     new Animator('walk',     this.texture, 80, 64, 0,   192,  8, 12),
+                    attack_1: new Animator('attack_1', this.texture, 80, 64, 0,   256, 10, 12),
+                    attack_2: new Animator('attack_2', this.texture, 80, 64, 0,   256, 10, 12),
+                    HB_01:    new Animator('HB_01',    this.texture, 80, 64, 720, 192,  6,  7),
+                    HB_02:    new Animator('HB_02',    this.texture, 80, 64, 320,  64, 13,  4),
+                    HB_03:    new Animator('HB_03',    this.texture, 80, 64, 480, 128,  8,  8),
+                } 
+                this.times = {attack: 3,die: 12,hit: 3,HB_01: 7,HB_02: 18,HB_03: 7}; 
+                break;
+            case 3:
+                break;
+            case 4:
+                this.hitbox = new RectHitbox(this, new Vector2D(-30,-20), 35, 40);
+                this.animations = {
+                    hit:      new Animator('hit',      this.texture, 80, 80, 0,   240,  5,  7),
+                    die:      new Animator('die',      this.texture, 80, 80, 0,   320,  5,  7),
+                    idle:     new Animator('idle',     this.texture, 80, 80, 0,     0,  8,  7),
+                    walk:     new Animator('walk',     this.texture, 80, 80, 0,    80,  6, 12),
+                    attack_1: new Animator('attack_1', this.texture, 80, 80, 0,   160, 12, 22),
+                    attack_2: new Animator('attack_2', this.texture, 80, 80, 0,   160, 12, 22),
+                    HB_01:    new Animator('HB_01',    this.texture, 80, 80, 0,   160,  9,  6),
+                    HB_02:    new Animator('HB_02',    this.texture, 80, 80, 160, 320, 24, 10),
+                    HB_03:    new Animator('HB_03',    this.texture, 80, 80, 160, 320,  9, 10),
+                }     
+                this.times = {attack: 2,die: 7,hit: 4,HB_01: 15,HB_02: 15,HB_03: 5}; 
+                break;
+        }                
 
         this.currentAnim = this.animations.idle;
         this.currentAnim.play();

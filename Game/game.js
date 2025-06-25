@@ -44,7 +44,7 @@ export default class Game {
         this.player1.switchPlayer(true);        
 
         //inimgos
-        this.enemy = new Enemy(null, new Vector2D(100, 100));
+        this.enemy = new Enemy(new Texture("Game/Assets/players/NightBorne80x80.png"), new Vector2D(100, 100));
 
         //minimapa e camera
         this.camera    = new Camera(new Vector2D(0,0).position, 3);
