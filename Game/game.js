@@ -46,7 +46,7 @@ export default class Game {
         this.inventory = new inventory();
 
         // === / COMBATE / ===
-        this.combat = new combat(new Collision());
+        this.combat = new combat();
 
         // === / PLAYER / ===
         this.sharedPosition = new Vector2D(this.width / 2 + 300, this.height / 2);        
@@ -57,7 +57,7 @@ export default class Game {
         this.player1.switchPlayer(true);        
 
         // === / INIMIGOS - BOSSES / ===
-        this.entities = new Entities(20);
+        this.entities = new Entities(10);
         this.entities.spawnWave(new Vector2D(this.width / 2 , this.height / 2));
 
         // === / MINIMAPA - CAMERA ===
@@ -110,10 +110,13 @@ export default class Game {
         this.player2.update(deltaTime);
         this.player4.update(deltaTime);
 
-        for (const enemy of this.entities.getEnemies()) {
-            this.combat.checkCollisions(this.currentPlayer, enemy, deltaTime);
+        if(!this.currentPlayer.mainMenu.cansee && !this.currentPlayer.InventoryMenu.cansee){
+            for (const enemy of this.entities.getEnemies()) {
+                this.combat.checkCollisions(this.currentPlayer, enemy, deltaTime);
+            }
+
+            this.entities.updateAll(deltaTime, this.currentPlayer);        
         }
-        this.entities.updateAll(deltaTime, this.currentPlayer);        
 
         requestAnimationFrame(this.loop.bind(this));
     }    

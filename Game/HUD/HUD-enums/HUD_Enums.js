@@ -163,7 +163,10 @@ const sprites_offset = {
     'p-2': 31,
     'p-3': 0,
     'p-4': 40,
-    'e-1': 50
+    'e-1': 50,
+    'e-2': 50,
+    'e-3': 32,
+    'e-4': 90,
 }
 
 export default {UtilityIcon_type,bar_type,Key_type,dots_Id,XP_BarLevel,icons,customIcons,menus_positions,inventPositions,descriptions,sprites_offset};

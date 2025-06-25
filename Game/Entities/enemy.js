@@ -16,10 +16,8 @@ export default class Enemy extends GameObject {
         this.enemyId    = enemyId;
         this.live       = 5;
         this.AttackMode = false;
-        this.effects    = {shocked: false,poisoned: false,bleeding: false,immunity:false};
-
-        this.speed    = Vector2D.one(0.5);
-        this.moveDir  = Vector2D.zero();    
+        this.effects    = {shocked: false,poisoned: false,bleeding: false,immunity:false};        
+        this.moveDir    = Vector2D.zero();    
                 
         this.sprites_offset = Enums.sprites_offset[`e-${this.enemyId}`];
         
@@ -28,11 +26,18 @@ export default class Enemy extends GameObject {
         this.playerInFieldView = false;   
         this.playerPosition    = new Vector2D(0,0);            
         switch (this.enemyId) {
-            case 1:
-                this.viewField  = new RectHitbox(this, new Vector2D(-400,-400), 800, 800,"blue");
-                this.HBhitbox   = new RectHitbox(this, new Vector2D(-50,-50), 100, 100,"orange");
-                this.attackbox  = new RectHitbox(this, new Vector2D(-45,-45), 90, 90,"yellow");
-                this.hitbox     = new RectHitbox(this, new Vector2D(-15,-15), 30, 30,"red");
+            case 1: //ORC
+                // === / VIZUALIZAÇÃO / ===
+                this.viewField        = new RectHitbox(this, new Vector2D(-400,-400), 800, 800,"blue");
+
+                // === / AREA DE ATAQUE E DAR DANO / ===
+                this.enemyattackbox   = new RectHitbox(this, new Vector2D(-50,-50), 100, 100,"green");
+                this.hitbox           = new RectHitbox(this, new Vector2D(-10,-10), 20, 20,"red");
+
+                // === / AREA DE TOMAR DANO
+                this.HBhitbox         = new RectHitbox(this, new Vector2D(-30,-30), 60, 60,"orange");                
+                this.playerattackbox  = new RectHitbox(this, new Vector2D(-25,-25), 50, 50,"yellow");                
+                
                 this.animations = {
                     hit:      new Animator('hit',      this.texture, 100, 100, 0, 400, 4,  5),
                     die:      new Animator('die',      this.texture, 100, 100, 0, 500, 4,  4),
@@ -40,8 +45,75 @@ export default class Enemy extends GameObject {
                     walk:     new Animator('walk',     this.texture, 100, 100, 0, 100, 8, 12),
                     attack_1: new Animator('attack_1', this.texture, 100, 100, 0, 300, 6, 12),
                 };
-                this.times = {attack: 2,die: 6,hit: 4};
-                break;        
+                this.times = {attack: 2,die: 6,hit: 4,timedead: 30};
+                this.speed = Vector2D.one(0.6);
+                break;
+            case 2: //GOLEMS
+                // === / VIZUALIZAÇÃO / ===
+                this.viewField        = new RectHitbox(this, new Vector2D(-400,-400), 800, 800,"blue");
+
+                // === / AREA DE ATAQUE E DAR DANO / ===
+                this.enemyattackbox   = new RectHitbox(this, new Vector2D(-60,-60), 120, 120,"green");
+                this.hitbox           = new RectHitbox(this, new Vector2D(-20,-20), 40, 40,"red");
+
+                // === / AREA DE TOMAR DANO
+                this.HBhitbox         = new RectHitbox(this, new Vector2D(-45,-45), 90, 90,"orange");                
+                this.playerattackbox  = new RectHitbox(this, new Vector2D(-35,-35), 70, 70,"yellow");                
+                
+                this.animations = {
+                    hit:      new Animator('hit',      this.texture, 90, 64, 0, 128,  4,  5),
+                    die:      new Animator('die',      this.texture, 90, 64, 0, 64,  13,  9),
+                    idle:     new Animator('idle',     this.texture, 90, 64, 0, 192,  8,  7),
+                    walk:     new Animator('walk',     this.texture, 90, 64, 0, 256, 10, 12),
+                    attack_1: new Animator('attack_1', this.texture, 90, 64, 0, 0,   11, 14),
+                };
+                this.times = {attack: 4,die: 8,hit: 4,timedead: 20};
+                this.speed = Vector2D.one(0.3);
+                break;
+            case 3: //BAT
+                // === / VIZUALIZAÇÃO / ===
+                this.viewField        = new RectHitbox(this, new Vector2D(-400,-400), 800, 800,"blue");
+
+                // === / AREA DE ATAQUE E DAR DANO / ===
+                this.enemyattackbox   = new RectHitbox(this, new Vector2D(-60,-60), 120, 120,"green");
+                this.hitbox           = new RectHitbox(this, new Vector2D(-20,-20), 40, 40,"red");
+
+                // === / AREA DE TOMAR DANO
+                this.HBhitbox         = new RectHitbox(this, new Vector2D(-45,-45), 90, 90,"orange");                
+                this.playerattackbox  = new RectHitbox(this, new Vector2D(-35,-35), 70, 70,"yellow");                
+                
+                this.animations = {
+                    hit:      new Animator('hit',      this.texture, 64, 64, 0, 192,  5,  5),
+                    die:      new Animator('die',      this.texture, 64, 64, 0, 128, 10,  9),
+                    idle:     new Animator('idle',     this.texture, 64, 64, 0, 256,  9,  8),
+                    walk:     new Animator('walk',     this.texture, 64, 64, 0, 320,  8, 12),
+                    attack_1: new Animator('attack_1', this.texture, 64, 64, 0, 0,    8, 10),
+                };
+                this.times = {attack: 4,die: 10,hit: 4,timedead: 16};
+                this.speed = Vector2D.one(0.8);
+                break;
+            case 4: //NECROMANCER
+                // === / VIZUALIZAÇÃO / ===
+                this.viewField        = new RectHitbox(this, new Vector2D(-450,-450), 900, 900,"blue");
+
+                // === / AREA DE ATAQUE E DAR DANO / ===
+                this.enemyattackbox   = new RectHitbox(this, new Vector2D(-75,-75), 150, 150,"green");
+                this.hitbox           = new RectHitbox(this, new Vector2D(-25,-25), 50, 50,"red");
+
+                // === / AREA DE TOMAR DANO
+                this.HBhitbox         = new RectHitbox(this, new Vector2D(-50,-50), 100, 100,"orange");                
+                this.playerattackbox  = new RectHitbox(this, new Vector2D(-40,-40), 80, 80,"yellow");                
+                
+                this.animations = {
+                    hit:      new Animator('hit',      this.texture, 160, 128, 0, 640,  5,  5),
+                    die:      new Animator('die',      this.texture, 160, 128, 0, 768,  8,  8),
+                    idle:     new Animator('idle',     this.texture, 160, 128, 0, 0,    8,  8),
+                    walk:     new Animator('walk',     this.texture, 160, 128, 0, 128,  8, 12),
+                    attack_1: new Animator('attack_1', this.texture, 160, 128, 0, 256, 11, 14),
+                };
+                this.times = {attack: 5,die: 10,hit: 4,timedead: 15};
+                this.speed = Vector2D.one(0.9);
+                break;
             default:
                 this.hitbox     = new RectHitbox(this, new Vector2D(0,0), 0, 0);
                 this.animations = {};
@@ -119,11 +191,12 @@ export default class Enemy extends GameObject {
 
         if(this.AttackMode){
             if(this.Counters.attack > this.times.attack)
-                this.AttackMode = false
-            else{
-                this.Counters.attack = 0;
+                this.AttackMode = false                
+            else{                
                 this.#setAction('attack_1')
             }
+
+            this.Counters.attack = 0;
         }
 
         this.#move();           
@@ -136,20 +209,40 @@ export default class Enemy extends GameObject {
         if(GlobalVars.devMode){
             this.hitbox.draw(ctx);
             this.viewField.draw(ctx);
-            this.attackbox.draw(ctx);
+            this.enemyattackbox.draw(ctx);
+            this.playerattackbox.draw(ctx);
             this.HBhitbox.draw(ctx);
         }
-        this.currentAnim.draw(ctx, new Vector2D(this.position.x - 50,this.position.y - 50));
+
+        this.currentAnim.draw(ctx, new Vector2D(this.position.x - this.sprites_offset,this.position.y - this.sprites_offset));
+
+        if(ctx){
+            ctx.font         = "0.5rem MONOGRAM";
+            ctx.fillStyle    = "white";
+            ctx.textBaseline = "top";
+            ctx.fillText(`${this.live}`, this.position.x, this.position.y - 15);
+        }
     }
 
     //Utilidades
-    subEnemyLife(playerPosition,deltaTime){
-        if (!this.#checkCurrentAnimation(['hit', 'die'])) {            
+    subEnemyLife(playerPosition,deltaTime){  
+        console.log(this.currentAnim.name);
+                
+        if (!this.#checkCurrentAnimation(['hit','die'])) {            
             if (this.live > 0) {
                 this.live--;
 
-                // Knockback
-                const knockbackForce = 50;
+                if (this.live == 0) {
+                    this.Counters.die = 0;
+                    this.#setAction('die');
+                } else {
+                    this.Counters.hit = 0;
+                    this.#setAction('hit');
+                }
+
+                this.currentAnim.update(deltaTime);
+
+                const knockbackForce = 5;
                 const dx = this.position.x - playerPosition.x;
                 const dy = this.position.y - playerPosition.y;
                 const magnitude = Math.sqrt(dx * dx + dy * dy) || 1;
@@ -159,22 +252,22 @@ export default class Enemy extends GameObject {
 
             } else {
                 this.live = 0;
-            }
 
-            if (this.live == 0) {
-                this.Counters.die = 0;
-                this.#setAction('die');
-            } else {
-                this.Counters.hit = 0;
-                this.#setAction('hit');
-            }
+                if (this.live == 0) {
+                    this.Counters.die = 0;
+                    this.#setAction('die');
+                } else {
+                    this.Counters.hit = 0;
+                    this.#setAction('hit');
+                }
 
-            this.currentAnim.update(deltaTime);
+                this.currentAnim.update(deltaTime);
+            }                                                
         }
     }
 
     setAttack(insideCollision){
-        this.AttackMode = insideCollision;
+        this.AttackMode      = insideCollision;        
     }
 
     /**

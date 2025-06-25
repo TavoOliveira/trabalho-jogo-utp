@@ -68,7 +68,7 @@ export default class Player extends GameObject {
             case 1:
                 this.hitbox     = new RectHitbox(this, new Vector2D(-10,-15), 20, 30);
                 this.animations = {
-                    hit:      new Animator('hit',      this.texture, 100, 100, 0, 500, 4,  7),
+                    hit:      new Animator('hit',      this.texture, 100, 100, 0, 500, 4,  8),
                     die:      new Animator('die',      this.texture, 100, 100, 0, 600, 4,  3),
                     idle:     new Animator('idle',     this.texture, 100, 100, 0, 0,   6,  7),
                     walk:     new Animator('walk',     this.texture, 100, 100, 0, 100, 6, 12),                
@@ -78,12 +78,12 @@ export default class Player extends GameObject {
                     HB_02:    new Animator('HB_02',    this.texture, 100, 100, 0, 711, 8,  5),
                     HB_03:    new Animator('HB_02',    this.texture, 100, 100, 0, 711, 8,  5)              
                 }
-                this.times = {attack: 2,die: 12,hit: 3,HB_01: 7,HB_02: 13,HB_03: 0}  
+                this.times = {attack: 2,die: 12,hit: 2,HB_01: 7,HB_02: 13,HB_03: 0}  
                 break;
             case 2:
                 this.hitbox = new RectHitbox(this, new Vector2D(-25,-20), 30, 40);
                 this.animations = {
-                    hit:      new Animator('hit',      this.texture, 80, 64, 0,   64,   5,  6),
+                    hit:      new Animator('hit',      this.texture, 80, 64, 0,   64,   5,  8),
                     die:      new Animator('die',      this.texture, 80, 64, 0,   0,   10,  7),
                     idle:     new Animator('idle',     this.texture, 80, 64, 0,   128,  7,  6),
                     walk:     new Animator('walk',     this.texture, 80, 64, 0,   192,  8, 12),
@@ -93,14 +93,14 @@ export default class Player extends GameObject {
                     HB_02:    new Animator('HB_02',    this.texture, 80, 64, 320,  64, 13,  4),
                     HB_03:    new Animator('HB_03',    this.texture, 80, 64, 480, 128,  8,  8),
                 } 
-                this.times = {attack: 3,die: 12,hit: 3,HB_01: 7,HB_02: 18,HB_03: 7}; 
+                this.times = {attack: 3,die: 12,hit: 2,HB_01: 7,HB_02: 18,HB_03: 7}; 
                 break;
             case 3:
                 break;
             case 4:
                 this.hitbox = new RectHitbox(this, new Vector2D(-30,-20), 35, 40);
                 this.animations = {
-                    hit:      new Animator('hit',      this.texture, 80, 80, 0,   240,  5,  7),
+                    hit:      new Animator('hit',      this.texture, 80, 80, 0,   240,  5,  8),
                     die:      new Animator('die',      this.texture, 80, 80, 0,   320,  5,  7),
                     idle:     new Animator('idle',     this.texture, 80, 80, 0,     0,  8,  7),
                     walk:     new Animator('walk',     this.texture, 80, 80, 0,    80,  6, 12),
@@ -110,7 +110,7 @@ export default class Player extends GameObject {
                     HB_02:    new Animator('HB_02',    this.texture, 80, 80, 160, 320, 24, 10),
                     HB_03:    new Animator('HB_03',    this.texture, 80, 80, 160, 320,  9, 10),
                 }     
-                this.times = {attack: 2,die: 7,hit: 4,HB_01: 15,HB_02: 15,HB_03: 5}; 
+                this.times = {attack: 2,die: 7,hit: 3,HB_01: 15,HB_02: 15,HB_03: 5}; 
                 break;
             default:
                 this.hitbox     = new RectHitbox(this, new Vector2D(0,0), 0, 0);
@@ -765,8 +765,18 @@ export default class Player extends GameObject {
             if (this.live > 0) {
                 this.HealthBar.addOrSubStartX(true); 
                 this.live--;
+
+                if (this.live == 0) {
+                    this.Counters.die = 0;
+                    this.#setAction('die');
+                } else if (this.live > 0) {
+                    this.Counters.hit = 0;
+                    this.#setAction('hit');
+                }
+
+                this.currentAnim.update(deltaTime);
                 
-                const knockbackForce = 40;
+                const knockbackForce = (this.playerId == 4) ? 80 : 70;
                 const dx = this.position.x - enemyPosition.x;
                 const dy = this.position.y - enemyPosition.y;
                 const magnitude = Math.sqrt(dx * dx + dy * dy) || 1;
@@ -776,17 +786,17 @@ export default class Player extends GameObject {
 
             } else {
                 this.live = 0;
-            }
 
-            if (this.live == 0) {
-                this.Counters.die = 0;
-                this.#setAction('die');
-            } else if (this.live > 0) {
-                this.Counters.hit = 0;
-                this.#setAction('hit');
-            }
+                if (this.live == 0) {
+                    this.Counters.die = 0;
+                    this.#setAction('die');
+                } else if (this.live > 0) {
+                    this.Counters.hit = 0;
+                    this.#setAction('hit');
+                }
 
-            this.currentAnim.update(deltaTime);
+                this.currentAnim.update(deltaTime);
+            }            
         }
     }
 
