@@ -1,15 +1,25 @@
+// === / PLAYER - ENEMY / ===
 import Player from "./Entities/player.js";
-import Enemy from "./Entities/enemy.js";
-import inventory from "../Game/HUD/inventory.js"
-import Vector2D from "../Engine/Utils/vector2d.js";
-import Texture from "../Engine/Utils/texture.js";
+import Entities from "./Entities/entities.js";
+
+// === / MAPA / ===
+import TileMap from "../Engine/Map/tile-map.js";
+
+// === / INPUTS / ===
 import Keyboard from "../Engine/Inputs/keyboard.js";
 import Mouse from "../Engine/Inputs/mouse.js";
-import { Collision } from "../Engine/Collision/index.js";
-import TileMap from "../Engine/Map/tile-map.js";
-import JsonLoader from "../Engine/Utils/json-loader.js";
+
+// === / COMBATE - INVENTARIO / ===
+import combat from "../Game/combat/combat.js";
+import inventory from "../Game/HUD/inventory.js"
+
+// === / UTILIDADES / ===
 import Camera from "../Engine/Utils/camera.js";
+import Texture from "../Engine/Utils/texture.js";
+import Vector2D from "../Engine/Utils/vector2d.js";
 import KeysState from "../Engine/Enums/key-state.js";
+import JsonLoader from "../Engine/Utils/json-loader.js";
+import { Collision } from "../Engine/Collision/index.js";
 
 export default class Game {
     constructor(canvasId) {
@@ -28,28 +38,33 @@ export default class Game {
         this.HUDCanvas.width  = this.width;
         this.HUDCanvas.height = this.height;
 
-        //Inputs
+        // === / INPUTS / ===
         this.keyboard = new Keyboard();
         this.mouse    = new Mouse();  
 
-        //inventario
+        // === / INVENTARIO / ===
         this.inventory = new inventory();
 
-        //Players
-        this.sharedPosition = new Vector2D(this.width / 2, this.height / 2);        
+        // === / COMBATE / ===
+        this.combat = new combat(new Collision());
+
+        // === / PLAYER / ===
+        this.sharedPosition = new Vector2D(this.width / 2 + 300, this.height / 2);        
                 
         this.player1 = new Player(new Texture("Game/Assets/players/Soldier100x100.png"),  this.sharedPosition, this.keyboard,this.mouse,1,this.inventory);
         this.player2 = new Player(new Texture("Game/Assets/players/mushroom64x80.png"),   this.sharedPosition, this.keyboard,this.mouse,2,this.inventory);
         this.player4 = new Player(new Texture("Game/Assets/players/NightBorne80x80.png"), this.sharedPosition, this.keyboard,this.mouse,4,this.inventory);
         this.player1.switchPlayer(true);        
 
-        //inimgos
-        this.enemy = new Enemy(new Texture("Game/Assets/players/NightBorne80x80.png"), new Vector2D(100, 100));
+        // === / INIMIGOS - BOSSES / ===
+        this.entities = new Entities(20);
+        this.entities.spawnWave(new Vector2D(this.width / 2 , this.height / 2));
 
-        //minimapa e camera
+        // === / MINIMAPA - CAMERA ===
         this.camera    = new Camera(new Vector2D(0,0).position, 3);
         this.minMapCam = new Camera(new Vector2D(0,0).position, 0.3);        
 
+        // === MAPA ===
         this.tilemap     = null;
         this.tilemapMini = null;
 
@@ -95,6 +110,11 @@ export default class Game {
         this.player2.update(deltaTime);
         this.player4.update(deltaTime);
 
+        for (const enemy of this.entities.getEnemies()) {
+            this.combat.checkCollisions(this.currentPlayer, enemy, deltaTime);
+        }
+        this.entities.updateAll(deltaTime, this.currentPlayer);        
+
         requestAnimationFrame(this.loop.bind(this));
     }    
 
@@ -122,7 +142,7 @@ export default class Game {
             this.tilemap.draw(ctx);         
 
         this.currentPlayer.draw(ctx, hudctx);        
-        this.enemy.draw(ctx);                      
+        this.entities.drawAll(ctx);
 
         this.camera.resetTransform(ctx, this.canvas.width, this.canvas.height);            
     }
@@ -156,7 +176,7 @@ export default class Game {
         if (this.tilemapMini != null)
             this.tilemapMini.draw(ctx);
         
-        this.enemy.draw(ctx);
+        this.entities.drawAll(ctx);
 
         this.minMapCam.resetTransform(ctx, minimapOffset, minimapOffset);
 

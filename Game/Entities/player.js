@@ -1,4 +1,4 @@
-//HUD
+// === / HUD - INVENTARIO / ===
 import XPBar from "../HUD/XPBar.js";
 import Icons from "../HUD/icons.js";
 import Layout from "../HUD/Layout.js";
@@ -6,14 +6,16 @@ import Weapons from "../HUD/weapons.js"
 import mouse_dots from "../HUD/dots.js";
 import HealthBar from "../HUD/HealthBar.js";
 import loadingicon from "../HUD/loadingIcon.js";
+
+// === / VARIAVEIS GLOBAIS - ENUMS GERAIS / ===
 import Enums from "../HUD/HUD-enums/HUD_Enums.js";
 import GlobalVars from "../HUD/HUD-Vars/HUDGlobalVars.js";
 
-//Menus gerais
+// === / MENUS / ===
 import menu from "../HUD/menu.js";
-import InventoryMenu from "../HUD/inventoryMenu.js"
+import InventoryMenu from "../HUD/inventoryMenu.js";
 
-//Util
+// === / UTILIDADES / ===
 import Texture from "../../Engine/Utils/texture.js";
 import Vector2D from "../../Engine/Utils/vector2d.js";
 import KeysState from "../../Engine/Enums/key-state.js";
@@ -41,7 +43,8 @@ export default class Player extends GameObject {
         this.currentPlayer = false;
         this.LevelId       = 1;
         this.XPNum         = 0.0; 
-        this.live          = 4 ; 
+        this.live          = 4;
+        this.effects       = {shocked: false,poisoned: false,bleeding: false,immunity:false}; 
         
         this.keyboard = keyboard;
         this.mouse    = mouse;
@@ -108,6 +111,11 @@ export default class Player extends GameObject {
                     HB_03:    new Animator('HB_03',    this.texture, 80, 80, 160, 320,  9, 10),
                 }     
                 this.times = {attack: 2,die: 7,hit: 4,HB_01: 15,HB_02: 15,HB_03: 5}; 
+                break;
+            default:
+                this.hitbox     = new RectHitbox(this, new Vector2D(0,0), 0, 0);
+                this.animations = {};
+                this.times      = {attack: 0,die: 0,hit: 0,HB_01: 0,HB_02: 0,HB_03: 0}; 
                 break;
         }                
 
@@ -220,21 +228,18 @@ export default class Player extends GameObject {
     }
 
     /**
-     * @param {Array}   names -array de nomes a serem verificados
-     * @param {boolean} mustNotBeInList  -tipo de verificação true - verifica se é igual / false - verifica se é diferente 
+     * @param {Array}   names -array de nomes a serem verificados     
      */
-    #checkCurrentAnimation(names, mustNotBeInList = true) {
-        if (names.length == 0) return true;
+    #checkCurrentAnimation(names) {
+        if (names.length == 0) return true;             
 
-        const isInList = names.includes(this.currentAnim.name);                
-
-        return mustNotBeInList ? isInList : !isInList;
+        return names.includes(this.currentAnim.name);
     }
 
     #previousIdleCheck(){
         let ret = true;
         
-        if((this.currentAnim.name == 'attack_1' || this.currentAnim.name == 'attack_2') && this.times.attack >= this.Counters.attack)
+        if(this.#checkCurrentAnimation(['attack_1','attack_2']) && this.times.attack >= this.Counters.attack)
             ret = false;
         else if((this.currentAnim.name == 'HB_01') && this.times.HB_01 >= this.Counters.HB)
             ret = false;
@@ -278,7 +283,7 @@ export default class Player extends GameObject {
 
         direction = direction.normalize();                
         
-        if (this.#checkCurrentAnimation(['HB_01','HB_02','HB_03','hit','die'], false)) {
+        if (!this.#checkCurrentAnimation(['HB_01','HB_02','HB_03','hit','die'])) {
             if (moving) {
                 this.#setAction('walk');
                 this.moveDir.copy(direction);
@@ -498,7 +503,7 @@ export default class Player extends GameObject {
                 this.currentAnim.update(deltaTime);            
 
             this.updateSwtichDesign()                                                                    
-        } else {                                                   
+        } else {
             this.updateSwtichDesign(true);                          
         }
 
@@ -522,13 +527,12 @@ export default class Player extends GameObject {
         
         //Funções gerais
         if(this.live > 0 && !this.switchMode){
-
             // === / Combate / ===
             if(this.mouse.isLeft){
                 if(this.PlayerId == 1)         
                     this.times.attack = (this.currentWeapon.WeaponId == 1) ? 3 : 6                                    
                 
-                if(this.#checkCurrentAnimation(['HB_01','HB_02','HB_03'],false)){
+                if(!this.#checkCurrentAnimation(['HB_01','HB_02','HB_03'])){
                     this.Counters.attack = 0
                     this.#setAction(`attack_${this.currentWeapon.WeaponId}`);    
                 }        
@@ -650,7 +654,7 @@ export default class Player extends GameObject {
         }   
 
         //=== / Teste - VIDA / ===
-        if (this.keyboard.isKey("KeyO") == KeysState.CLICKED) {                          
+        if (this.keyboard.isKey("KeyO") == KeysState.CLICKED) {
             if(this.live > 0){
                 this.HealthBar.addOrSubStartX(true); 
                 this.live--;  
@@ -672,7 +676,9 @@ export default class Player extends GameObject {
 
     /** @param {CanvasRenderingContext2D} ctx */
     draw(ctx, hudctx) {
-        this.hitbox.draw(ctx);        
+        if(GlobalVars.devMode)
+            this.hitbox.draw(ctx);        
+        
         this.currentAnim.draw(ctx, new Vector2D(this.position.x - 50, this.position.y - 50));
         
         //VIDA e XP - barrra superior
@@ -747,12 +753,52 @@ export default class Player extends GameObject {
     }
 
     drawWorld(ctx) {
-        this.hitbox.draw(ctx);
+        if(GlobalVars.devMode)
+            this.hitbox.draw(ctx);
+        
         this.currentAnim.draw(ctx, this.position);
     }
 
     //utilidades
-    isMenuBlocking(input){        
+    subPlayerLife(enemyPosition,deltaTime){
+        if (!this.#checkCurrentAnimation(['hit', 'die'])) {                        
+            if (this.live > 0) {
+                this.HealthBar.addOrSubStartX(true); 
+                this.live--;
+                
+                const knockbackForce = 40;
+                const dx = this.position.x - enemyPosition.x;
+                const dy = this.position.y - enemyPosition.y;
+                const magnitude = Math.sqrt(dx * dx + dy * dy) || 1;
+
+                this.position.x += (dx / magnitude) * knockbackForce;
+                this.position.y += (dy / magnitude) * knockbackForce;
+
+            } else {
+                this.live = 0;
+            }
+
+            if (this.live == 0) {
+                this.Counters.die = 0;
+                this.#setAction('die');
+            } else if (this.live > 0) {
+                this.Counters.hit = 0;
+                this.#setAction('hit');
+            }
+
+            this.currentAnim.update(deltaTime);
+        }
+    }
+
+    /**
+     * @param {string}  effectId  - Nome do efeito a ser manipulado
+     * @param {boolean} value - atribuir ou desatribuir efeito
+     */
+    handleEffect(effectId,value){
+        this.effects[effectId] = value;                
+    }
+
+    isMenuBlocking(input){
         if(input == 'pause' && this.InventoryMenu.cansee) return true;
         if(input == 'inventory' && this.mainMenu.cansee) return true;
         return false;

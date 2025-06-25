@@ -1,4 +1,7 @@
+// === / UTILIDADES / ===
 import Texture  from "../../Engine/Utils/texture.js";
+
+// === / ENUMS GLOBAIS / ===
 import Enums from "./HUD-enums/HUD_Enums.js";
 
 export default class HealthBar{

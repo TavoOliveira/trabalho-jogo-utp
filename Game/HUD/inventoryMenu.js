@@ -1,6 +1,8 @@
+// === / UTILIDADES / ===
 import Icons from "../HUD/icons.js";
 import Vector2D from "../../Engine/Utils/vector2d.js";
 
+// === / DESCRIÇÕES // ===
 import descriptions from "../HUD/description.js";
 
 export default class InventoryMenu{
