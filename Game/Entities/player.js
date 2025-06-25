@@ -35,17 +35,19 @@ export default class Player extends GameObject {
         const global_height   = document.documentElement.clientHeight;        
 
         super(texture, position);
-        this.keyboard = keyboard;
-        this.mouse    = mouse;
-        this.speed    = Vector2D.one(5); //5 para testes
-        this.moveDir  = Vector2D.zero();
 
         //player
         this.PlayerId      = playerId;
         this.currentPlayer = false;
         this.LevelId       = 1;
         this.XPNum         = 0.0; 
-        this.live          = 5;   
+        this.live          = 4 ; 
+        
+        this.keyboard = keyboard;
+        this.mouse    = mouse;
+
+        this.speed    = Vector2D.one((this.PlayerId == 1 || this.PlayerId == 2) ? 3 : 4); //5 para testes
+        this.moveDir  = Vector2D.zero();          
         
         /*if(this.PlayerId == 0){
             this.animations = {
@@ -59,22 +61,48 @@ export default class Player extends GameObject {
         if(this.PlayerId == 1){
             this.hitbox = new RectHitbox(this, new Vector2D(-10,-15), 20, 30);
             this.animations = {
-                idle: new Animator('idle', this.texture, 100, 100, 0, 0, 6, 7),
-                walk: new Animator('walk', this.texture, 100, 100, 0, 100, 6, 12)
+                hit:      new Animator('hit',      this.texture, 100, 100, 0, 500, 4,  7),
+                die:      new Animator('die',      this.texture, 100, 100, 0, 600, 4,  3),
+                idle:     new Animator('idle',     this.texture, 100, 100, 0, 0,   6,  7),
+                walk:     new Animator('walk',     this.texture, 100, 100, 0, 100, 6, 12),                
+                attack_1: new Animator('attack_1', this.texture, 100, 100, 0, 200, 6, 12),
+                attack_2: new Animator('attack_2', this.texture, 100, 100, 0, 400, 9,  8),
+                HB_01:    new Animator('HB_01',    this.texture, 100, 100, 0, 300, 6,  9),
+                HB_02:    new Animator('HB_02',    this.texture, 100, 100, 0, 711, 8,  5),
+                HB_03:    new Animator('HB_02',    this.texture, 100, 100, 0, 711, 8,  5)              
             }
+            this.times = {attack: 2,die: 12,hit: 3,HB_01: 7,HB_02: 13,HB_03: 0}            
         } else if(this.PlayerId == 2){
             this.hitbox = new RectHitbox(this, new Vector2D(-25,-20), 30, 40);
             this.animations = {
-                idle: new Animator('idle', this.texture, 80, 64, 0, 128, 7, 6),
-                walk: new Animator('walk', this.texture, 80, 64, 0, 192, 8, 12)
+                hit:      new Animator('hit',      this.texture, 80, 64, 0,   64,   5,  6),
+                die:      new Animator('die',      this.texture, 80, 64, 0,   0,   10,  7),
+                idle:     new Animator('idle',     this.texture, 80, 64, 0,   128,  7,  6),
+                walk:     new Animator('walk',     this.texture, 80, 64, 0,   192,  8, 12),
+                attack_1: new Animator('attack_1', this.texture, 80, 64, 0,   256, 10, 12),
+                attack_2: new Animator('attack_2', this.texture, 80, 64, 0,   256, 10, 12),
+                HB_01:    new Animator('HB_01',    this.texture, 80, 64, 720, 192,  6,  7),
+                HB_02:    new Animator('HB_02',    this.texture, 80, 64, 320,  64, 13,  4),
+                HB_03:    new Animator('HB_03',    this.texture, 80, 64, 480, 128,  8,  8),
             } 
-        } else if(this.PlayerId == 4) {
+            this.times = {attack: 3,die: 12,hit: 3,HB_01: 7,HB_02: 18,HB_03: 7};           
+        } else if(this.PlayerId == 4){
             this.hitbox = new RectHitbox(this, new Vector2D(-30,-20), 35, 40);
             this.animations = {
-                idle: new Animator('idle', this.texture, 80, 80, 0, 0, 8, 7),
-                walk: new Animator('walk', this.texture, 80, 80, 0, 80, 6, 12)
-            }            
-        }                                 
+                hit:      new Animator('hit',      this.texture, 80, 80, 0,   240,  5,  7),
+                die:      new Animator('die',      this.texture, 80, 80, 0,   320,  5,  7),
+                idle:     new Animator('idle',     this.texture, 80, 80, 0,     0,  8,  7),
+                walk:     new Animator('walk',     this.texture, 80, 80, 0,    80,  6, 12),
+                attack_1: new Animator('attack_1', this.texture, 80, 80, 0,   160, 12, 22),
+                attack_2: new Animator('attack_2', this.texture, 80, 80, 0,   160, 12, 22),
+                HB_01:    new Animator('HB_01',    this.texture, 80, 80, 0,   160,  9,  6),
+                HB_02:    new Animator('HB_02',    this.texture, 80, 80, 160, 320, 24, 10),
+                HB_03:    new Animator('HB_03',    this.texture, 80, 80, 160, 320,  9, 10),
+            }     
+            this.times = {attack: 2,die: 7,hit: 4,HB_01: 15,HB_02: 15,HB_03: 5};            
+        }    
+        
+        this.Counters = {die: 0, attack: 0, HB: 0,hit: 0};
 
         this.currentAnim = this.animations.idle;
         this.currentAnim.play();
@@ -168,7 +196,7 @@ export default class Player extends GameObject {
     }
 
     #setAction(name) {
-        if (this.currentAnim.name == name) return;
+        if (this.currentAnim.name == name && name != 'hit') return;
 
         this.currentAnim.stop();
         this.currentAnim = this.animations[name];
@@ -179,51 +207,120 @@ export default class Player extends GameObject {
         if(this.currentAnim.name != 'idle') return;
 
         const mouseX  = this.mouse.x;
-        const CenterX = document.documentElement.clientWidth / 2 + (32*2);                
+        const CenterX = document.documentElement.clientWidth / 2;                
 
         this.texture.flipX = (this.PlayerId == 2) ? !(mouseX < CenterX) : (mouseX < CenterX);
     }
 
+    /**
+     * @param {Array}   names -array de nomes a serem verificados
+     * @param {boolean} mustNotBeInList  -tipo de verificação true - verifica se é igual / false - verifica se é diferente 
+     */
+    #checkCurrentAnimation(names, mustNotBeInList = true) {
+        if (names.length == 0) return true;
+
+        const isInList = names.includes(this.currentAnim.name);                
+
+        return mustNotBeInList ? isInList : !isInList;
+    }
+
+    #previousIdleCheck(){
+        let ret = true;
+        
+        if((this.currentAnim.name == 'attack_1' || this.currentAnim.name == 'attack_2') && this.times.attack >= this.Counters.attack)
+            ret = false;
+        else if((this.currentAnim.name == 'HB_01') && this.times.HB_01 >= this.Counters.HB)
+            ret = false;
+        else if((this.currentAnim.name == 'HB_02') && this.times.HB_02 >= this.Counters.HB)
+            ret = false;
+        else if((this.currentAnim.name == 'HB_03') && this.times.HB_03 >= this.Counters.HB)
+            ret = false;  
+        else if((this.currentAnim.name == 'hit') && this.times.hit >= this.Counters.hit)
+            ret = false;        
+
+        return ret;
+    }
+
     #move() {
         let direction = Vector2D.zero();
-        let moving    = false;    
+        let moving    = false;
 
+        if (this.live <= 0) return;
+        
         if (this.keyboard.isKey("ArrowLeft") == KeysState.PRESSED || this.keyboard.isKey("KeyA") == KeysState.PRESSED) {
             this.texture.flipX = (this.PlayerId == 2) ? false : true;
-            moving = true;
             direction.x -= 1;
+            moving = true;
         }
 
         if (this.keyboard.isKey("ArrowRight") == KeysState.PRESSED || this.keyboard.isKey("KeyD") == KeysState.PRESSED) {
             this.texture.flipX = (this.PlayerId == 2) ? true : false;
-            moving = true;
             direction.x += 1;
+            moving = true;
         }
 
         if (this.keyboard.isKey("ArrowUp") == KeysState.PRESSED || this.keyboard.isKey("KeyW") == KeysState.PRESSED) {
-            moving = true;
             direction.y -= 1;
+            moving = true;
         }
 
         if (this.keyboard.isKey("ArrowDown") == KeysState.PRESSED || this.keyboard.isKey("KeyS") == KeysState.PRESSED) {
-            moving = true;
             direction.y += 1;
-        }                
+            moving = true;
+        }
 
-        if (moving) {
-            this.#setAction('walk');
-            direction = direction.normalize();
-            this.moveDir.copy(direction);
-            this.position.x += direction.x * this.speed.x;
-            this.position.y += direction.y * this.speed.y;
-        } else {
-            this.moveDir.set(0, 0);
-            this.#setAction('idle');
-        }        
+        direction = direction.normalize();                
+        
+        if (this.#checkCurrentAnimation(['HB_01','HB_02','HB_03','hit','die'], false)) {
+            if (moving) {
+                this.#setAction('walk');
+                this.moveDir.copy(direction);
+                this.position.x += direction.x * this.speed.x;
+                this.position.y += direction.y * this.speed.y;
+            } else {
+                if (this.#previousIdleCheck()) {
+                    this.moveDir.set(0, 0);
+                    this.#setAction('idle');
+                }
+            }
+        } else {            
+            if (this.PlayerId == 4 && this.currentAnim.name == 'HB_03' && !this.#previousIdleCheck()) {    
+                const centerX = document.documentElement.clientWidth / 2;
+                const centerY = document.documentElement.clientHeight / 2;
+
+                const directionToMouse = new Vector2D(
+                    this.mouse.x - centerX,
+                    this.mouse.y - centerY
+                ).normalize();
+
+                this.moveDir.copy(directionToMouse);
+
+                this.position.x += this.moveDir.x * (this.speed.x + 2);
+                this.position.y += this.moveDir.y * (this.speed.y + 2);               
+            } else if(this.#previousIdleCheck()){
+                this.moveDir.set(0, 0);
+                this.#setAction('idle');
+            }
+        }
     }
 
     update(deltaTime) {
         this.Mousedot.setMousePos(this.mouse.x, this.mouse.y);  
+
+        // === / timers - counters / ===
+        if(this.#checkCurrentAnimation(['attack_1','attack_2'])){
+            this.Counters.attack += this.PlayerId == 1 ? deltaTime * 0.006 : deltaTime * 0.004;                            
+        } else if(this.currentAnim.name == 'HB_01'){
+            this.Counters.HB += deltaTime * 0.009   ;        
+        } else if(this.currentAnim.name == 'HB_02'){
+            this.Counters.HB += deltaTime * 0.008;  
+        } else if(this.currentAnim.name == 'HB_03'){
+            this.Counters.HB += deltaTime * 0.008;              
+        } else if(this.currentAnim.name == 'hit'){
+            this.Counters.hit += deltaTime * 0.005;
+        } else if(this.currentAnim.name == 'die'){
+            this.Counters.die += this.PlayerId == 4 ? deltaTime * 0.01 : deltaTime * 0.009;
+        }                  
         
         // === MENUS ===
         if(this.mainMenu.cansee){ //Menu de pausa
@@ -384,18 +481,18 @@ export default class Player extends GameObject {
             if (!this.isMenuBlocking('pause')) {
                 this.mainMenu.updateSee(!this.mainMenu.cansee);
             }
-        }                      
-
-        //Prioridade - MOUSE
-        this.#updateFacing();        
+        }                                     
 
         //Player Swtich            
         if(!this.keyboard.isKey("AltLeft") == KeysState.PRESSED && !this.keyboard.isKey("AltRight") == KeysState.PRESSED){
-            this.#move();                                
-            this.currentAnim.update(deltaTime);  
-            this.updateSwtichDesign()
-        } else {                            
-            this.updateSwtichDesign(true);
+            this.#move();   
+
+            if(this.live > 0 || this.times.die > this.Counters.die)
+                this.currentAnim.update(deltaTime);            
+
+            this.updateSwtichDesign()                                                                    
+        } else {                                                   
+            this.updateSwtichDesign(true);                          
         }
 
         if(this.switchMode){
@@ -403,103 +500,137 @@ export default class Player extends GameObject {
             this.layoutSwitch_left.updateIcon();
             this.layoutSwitch_Right.updateIcon();
 
-            this.currentAnim.update(deltaTime);
-        }                              
+            if(this.currentAnim.name != 'idle' && this.live > 0)
+                this.#setAction('idle');
+            
+            if(this.live > 0 || this.times.die > this.Counters.die)
+                this.currentAnim.update(deltaTime);            
+        }                      
+        
+        //Prioridade - MOUSE
+        this.#updateFacing(); 
         
         //Barra superior        
-        this.CharacterLayout.updateIcon();  
+        this.CharacterLayout.updateIcon(); 
         
-        //=== / Poção de cura / ===
-        //KEY
-        if(this.keyboard.isKey("KeyV") == KeysState.CLICKED){
-            if(!this.loadingHB_potion.loading){
-                if(this.live <= 4){  
-                    this.HealthBar.addOrSubStartX(false);                
-                    this.live++;                
-                    this.loadingHB_potion.startCooldown(10)
-                } else {
-                    this.iconCancel_potion.startCooldown(1);
-                }                
-            }
-        }
+        //Funções gerais
+        if(this.live > 0 && !this.switchMode){
 
-        //Update     
-        this.layoutHB_potion.updateIcon();
-        if(this.iconCancel_potion.cansee){
-            this.iconCancel_potion.updateIconTimer();
-        }
+            // === / Combate / ===
+            if(this.mouse.isLeft){
+                if(this.PlayerId == 1)         
+                    this.times.attack = (this.currentWeapon.WeaponId == 1) ? 3 : 6                                    
                 
-        if(this.loadingHB_potion.loading){
-            this.loadingHB_potion.updateIconTimer()
-            this.layoutHB_potion.setMoving(false);
-        } else {
-            this.layoutHB_potion.setMoving(true);
-        }
-        
-        //=== / D-Pad - Up / ===
-        //KEY
-        if(this.keyboard.isKey("KeyQ") == KeysState.CLICKED){
-            if(!this.loadingHB_up.loading){
-                this.loadingHB_up.startCooldown(3); 
+                if(this.#checkCurrentAnimation(['HB_01','HB_02','HB_03'],false)){
+                    this.Counters.attack = 0
+                    this.#setAction(`attack_${this.currentWeapon.WeaponId}`);    
+                }        
+            } 
+
+            //=== / Poção de cura / ===
+            //KEY
+            if(this.keyboard.isKey("KeyV") == KeysState.CLICKED){
+                if(!this.loadingHB_potion.loading){
+                    if(this.live <= 3){  
+                        this.HealthBar.addOrSubStartX(false);                
+                        this.live++;                
+                        this.loadingHB_potion.startCooldown(10)
+                    } else {
+                        this.iconCancel_potion.startCooldown(1);
+                    }                
+                }
             }
-        }
 
-        //Update       
-        this.layoutHB_up.updateIcon();
-        if(this.loadingHB_up.loading){
-            this.loadingHB_up.updateIconTimer()
-            this.layoutHB_up.setMoving(false);
-        } else {
-            this.layoutHB_up.setMoving(true);
-        }
-
-        //=== / D-Pad - Right / ===
-        //KEY
-        if(this.keyboard.isKey("KeyE") == KeysState.CLICKED){
-            if(!this.loadingHB_right.loading){
-                this.currentWeapon.nextWeapon();
-                this.iconHB_right.switchKey(`${this.PlayerId}-wp-${this.currentWeapon.WeaponId}`);
-                this.loadingHB_right.startCooldown(1)
+            //Update     
+            this.layoutHB_potion.updateIcon();
+            if(this.iconCancel_potion.cansee){
+                this.iconCancel_potion.updateIconTimer();
             }
+                    
+            if(this.loadingHB_potion.loading){
+                this.loadingHB_potion.updateIconTimer()
+                this.layoutHB_potion.setMoving(false);
+            } else {
+                this.layoutHB_potion.setMoving(true);
+            }
+            
+            //=== / D-Pad - Up / ===
+            //KEY
+            if(this.keyboard.isKey("KeyQ") == KeysState.CLICKED){
+                if(!this.loadingHB_up.loading){
+                    this.Counters.HB = 0;   
+                    this.#setAction(`HB_03`); 
+                    this.loadingHB_up.startCooldown(3); 
+                }
+            }
+
+            //Update       
+            this.layoutHB_up.updateIcon();
+            if(this.loadingHB_up.loading){
+                this.loadingHB_up.updateIconTimer()
+                this.layoutHB_up.setMoving(false);
+            } else {
+                this.layoutHB_up.setMoving(true);
+            }
+
+            //=== / D-Pad - Right / ===
+            //KEY
+            if(this.keyboard.isKey("KeyE") == KeysState.CLICKED){
+                if(!this.loadingHB_right.loading){
+                    this.currentWeapon.nextWeapon();
+                    this.iconHB_right.switchKey(`${this.PlayerId}-wp-${this.currentWeapon.WeaponId}`);
+                    this.loadingHB_right.startCooldown(1)
+                }
+            }
+
+            //Update
+            this.layoutHB_right.updateIcon();
+            if(this.loadingHB_right.loading){
+                this.loadingHB_right.updateIconTimer()
+                this.layoutHB_right.setMoving(false);
+            } else {
+                this.layoutHB_right.setMoving(true);
+            }
+
+            //=== / D-Pad - Left / ===
+            //KEY
+            if(this.keyboard.isKey("KeyZ") == KeysState.CLICKED){
+                if(!this.loadingHB_left.loading){
+                    this.Counters.HB = 0;   
+                    this.#setAction(`HB_01`);                 
+                    this.loadingHB_left.startCooldown(8); 
+                }
+            }
+
+            //Update
+            this.layoutHB_left.updateIcon();
+            if(this.loadingHB_left.loading){
+                this.loadingHB_left.updateIconTimer()
+                this.layoutHB_left.setMoving(false);
+            } else {
+                this.layoutHB_left.setMoving(true);
+            }
+
+            //D-Pad - Down
+            //KEY
+            if(this.keyboard.isKey("KeyX") == KeysState.CLICKED){
+                if(!this.loadingHB_down.loading){   
+                    this.Counters.HB = 0;
+                    this.#setAction(`HB_02`);                 
+                    this.loadingHB_down.startCooldown(15);
+                }            
+            }
+
+            //Update
+            this.layoutHB_down.updateIcon();
+            if(this.loadingHB_down.loading){
+                this.loadingHB_down.updateIconTimer()
+                this.layoutHB_down.setMoving(false);
+            } else {
+                this.layoutHB_down.setMoving(true);
+            }                
         }
 
-        //Update
-        this.layoutHB_right.updateIcon();
-        if(this.loadingHB_right.loading){
-            this.loadingHB_right.updateIconTimer()
-            this.layoutHB_right.setMoving(false);
-        } else {
-            this.layoutHB_right.setMoving(true);
-        }
-
-        //=== / D-Pad - Left / ===
-        //KEY
-        if(this.keyboard.isKey("KeyZ") == KeysState.CLICKED)
-            this.loadingHB_left.startCooldown(8); 
-
-        //Update
-        this.layoutHB_left.updateIcon();
-        if(this.loadingHB_left.loading){
-            this.loadingHB_left.updateIconTimer()
-            this.layoutHB_left.setMoving(false);
-        } else {
-            this.layoutHB_left.setMoving(true);
-        }
-
-        //D-Pad - Down
-        //KEY
-        if(this.keyboard.isKey("KeyX") == KeysState.CLICKED)
-            this.loadingHB_down.startCooldown(15)
-
-        //Update
-        this.layoutHB_down.updateIcon();
-        if(this.loadingHB_down.loading){
-            this.loadingHB_down.updateIconTimer()
-            this.layoutHB_down.setMoving(false);
-        } else {
-            this.layoutHB_down.setMoving(true);
-        }                
-        
         //=== / teste - XP / ===
         if (this.keyboard.isKey("KeyJ") == KeysState.PRESSED) {
             this.XPNum++;
@@ -512,13 +643,21 @@ export default class Player extends GameObject {
         }   
 
         //=== / Teste - VIDA / ===
-        if (this.keyboard.isKey("KeyO") == KeysState.CLICKED) {
-            this.HealthBar.addOrSubStartX(true);                                             
-            this.live--;            
-        }        
+        if (this.keyboard.isKey("KeyO") == KeysState.CLICKED) {                          
+            if(this.live > 0){
+                this.HealthBar.addOrSubStartX(true); 
+                this.live--;  
+            } else 
+                this.live = 0
 
-        if(this.live == 0)
-            console.log('morte');  
+            if(this.live == 0){
+                this.Counters.die = 0;
+                this.#setAction('die'); 
+            } else if(this.live > 0){
+                this.Counters.hit = 0;
+                this.#setAction('hit');
+            }
+        }                 
         
         this.mouse.resetScroll();
         this.keyboard.reset();
@@ -526,7 +665,7 @@ export default class Player extends GameObject {
 
     /** @param {CanvasRenderingContext2D} ctx */
     draw(ctx, hudctx) {
-        this.hitbox.draw(ctx);
+        this.hitbox.draw(ctx);        
         this.currentAnim.draw(ctx, new Vector2D(this.position.x - 50, this.position.y - 50));
         
         //VIDA e XP - barrra superior
