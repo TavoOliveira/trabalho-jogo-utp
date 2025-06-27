@@ -2,59 +2,42 @@ import Texture from "../Utils/texture.js";
 
 export default class TileMap {
     constructor(mapData) {
-        this.tileSize = mapData.tileSize;
-        this.tileset = new Texture(mapData.tileset);
-        this.tileDefinitions = mapData.tileDefinitions;
-        this.tiles = mapData.tiles;
+        console.log(mapData.Tiles[0][0].length);
 
-        this.height = this.tiles.length;
-        this.width = this.tiles[0]?.length || 0;
+        this.tileSize = mapData.TileSize;
+        this.tileset = new Texture(mapData.TileSet);
+        this.tileDefinitions = mapData.TileDefinitions;
+        this.tiles = mapData.Tiles;
 
-        // Cache otimizado
-        this.tileCache = this._generateTileCache();
+        // Calcula largura e altura a partir da primeira camada
+        this.layerCount = this.tiles.length;
+        this.height = this.tiles[0].length;
+        this.width = this.tiles[0][0].length;
     }
 
-    _generateTileCache() {
-        return this.tiles.map(row =>
-            row.map(tileId => this.tileDefinitions[tileId] || null)
-        );
-    }
+    draw(ctx) {
+        for (let layer = 0; layer < this.layerCount; layer++) {
+            for (let y = 0; y < this.height; y++) {
+                for (let x = 0; x < this.width; x++) {
+                    const tileId = this.tiles[layer][y][x];
 
-    /**
-     * Desenha os tiles visíveis na viewport.
-     * @param {CanvasRenderingContext2D} ctx 
-     * @param {number} offsetX 
-     * @param {number} offsetY 
-     * @param {number} viewportWidth 
-     * @param {number} viewportHeight 
-     */
-    draw(ctx, offsetX = 0, offsetY = 0, viewportWidth = ctx.canvas.width, viewportHeight = ctx.canvas.height) {
-        const tileSize = this.tileSize;
-        const tileset = this.tileset;
+                    // Ignora null ou indefinido
+                    if (tileId == null || this.tileDefinitions[tileId] == null) continue;
 
-        const startCol = Math.max(0, (offsetX * -1) / tileSize | 0);
-        const endCol = Math.min(this.width, ((viewportWidth - offsetX) / tileSize) | 0 + 1);
+                    const { Sx, Sy } = this.tileDefinitions[tileId];
 
-        const startRow = Math.max(0, (offsetY * -1) / tileSize | 0);
-        const endRow = Math.min(this.height, ((viewportHeight - offsetY) / tileSize) | 0 + 1);
-
-        for (let y = startRow; y < endRow; y++) {
-            const row = this.tileCache[y];
-            for (let x = startCol; x < endCol; x++) {
-                const def = row[x];
-                if (!def) continue;
-
-                tileset.draw(
-                    ctx,
-                    x * tileSize + offsetX,
-                    y * tileSize + offsetY,
-                    tileSize,
-                    tileSize,
-                    def.sx,
-                    def.sy,
-                    tileSize,
-                    tileSize
-                );
+                    this.tileset.draw(
+                        ctx,
+                        x * this.tileSize,
+                        y * this.tileSize,
+                        this.tileSize,
+                        this.tileSize,
+                        Sx * this.tileSize,
+                        Sy * this.tileSize,
+                        this.tileSize,
+                        this.tileSize
+                    );
+                }
             }
         }
     }
