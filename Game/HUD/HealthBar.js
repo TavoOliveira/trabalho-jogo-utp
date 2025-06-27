@@ -21,6 +21,28 @@ export default class HealthBar{
             this.startX -= 48;    
     }
 
+    setStarX(live){
+        switch (live) {
+            case 0:   
+                this.startX = 195;                           
+                break;
+            case 1:   
+                this.startX = 147; 
+                break;
+            case 2:                
+                this.startX = 99;                 
+                break;
+            case 3:                              
+                this.startX = 51;                 
+                break;
+            case 4:     
+                this.startX = 3;                            
+                break;
+            default:
+                break;
+        }
+    }
+
     draw(ctx){                
         this.healthtexture.draw(ctx, this.position.x,this.position.y,350,50,this.startX,this.bartype,42,7); 
     }

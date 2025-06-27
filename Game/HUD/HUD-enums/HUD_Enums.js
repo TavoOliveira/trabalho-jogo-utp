@@ -138,6 +138,10 @@ const customIcons = {
     'part-1': {x: 67,y: 4,sW: 27,sH: 12},  //parte 1 do avião
     'part-2': {x: 95,y: 1,sW: 33,sH: 15},  //parte 2 do avião
     'part-3': {x: 131,y: 0,sW: 28,sH: 21}, //parte 3 do avião
+
+    'pointer-1': {x:  0,y: 112,sW: 16,sH: 16}, //pointer - vermelho
+    'pointer-2': {x: 16,y: 112,sW: 16,sH: 16}, //pointer - branco
+    'pointer-3': {x: 32,y: 112,sW: 16,sH: 16}, //pointer - preto
 }
 
 const dots_Id = { 

@@ -6,32 +6,56 @@ export default class TileMap {
         this.tileset = new Texture(mapData.tileset);
         this.tileDefinitions = mapData.tileDefinitions;
         this.tiles = mapData.tiles;
-        this.width = this.tiles[0].length;
+
         this.height = this.tiles.length;
+        this.width = this.tiles[0]?.length || 0;
+
+        // Cache otimizado
+        this.tileCache = this._generateTileCache();
     }
 
-    draw(ctx) {
-        for (let y = 0; y < this.height; y++) {
-            for (let x = 0; x < this.width; x++) {
-                const tileId = this.tiles[y][x];
+    _generateTileCache() {
+        return this.tiles.map(row =>
+            row.map(tileId => this.tileDefinitions[tileId] || null)
+        );
+    }
 
-                if (this.tileDefinitions[tileId]) {
-                    const { sx, sy } = this.tileDefinitions[tileId];
+    /**
+     * Desenha os tiles visíveis na viewport.
+     * @param {CanvasRenderingContext2D} ctx 
+     * @param {number} offsetX 
+     * @param {number} offsetY 
+     * @param {number} viewportWidth 
+     * @param {number} viewportHeight 
+     */
+    draw(ctx, offsetX = 0, offsetY = 0, viewportWidth = ctx.canvas.width, viewportHeight = ctx.canvas.height) {
+        const tileSize = this.tileSize;
+        const tileset = this.tileset;
 
-                    this.tileset.draw(
-                        ctx,
-                        x * this.tileSize,
-                        y * this.tileSize,
-                        this.tileSize,
-                        this.tileSize,
-                        sx,
-                        sy,
-                        this.tileSize,
-                        this.tileSize
-                    );
-                }
+        const startCol = Math.max(0, (offsetX * -1) / tileSize | 0);
+        const endCol = Math.min(this.width, ((viewportWidth - offsetX) / tileSize) | 0 + 1);
+
+        const startRow = Math.max(0, (offsetY * -1) / tileSize | 0);
+        const endRow = Math.min(this.height, ((viewportHeight - offsetY) / tileSize) | 0 + 1);
+
+        for (let y = startRow; y < endRow; y++) {
+            const row = this.tileCache[y];
+            for (let x = startCol; x < endCol; x++) {
+                const def = row[x];
+                if (!def) continue;
+
+                tileset.draw(
+                    ctx,
+                    x * tileSize + offsetX,
+                    y * tileSize + offsetY,
+                    tileSize,
+                    tileSize,
+                    def.sx,
+                    def.sy,
+                    tileSize,
+                    tileSize
+                );
             }
         }
     }
-
 }

@@ -8,8 +8,8 @@ export default class Icons{
     /**     
      * @param {Vector2D} position -Posição na tela
      * @param {Vector2D} size     -tamanho do icone
-     * @param {any}      key      -KEY - Minusculo ou numerico    
-     * @param {number}   type     - 0-Teclado / 1-Mouse / 2-Icones uteis / 3-Customs / 4 - menu - 01 / 5 - inventario   
+     * @param {number | string}      key      -KEY - Minusculo ou numerico    
+     * @param {number}   type     - 0-Teclado / 1-Mouse / 2-Icones uteis / 3-Customs / 4 - menu - 01 / 5 - inventario / 6 - MENU  
      */
     constructor(position,size,key, type){
         this.position     = position;        
@@ -83,6 +83,10 @@ export default class Icons{
             case 5:
                 this.icontexture = new Texture("/Game/Assets/HUD/inventorySlotSet.png");
                 this.KeyMap      = Enums.inventPositions[this.keyId];
+                break;
+            case 6:
+                this.icontexture = new Texture("/Game/Assets/HUD/background/menu_background.png");
+                this.KeyMap      = {x: 0,y: 0,sW: 820,sH: 480};
                 break;
             default:
                 this.icontexture = new Texture("/Game/Assets/HUD/iconset.png");

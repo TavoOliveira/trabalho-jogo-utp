@@ -15,7 +15,9 @@ export default class Enemy extends GameObject {
         // === ENEMY ===
         this.enemyId    = enemyId;
         this.live       = 5;
+        this.level      = 1;
         this.AttackMode = false;
+        this.rewardGive = false;
         this.effects    = {shocked: false,poisoned: false,bleeding: false,immunity:false};        
         this.moveDir    = Vector2D.zero();    
                 
@@ -31,7 +33,7 @@ export default class Enemy extends GameObject {
                 this.viewField        = new RectHitbox(this, new Vector2D(-400,-400), 800, 800,"blue");
 
                 // === / AREA DE ATAQUE E DAR DANO / ===
-                this.enemyattackbox   = new RectHitbox(this, new Vector2D(-50,-50), 100, 100,"green");
+                this.enemyattackbox   = new RectHitbox(this, new Vector2D(-40,-40), 80, 80,"green");
                 this.hitbox           = new RectHitbox(this, new Vector2D(-10,-10), 20, 20,"red");
 
                 // === / AREA DE TOMAR DANO
@@ -53,7 +55,7 @@ export default class Enemy extends GameObject {
                 this.viewField        = new RectHitbox(this, new Vector2D(-400,-400), 800, 800,"blue");
 
                 // === / AREA DE ATAQUE E DAR DANO / ===
-                this.enemyattackbox   = new RectHitbox(this, new Vector2D(-60,-60), 120, 120,"green");
+                this.enemyattackbox   = new RectHitbox(this, new Vector2D(-50,-50), 100, 100,"green");
                 this.hitbox           = new RectHitbox(this, new Vector2D(-20,-20), 40, 40,"red");
 
                 // === / AREA DE TOMAR DANO
@@ -68,14 +70,14 @@ export default class Enemy extends GameObject {
                     attack_1: new Animator('attack_1', this.texture, 90, 64, 0, 0,   11, 14),
                 };
                 this.times = {attack: 4,die: 8,hit: 4,timedead: 20};
-                this.speed = Vector2D.one(0.3);
+                this.speed = Vector2D.one(0.4);
                 break;
             case 3: //BAT
                 // === / VIZUALIZAÇÃO / ===
                 this.viewField        = new RectHitbox(this, new Vector2D(-400,-400), 800, 800,"blue");
 
                 // === / AREA DE ATAQUE E DAR DANO / ===
-                this.enemyattackbox   = new RectHitbox(this, new Vector2D(-60,-60), 120, 120,"green");
+                this.enemyattackbox   = new RectHitbox(this, new Vector2D(-55,-55), 110, 110,"green");
                 this.hitbox           = new RectHitbox(this, new Vector2D(-20,-20), 40, 40,"red");
 
                 // === / AREA DE TOMAR DANO
@@ -97,8 +99,8 @@ export default class Enemy extends GameObject {
                 this.viewField        = new RectHitbox(this, new Vector2D(-450,-450), 900, 900,"blue");
 
                 // === / AREA DE ATAQUE E DAR DANO / ===
-                this.enemyattackbox   = new RectHitbox(this, new Vector2D(-75,-75), 150, 150,"green");
-                this.hitbox           = new RectHitbox(this, new Vector2D(-25,-25), 50, 50,"red");
+                this.enemyattackbox   = new RectHitbox(this, new Vector2D(-55,-55), 110, 110,"green");
+                this.hitbox           = new RectHitbox(this, new Vector2D(-20,-20), 40, 40,"red");
 
                 // === / AREA DE TOMAR DANO
                 this.HBhitbox         = new RectHitbox(this, new Vector2D(-50,-50), 100, 100,"orange");                
@@ -111,7 +113,7 @@ export default class Enemy extends GameObject {
                     walk:     new Animator('walk',     this.texture, 160, 128, 0, 128,  8, 12),
                     attack_1: new Animator('attack_1', this.texture, 160, 128, 0, 256, 11, 14),
                 };
-                this.times = {attack: 5,die: 10,hit: 4,timedead: 15};
+                this.times = {attack: 5,die: 10,hit: 4,timedead: 10};
                 this.speed = Vector2D.one(0.9);
                 break;
             default:
@@ -158,13 +160,14 @@ export default class Enemy extends GameObject {
 
         if(!this.#checkCurrentAnimation(['die','hit'])){
             if (this.playerInFieldView) {
-                const direction = this.playerPosition.sub(this.position).normalize();
+                const direction = this.playerPosition.sub(this.position).normalize();                
+
                 this.moveDir.copy(direction);
                 
                 this.position.x += direction.x * this.speed.x;
                 this.position.y += direction.y * this.speed.y;
                 
-                this.texture.flipX = direction.x < 0;
+                this.texture.flipX = (this.enemyId != 3 ? direction.x < 0 : direction.x > 0);
 
                 if(this.currentAnim.name != 'attack_1' || this.Counters.attack > this.times.attack)
                     this.#setAction('walk');
@@ -216,18 +219,26 @@ export default class Enemy extends GameObject {
 
         this.currentAnim.draw(ctx, new Vector2D(this.position.x - this.sprites_offset,this.position.y - this.sprites_offset));
 
-        if(ctx){
-            ctx.font         = "0.5rem MONOGRAM";
-            ctx.fillStyle    = "white";
+        if (ctx) {
+            ctx.font = "0.6rem MONOGRAM";
             ctx.textBaseline = "top";
-            ctx.fillText(`${this.live}`, this.position.x, this.position.y - 15);
+
+            const x = this.position.x - 30;
+            const y = this.position.y - 20;
+            
+            ctx.fillStyle = "white";
+            ctx.fillText(`Nivel: ${this.level}`, x, y);
+            
+            const levelWidth = ctx.measureText(`Nivel: ${this.level}`).width;
+            
+            ctx.fillStyle = "red";
+            ctx.fillText(` Vida: ${this.live}`, x + levelWidth, y);
         }
+
     }
 
     //Utilidades
-    subEnemyLife(playerPosition,deltaTime){  
-        console.log(this.currentAnim.name);
-                
+    subEnemyLife(playerPosition,deltaTime){
         if (!this.#checkCurrentAnimation(['hit','die'])) {            
             if (this.live > 0) {
                 this.live--;
@@ -266,8 +277,17 @@ export default class Enemy extends GameObject {
         }
     }
 
+    setRewardGive(varValue){
+        this.rewardGive = varValue;
+    }
+
     setAttack(insideCollision){
         this.AttackMode      = insideCollision;        
+    }
+
+    setEnemyLive(levelId,Exponent){
+        this.live  = 2 * Math.floor(Math.pow(levelId, Exponent));
+        this.level =  levelId + Math.floor(Math.random() * 2)
     }
 
     /**

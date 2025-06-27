@@ -32,16 +32,18 @@ export default class Player extends GameObject {
      * @param {number}    playerId
      * @param {inventory} inventory
      */
-    constructor(texture, position, keyboard, mouse, playerId, inventory) {
+    constructor(texture, position, keyboard, mouse, playerId, inventory,startMenu) {
         const global_width    = document.documentElement.clientWidth;
         const global_height   = document.documentElement.clientHeight;        
 
         super(texture, position);
 
+        this.starMenu = startMenu;
+
         //player
         this.PlayerId      = playerId;
         this.currentPlayer = false;
-        this.LevelId       = 1;
+        this.LevelId       = !GlobalVars.devMode ? 1 : 15;
         this.XPNum         = 0.0; 
         this.live          = 4;
         this.effects       = {shocked: false,poisoned: false,bleeding: false,immunity:false}; 
@@ -62,7 +64,7 @@ export default class Player extends GameObject {
         this.SpriteOffset = Enums.sprites_offset[`p-this.playerId`];        
 
         // === HITBOX / ANIMATIONS / TIMES / COUNTER ===        
-        this.Counters   = {die: 0, attack: 0, HB: 0,hit: 0};
+        this.Counters = {die: 0, attack: 0, HB: 0,hit: 0,item: 0};
 
         switch(this.PlayerId){
             case 1:
@@ -72,13 +74,13 @@ export default class Player extends GameObject {
                     die:      new Animator('die',      this.texture, 100, 100, 0, 600, 4,  3),
                     idle:     new Animator('idle',     this.texture, 100, 100, 0, 0,   6,  7),
                     walk:     new Animator('walk',     this.texture, 100, 100, 0, 100, 6, 12),                
-                    attack_1: new Animator('attack_1', this.texture, 100, 100, 0, 200, 6, 12),
-                    attack_2: new Animator('attack_2', this.texture, 100, 100, 0, 400, 9,  8),
+                    attack_1: new Animator('attack_1', this.texture, 100, 100, 0, 200, 6, 13),
+                    attack_2: new Animator('attack_2', this.texture, 100, 100, 0, 400, 9,  10),
                     HB_01:    new Animator('HB_01',    this.texture, 100, 100, 0, 300, 6,  9),
                     HB_02:    new Animator('HB_02',    this.texture, 100, 100, 0, 711, 8,  5),
                     HB_03:    new Animator('HB_02',    this.texture, 100, 100, 0, 711, 8,  5)              
                 }
-                this.times = {attack: 2,die: 12,hit: 2,HB_01: 7,HB_02: 13,HB_03: 0}  
+                this.times = {attack: 2,die: 10,hit: 2,HB_01: 7,HB_02: 13,HB_03: 0,item: 7}  
                 break;
             case 2:
                 this.hitbox = new RectHitbox(this, new Vector2D(-25,-20), 30, 40);
@@ -93,7 +95,7 @@ export default class Player extends GameObject {
                     HB_02:    new Animator('HB_02',    this.texture, 80, 64, 320,  64, 13,  4),
                     HB_03:    new Animator('HB_03',    this.texture, 80, 64, 480, 128,  8,  8),
                 } 
-                this.times = {attack: 3,die: 12,hit: 2,HB_01: 7,HB_02: 18,HB_03: 7}; 
+                this.times = {attack: 3,die: 10,hit: 2,HB_01: 7,HB_02: 18,HB_03: 7,item: 7}; 
                 break;
             case 3:
                 break;
@@ -110,7 +112,7 @@ export default class Player extends GameObject {
                     HB_02:    new Animator('HB_02',    this.texture, 80, 80, 160, 320, 24, 10),
                     HB_03:    new Animator('HB_03',    this.texture, 80, 80, 160, 320,  9, 10),
                 }     
-                this.times = {attack: 2,die: 7,hit: 3,HB_01: 15,HB_02: 15,HB_03: 5}; 
+                this.times = {attack: 2,die: 7,hit: 3,HB_01: 15,HB_02: 15,HB_03: 5,item: 7}; 
                 break;
             default:
                 this.hitbox     = new RectHitbox(this, new Vector2D(0,0), 0, 0);
@@ -123,7 +125,8 @@ export default class Player extends GameObject {
         this.currentAnim.play();
 
         //inventario
-        this.inventory = inventory;                         
+        this.inventory    = inventory; 
+        this.itemReceived = false;                        
         
         // MENUS
         this.mainMenu      = new menu(new Vector2D((global_width / 2) - 200,(global_height / 2) - 250),new Vector2D(350,500));
@@ -134,6 +137,7 @@ export default class Player extends GameObject {
         
         //ARMAS
         this.currentWeapon = new Weapons(1);
+        this.projectiles   = [];
         
         // === BARRA SUPERIOR ===
         this.CharacterLayout = new Layout(new Vector2D(global_width * 0.01, global_height * 0.02), 70, this.PlayerId, 1);
@@ -171,6 +175,11 @@ export default class Player extends GameObject {
         this.iconHB_down  = new Icons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.offset + GlobalVars.loading_offset), new Vector2D(50,50), `${this.PlayerId}-x`,2);
         this.iconHB_left  = new Icons(new Vector2D(GlobalVars.dpad_centerX - GlobalVars.offset + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.loading_offset), new Vector2D(50,50), `${this.PlayerId}-z`,2);
         this.iconHB_right = new Icons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.offset + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.loading_offset), new Vector2D(50,50), `${this.PlayerId}-wp-${this.currentWeapon.WeaponId}`,2);
+
+        //icones de bloqueio
+        this.iconCancelHB_up    = new Icons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.loading_offset, GlobalVars.dpad_centerY - GlobalVars.offset + GlobalVars.loading_offset), new Vector2D(50,50), 'x',2);
+        this.iconCancelHB_down  = new Icons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.offset + GlobalVars.loading_offset), new Vector2D(50,50), 'x',2);
+        this.iconCancelHB_left  = new Icons(new Vector2D(GlobalVars.dpad_centerX - GlobalVars.offset + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.loading_offset), new Vector2D(50,50), 'x',2);        
 
         // Loadings centralizado
         this.loadingHB_up    = new loadingicon(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.loading_offset, GlobalVars.dpad_centerY - GlobalVars.offset + GlobalVars.loading_offset), 50);
@@ -283,7 +292,7 @@ export default class Player extends GameObject {
 
         direction = direction.normalize();                
         
-        if (!this.#checkCurrentAnimation(['HB_01','HB_02','HB_03','hit','die'])) {
+        if (!this.#checkCurrentAnimation(['HB_01','HB_02','HB_03','hit','die','attack_2'])) {
             if (moving) {
                 this.#setAction('walk');
                 this.moveDir.copy(direction);
@@ -320,8 +329,12 @@ export default class Player extends GameObject {
         this.Mousedot.setMousePos(this.mouse.x, this.mouse.y);  
 
         // === / timers - counters / ===
+        if(this.itemReceived){
+            this.Counters.item += deltaTime * 0.002;   
+        }
+
         if(this.#checkCurrentAnimation(['attack_1','attack_2'])){
-            this.Counters.attack += this.PlayerId == 1 ? deltaTime * 0.006 : deltaTime * 0.004;                            
+            this.Counters.attack += this.PlayerId == 1 ? deltaTime * 0.007 : deltaTime * 0.004;                            
         } else if(this.currentAnim.name == 'HB_01'){
             this.Counters.HB += deltaTime * 0.009   ;        
         } else if(this.currentAnim.name == 'HB_02'){
@@ -361,8 +374,10 @@ export default class Player extends GameObject {
             //botão 3
             const btn3_data = {x:this.mainMenu.btn3.position.x,y:this.mainMenu.btn3.position.y,sW:this.mainMenu.btn3.size.x,sH:this.mainMenu.btn3.size.y}
             if(this.mouse.isOver(btn3_data)){
-                if(this.mouse.isClick(btn3_data,0))
-                    window.close();
+                if(this.mouse.isClick(btn3_data,0)){
+                    this.mainMenu.updateSee(false);
+                    this.starMenu.updateSee(true);                
+                }                    
 
                 this.mainMenu.switchHover('btn3',true);
             } else {
@@ -428,7 +443,7 @@ export default class Player extends GameObject {
             //=== DESCRIÇÃO / REMOVER / EQUIPAR-DESEQUIPAR ===
             if(!this.InventoryMenu.descriptions.cansee){                
 
-                const item = this.inventory.getSelectedItemData(this.InventoryMenu.selectedSlotIndex,this.PlayerId)                
+                const item = this.inventory.getSelectedItemData(this.InventoryMenu.selectedSlotIndex,this.PlayerId);
 
                 if(this.keyboard.isKey("KeyE") == KeysState.CLICKED){//EQUIPAR                
                     if(item){
@@ -439,10 +454,10 @@ export default class Player extends GameObject {
                     }
                 } else if(this.keyboard.isKey("KeyR") == KeysState.CLICKED){//REMOVER
                     if(item){
-                        if(item.keyID == "part-1" || item.keyID == "part-3" || item.keyID == "part-3"){
+                        if(item.keyID == "part-1" || item.keyID == "part-2" || item.keyID == "part-3"){
                             this.InventoryMenu.descriptions.switchItemId();
                             this.InventoryMenu.descriptions.updateSee(true);
-                        } else {
+                        } else {                                                                   
                             this.inventory.addOrRemoveItem(item.keyID,false);
                             this.InventoryMenu.updateInventoryIcons(this.inventory,true);
                         }
@@ -532,10 +547,14 @@ export default class Player extends GameObject {
                 if(this.PlayerId == 1)         
                     this.times.attack = (this.currentWeapon.WeaponId == 1) ? 3 : 6                                    
                 
-                if(!this.#checkCurrentAnimation(['HB_01','HB_02','HB_03'])){
+                if(!this.#checkCurrentAnimation(['HB_01','HB_02','HB_03','attack_2'])){
                     this.Counters.attack = 0
                     this.#setAction(`attack_${this.currentWeapon.WeaponId}`);    
-                }        
+
+                    if(this.currentWeapon.WeaponId == 2){
+                        this.shootProjectile(this.mouse.x,this.mouse.y);
+                    }
+                }                        
             } 
 
             //=== / Poção de cura / ===
@@ -567,7 +586,7 @@ export default class Player extends GameObject {
             
             //=== / D-Pad - Up / ===
             //KEY
-            if(this.keyboard.isKey("KeyQ") == KeysState.CLICKED){
+            if(this.keyboard.isKey("KeyQ") == KeysState.CLICKED && this.LevelId >= 2) {
                 if(!this.loadingHB_up.loading){
                     this.Counters.HB = 0;   
                     this.#setAction(`HB_03`); 
@@ -605,7 +624,7 @@ export default class Player extends GameObject {
 
             //=== / D-Pad - Left / ===
             //KEY
-            if(this.keyboard.isKey("KeyZ") == KeysState.CLICKED){
+            if(this.keyboard.isKey("KeyZ") == KeysState.CLICKED && this.LevelId >= 5){
                 if(!this.loadingHB_left.loading){
                     this.Counters.HB = 0;   
                     this.#setAction(`HB_01`);                 
@@ -624,7 +643,7 @@ export default class Player extends GameObject {
 
             //D-Pad - Down
             //KEY
-            if(this.keyboard.isKey("KeyX") == KeysState.CLICKED){
+            if(this.keyboard.isKey("KeyX") == KeysState.CLICKED && this.LevelId >= 10){
                 if(!this.loadingHB_down.loading){   
                     this.Counters.HB = 0;
                     this.#setAction(`HB_02`);                 
@@ -644,13 +663,7 @@ export default class Player extends GameObject {
 
         //=== / teste - XP / ===
         if (this.keyboard.isKey("KeyJ") == KeysState.PRESSED) {
-            this.XPNum++;
-            this.XPBar.updateXPNum(this.XPNum);
-
-            if(this.LevelId != this.XPBar.levelId){
-                this.LevelId = this.XPBar.levelId;
-                this.XPNum   = this.XPBar.xpnum;
-            }
+            this.CheckXPLevel(1);            
         }   
 
         //=== / Teste - VIDA / ===
@@ -668,8 +681,16 @@ export default class Player extends GameObject {
                 this.Counters.hit = 0;
                 this.#setAction('hit');
             }
-        }                 
+        }   
         
+        // Atualiza os projéteis
+        this.projectiles = this.projectiles.filter(p => {
+            p.position.x += p.velocity.x;
+            p.position.y += p.velocity.y;
+            p.lifetime--;
+            return p.lifetime > 0;
+        });
+   
         this.mouse.resetScroll();
         this.keyboard.reset();
     }
@@ -680,6 +701,28 @@ export default class Player extends GameObject {
             this.hitbox.draw(ctx);        
         
         this.currentAnim.draw(ctx, new Vector2D(this.position.x - 50, this.position.y - 50));
+
+        for (const p of this.projectiles) {
+            const angle = Math.atan2(p.velocity.y, p.velocity.x);
+
+            ctx.save();
+            
+            ctx.translate(p.position.x, p.position.y);
+            ctx.rotate(angle);
+            
+            p.texture.draw(ctx, -16, -16, 32, 32, 0, 0, 32, 32);
+
+            ctx.restore();       
+
+            // Se quiser usar o modo debug para ver o centro do projétil
+            /*
+            ctx.fillStyle = 'orange';
+            ctx.beginPath();
+            ctx.arc(p.position.x, p.position.y, 3, 0, Math.PI * 2);
+            ctx.fill();
+            */
+
+        }
         
         //VIDA e XP - barrra superior
         this.MinimapLayout.draw(hudctx);
@@ -702,6 +745,9 @@ export default class Player extends GameObject {
         this.iconHB_up.draw(hudctx);
         this.loadingHB_up.draw(hudctx);
 
+        if(this.LevelId < 2)
+            this.iconCancelHB_up.draw(hudctx);
+
         // D-Pad - Right
         this.icon_right.draw(hudctx);
         this.layoutHB_right.draw(hudctx);   
@@ -714,11 +760,17 @@ export default class Player extends GameObject {
         this.iconHB_left.draw(hudctx);
         this.loadingHB_left.draw(hudctx);
 
+        if(this.LevelId < 5)
+            this.iconCancelHB_left.draw(hudctx);
+
         // D-Pad - Down
         this.icon_down.draw(hudctx);
         this.layoutHB_down.draw(hudctx); 
         this.iconHB_down.draw(hudctx);       
         this.loadingHB_down.draw(hudctx);   
+
+        if(this.LevelId < 10)
+            this.iconCancelHB_down.draw(hudctx);
 
         //Player Switch
         //Centro
@@ -750,6 +802,25 @@ export default class Player extends GameObject {
 
         //MOUSE
         this.Mousedot.draw(hudctx);
+
+        if(this.itemReceived){
+            if(this.Counters.item > this.times.item){
+                this.Counters.item = 0;
+                this.itemReceived  = false;
+            }
+
+            const alpha = 1 - (this.Counters.item / this.times.item); 
+
+            ctx.save();
+
+            ctx.globalAlpha   = alpha;
+            ctx.font          = "0.5rem MONOGRAM";
+            ctx.fillStyle     = "white";
+            ctx.textBaseline  = "top";
+            ctx.fillText(`+1 Item Recebido`, this.position.x, this.position.y - 20 - (this.Counters.item * 2));
+
+    ctx.restore();
+        }
     }
 
     drawWorld(ctx) {
@@ -776,7 +847,7 @@ export default class Player extends GameObject {
 
                 this.currentAnim.update(deltaTime);
                 
-                const knockbackForce = (this.playerId == 4) ? 80 : 70;
+                const knockbackForce = (this.playerId == 4) ? 80 : 60;
                 const dx = this.position.x - enemyPosition.x;
                 const dy = this.position.y - enemyPosition.y;
                 const magnitude = Math.sqrt(dx * dx + dy * dy) || 1;
@@ -798,6 +869,34 @@ export default class Player extends GameObject {
                 this.currentAnim.update(deltaTime);
             }            
         }
+    }
+
+    CheckXPLevel(XPAmount){
+        this.XPNum += XPAmount;
+        this.XPBar.updateXPNum(this.XPNum);
+
+        if(this.LevelId != this.XPBar.levelId){
+            this.LevelId = this.XPBar.levelId;
+            this.XPNum   = this.XPBar.xpnum;
+        }
+    }
+
+    switchItemReceive(switchvalue){
+        this.itemReceived = switchvalue;
+    }
+
+    shootProjectile(mouseWorldX, mouseWorldY) {
+        const direction = new Vector2D(
+            mouseWorldX - this.position.x,
+            mouseWorldY - this.position.y
+        ).normalize();
+
+        this.projectiles.push({
+            texture: new Texture("/Game/Assets/Projectils/Arrow01(32x32).png"),
+            position: this.position.clone(),
+            velocity: direction.multiply(6),
+            lifetime: 60
+        });
     }
 
     /**
@@ -891,6 +990,10 @@ export default class Player extends GameObject {
         this.loadingHB_left.position.set(GlobalVars.dpad_centerX - GlobalVars.offset + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.loading_offset);
         this.loadingHB_right.position.set(GlobalVars.dpad_centerX + GlobalVars.offset + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.loading_offset);
 
+        this.iconCancelHB_up.position.set(GlobalVars.dpad_centerX + GlobalVars.loading_offset, GlobalVars.dpad_centerY - GlobalVars.offset + GlobalVars.loading_offset);
+        this.iconCancelHB_down.position.set(GlobalVars.dpad_centerX + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.offset + GlobalVars.loading_offset);
+        this.iconCancelHB_left.position.set(GlobalVars.dpad_centerX - GlobalVars.offset + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.loading_offset);     
+
         // Switch Center
         this.layoutSwitch_center.position.set(GlobalVars.dpad2_centerX, GlobalVars.dpad_centerY + GlobalVars.offset);
         this.iconSwitch_center.position.set(GlobalVars.dpad2_centerX + GlobalVars.icon_offset, GlobalVars.dpad_centerY + 90 - 40);
@@ -913,6 +1016,46 @@ export default class Player extends GameObject {
         this.iconSwitch_ArrowRight.position.set(GlobalVars.dpad2_centerX + GlobalVars.dpad2_offsetX + GlobalVars.icon_offset, GlobalVars.dpad_centerY + 110);
         this.CharacterIcon_Right.position.set(GlobalVars.dpad2_centerX + 125, GlobalVars.dpad_centerY + GlobalVars.offset + 15);
         this.iconCancel_player4.position.set(GlobalVars.dpad2_centerX + 130, GlobalVars.dpad_centerY + GlobalVars.offset + 15);
+    }
+
+    setLastAnimation(name){
+        this.#setAction(name);
+    }
+
+    //LOAD E SAVE
+    serialize() {
+        return {
+            PlayerId: this.PlayerId,
+            currentPlayer: this.currentPlayer,
+            LevelId: this.LevelId,
+            XPNum: this.XPNum,
+            live: this.live,
+            position: {
+                x: this.position.x,
+                y: this.position.y
+            },
+            lastAnim: this.currentAnim.name,
+            effects: { ...this.effects },
+            inventory: this.inventory.serialize(),
+            weaponId: this.currentWeapon.WeaponId
+        };
+    }
+
+    static deserialize(data, texture, keyboard, mouse, inventory, startMenu,Pos) {
+        const player = new Player(texture, Pos, keyboard, mouse, data.PlayerId, inventory, startMenu);
+
+        player.currentPlayer = data.currentPlayer;
+        player.LevelId = data.LevelId;
+        player.XPNum = data.XPNum;
+        player.CheckXPLevel(1);  
+        player.live = data.live;    
+        player.HealthBar.setStarX(data.live);     
+        
+        player.setLastAnimation(data.lastAnim);
+
+        player.currentWeapon = new Weapons(data.weaponId);
+
+        return player;
     }
 
 }

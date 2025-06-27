@@ -20,6 +20,10 @@ export default class Keyboard {
     isKey(keyCode) {
         return this.key[keyCode] ?? KeysState.RELEASE;
     }
+
+    anyKeyPressed() {
+        return Object.values(this.key).some(state => state === KeysState.CLICKED);
+    }
     
     reset() {
         for (let key in this.key) {
