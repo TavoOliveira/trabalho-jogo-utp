@@ -292,7 +292,7 @@ export default class Player extends GameObject {
 
         direction = direction.normalize();                
         
-        if (!this.#checkCurrentAnimation(['HB_01','HB_02','HB_03','hit','die','attack_2'])) {
+        if (!this.#checkCurrentAnimation(['HB_01','HB_02','HB_03','hit','die'])) {
             if (moving) {
                 this.#setAction('walk');
                 this.moveDir.copy(direction);
@@ -885,17 +885,17 @@ export default class Player extends GameObject {
         this.itemReceived = switchvalue;
     }
 
-    shootProjectile(mouseWorldX, mouseWorldY) {
+    shootProjectile() {
         const direction = new Vector2D(
-            mouseWorldX - this.position.x,
-            mouseWorldY - this.position.y
-        ).normalize();
-
+            this.mouse.x - this.position.x,
+            this.mouse.y - this.position.y
+        ).normalize();                              
+        
         this.projectiles.push({
-            texture: new Texture("/Game/Assets/Projectils/Arrow01(32x32).png"),
-            position: this.position.clone(),
-            velocity: direction.multiply(6),
-            lifetime: 60
+            texture:  new Texture("/Game/Assets/Projectils/Arrow01(32x32).png"),
+            position: this.position.clone(),       
+            velocity: direction.multiply(6),          
+            lifetime: 60                         
         });
     }
 
@@ -1042,7 +1042,8 @@ export default class Player extends GameObject {
     }
 
     static deserialize(data, texture, keyboard, mouse, inventory, startMenu,Pos) {
-        const player = new Player(texture, Pos, keyboard, mouse, data.PlayerId, inventory, startMenu);
+        const refPos = new Vector2D(Pos.x,Pos.y);
+        const player = new Player(texture, refPos, keyboard, mouse, data.PlayerId, inventory, startMenu);
 
         player.currentPlayer = data.currentPlayer;
         player.LevelId = data.LevelId;
