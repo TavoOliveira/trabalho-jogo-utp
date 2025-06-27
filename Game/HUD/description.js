@@ -1,5 +1,8 @@
+// === / UTILIDADES / ===
 import Icons from "../HUD/icons.js";
 import Vector2D from "../../Engine/Utils/vector2d.js";
+
+// === / ENUMS GLOBAIS / ===
 import Enums from "./HUD-enums/HUD_Enums.js";
 
 export default class descriptions{

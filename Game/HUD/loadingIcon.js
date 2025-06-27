@@ -1,3 +1,4 @@
+// === / UTILIDADES / ===
 import Texture  from "../../Engine/Utils/texture.js";
 
 export default class loadingicon{

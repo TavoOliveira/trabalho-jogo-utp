@@ -1,4 +1,4 @@
-//HUD
+// === / HUD - INVENTARIO / ===
 import XPBar from "../HUD/XPBar.js";
 import Icons from "../HUD/icons.js";
 import Layout from "../HUD/Layout.js";
@@ -6,14 +6,16 @@ import Weapons from "../HUD/weapons.js"
 import mouse_dots from "../HUD/dots.js";
 import HealthBar from "../HUD/HealthBar.js";
 import loadingicon from "../HUD/loadingIcon.js";
+
+// === / VARIAVEIS GLOBAIS - ENUMS GERAIS / ===
 import Enums from "../HUD/HUD-enums/HUD_Enums.js";
 import GlobalVars from "../HUD/HUD-Vars/HUDGlobalVars.js";
 
-//Menus gerais
+// === / MENUS / ===
 import menu from "../HUD/menu.js";
-import InventoryMenu from "../HUD/inventoryMenu.js"
+import InventoryMenu from "../HUD/inventoryMenu.js";
 
-//Util
+// === / UTILIDADES / ===
 import Texture from "../../Engine/Utils/texture.js";
 import Vector2D from "../../Engine/Utils/vector2d.js";
 import KeysState from "../../Engine/Enums/key-state.js";
@@ -30,22 +32,27 @@ export default class Player extends GameObject {
      * @param {number}    playerId
      * @param {inventory} inventory
      */
-    constructor(texture, position, keyboard, mouse, playerId, inventory) {
+    constructor(texture, position, keyboard, mouse, playerId, inventory,startMenu) {
         const global_width    = document.documentElement.clientWidth;
         const global_height   = document.documentElement.clientHeight;        
 
         super(texture, position);
-        this.keyboard = keyboard;
-        this.mouse    = mouse;
-        this.speed    = Vector2D.one(5); //5 para testes
-        this.moveDir  = Vector2D.zero();
+
+        this.starMenu = startMenu;
 
         //player
         this.PlayerId      = playerId;
         this.currentPlayer = false;
-        this.LevelId       = 1;
+        this.LevelId       = !GlobalVars.devMode ? 1 : 15;
         this.XPNum         = 0.0; 
-        this.live          = 5;   
+        this.live          = 4;
+        this.effects       = {shocked: false,poisoned: false,bleeding: false,immunity:false}; 
+        
+        this.keyboard = keyboard;
+        this.mouse    = mouse;
+
+        this.speed    = Vector2D.one((this.PlayerId == 1 || this.PlayerId == 2) ? 3 : 4); //5 para testes
+        this.moveDir  = Vector2D.zero();          
         
         /*if(this.PlayerId == 0){
             this.animations = {
@@ -54,33 +61,72 @@ export default class Player extends GameObject {
             }
         }*/
         
-        this.SpriteOffset = Enums.sprites_offset[this.playerId];
+        this.SpriteOffset = Enums.sprites_offset[`p-this.playerId`];        
 
-        if(this.PlayerId == 1){
-            this.hitbox = new RectHitbox(this, new Vector2D(-10,-15), 20, 30);
-            this.animations = {
-                idle: new Animator('idle', this.texture, 100, 100, 0, 0, 6, 7),
-                walk: new Animator('walk', this.texture, 100, 100, 0, 100, 6, 12)
-            }
-        } else if(this.PlayerId == 2){
-            this.hitbox = new RectHitbox(this, new Vector2D(-25,-20), 30, 40);
-            this.animations = {
-                idle: new Animator('idle', this.texture, 80, 64, 0, 128, 7, 6),
-                walk: new Animator('walk', this.texture, 80, 64, 0, 192, 8, 12)
-            } 
-        } else if(this.PlayerId == 4) {
-            this.hitbox = new RectHitbox(this, new Vector2D(-30,-20), 35, 40);
-            this.animations = {
-                idle: new Animator('idle', this.texture, 80, 80, 0, 0, 8, 7),
-                walk: new Animator('walk', this.texture, 80, 80, 0, 80, 6, 12)
-            }            
-        }                                 
+        // === HITBOX / ANIMATIONS / TIMES / COUNTER ===        
+        this.Counters = {die: 0, attack: 0, HB: 0,hit: 0,item: 0};
+
+        switch(this.PlayerId){
+            case 1:
+                this.hitbox     = new RectHitbox(this, new Vector2D(-10,-15), 20, 30);
+                this.animations = {
+                    hit:      new Animator('hit',      this.texture, 100, 100, 0, 500, 4,  8),
+                    die:      new Animator('die',      this.texture, 100, 100, 0, 600, 4,  3),
+                    idle:     new Animator('idle',     this.texture, 100, 100, 0, 0,   6,  7),
+                    walk:     new Animator('walk',     this.texture, 100, 100, 0, 100, 6, 12),                
+                    attack_1: new Animator('attack_1', this.texture, 100, 100, 0, 200, 6, 13),
+                    attack_2: new Animator('attack_2', this.texture, 100, 100, 0, 400, 9,  10),
+                    HB_01:    new Animator('HB_01',    this.texture, 100, 100, 0, 300, 6,  9),
+                    HB_02:    new Animator('HB_02',    this.texture, 100, 100, 0, 711, 8,  5),
+                    HB_03:    new Animator('HB_02',    this.texture, 100, 100, 0, 711, 8,  5)              
+                }
+                this.times = {attack: 2,die: 10,hit: 2,HB_01: 7,HB_02: 13,HB_03: 0,item: 7}  
+                break;
+            case 2:
+                this.hitbox = new RectHitbox(this, new Vector2D(-25,-20), 30, 40);
+                this.animations = {
+                    hit:      new Animator('hit',      this.texture, 80, 64, 0,   64,   5,  8),
+                    die:      new Animator('die',      this.texture, 80, 64, 0,   0,   10,  7),
+                    idle:     new Animator('idle',     this.texture, 80, 64, 0,   128,  7,  6),
+                    walk:     new Animator('walk',     this.texture, 80, 64, 0,   192,  8, 12),
+                    attack_1: new Animator('attack_1', this.texture, 80, 64, 0,   256, 10, 12),
+                    attack_2: new Animator('attack_2', this.texture, 80, 64, 0,   256, 10, 12),
+                    HB_01:    new Animator('HB_01',    this.texture, 80, 64, 720, 192,  6,  7),
+                    HB_02:    new Animator('HB_02',    this.texture, 80, 64, 320,  64, 13,  4),
+                    HB_03:    new Animator('HB_03',    this.texture, 80, 64, 480, 128,  8,  8),
+                } 
+                this.times = {attack: 3,die: 10,hit: 2,HB_01: 7,HB_02: 18,HB_03: 7,item: 7}; 
+                break;
+            case 3:
+                break;
+            case 4:
+                this.hitbox = new RectHitbox(this, new Vector2D(-30,-20), 35, 40);
+                this.animations = {
+                    hit:      new Animator('hit',      this.texture, 80, 80, 0,   240,  5,  8),
+                    die:      new Animator('die',      this.texture, 80, 80, 0,   320,  5,  7),
+                    idle:     new Animator('idle',     this.texture, 80, 80, 0,     0,  8,  7),
+                    walk:     new Animator('walk',     this.texture, 80, 80, 0,    80,  6, 12),
+                    attack_1: new Animator('attack_1', this.texture, 80, 80, 0,   160, 12, 22),
+                    attack_2: new Animator('attack_2', this.texture, 80, 80, 0,   160, 12, 22),
+                    HB_01:    new Animator('HB_01',    this.texture, 80, 80, 0,   160,  9,  6),
+                    HB_02:    new Animator('HB_02',    this.texture, 80, 80, 160, 320, 24, 10),
+                    HB_03:    new Animator('HB_03',    this.texture, 80, 80, 160, 320,  9, 10),
+                }     
+                this.times = {attack: 2,die: 7,hit: 3,HB_01: 15,HB_02: 15,HB_03: 5,item: 7}; 
+                break;
+            default:
+                this.hitbox     = new RectHitbox(this, new Vector2D(0,0), 0, 0);
+                this.animations = {};
+                this.times      = {attack: 0,die: 0,hit: 0,HB_01: 0,HB_02: 0,HB_03: 0}; 
+                break;
+        }                
 
         this.currentAnim = this.animations.idle;
         this.currentAnim.play();
 
         //inventario
-        this.inventory = inventory;                         
+        this.inventory    = inventory; 
+        this.itemReceived = false;                        
         
         // MENUS
         this.mainMenu      = new menu(new Vector2D((global_width / 2) - 200,(global_height / 2) - 250),new Vector2D(350,500));
@@ -91,6 +137,7 @@ export default class Player extends GameObject {
         
         //ARMAS
         this.currentWeapon = new Weapons(1);
+        this.projectiles   = [];
         
         // === BARRA SUPERIOR ===
         this.CharacterLayout = new Layout(new Vector2D(global_width * 0.01, global_height * 0.02), 70, this.PlayerId, 1);
@@ -128,6 +175,11 @@ export default class Player extends GameObject {
         this.iconHB_down  = new Icons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.offset + GlobalVars.loading_offset), new Vector2D(50,50), `${this.PlayerId}-x`,2);
         this.iconHB_left  = new Icons(new Vector2D(GlobalVars.dpad_centerX - GlobalVars.offset + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.loading_offset), new Vector2D(50,50), `${this.PlayerId}-z`,2);
         this.iconHB_right = new Icons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.offset + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.loading_offset), new Vector2D(50,50), `${this.PlayerId}-wp-${this.currentWeapon.WeaponId}`,2);
+
+        //icones de bloqueio
+        this.iconCancelHB_up    = new Icons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.loading_offset, GlobalVars.dpad_centerY - GlobalVars.offset + GlobalVars.loading_offset), new Vector2D(50,50), 'x',2);
+        this.iconCancelHB_down  = new Icons(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.offset + GlobalVars.loading_offset), new Vector2D(50,50), 'x',2);
+        this.iconCancelHB_left  = new Icons(new Vector2D(GlobalVars.dpad_centerX - GlobalVars.offset + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.loading_offset), new Vector2D(50,50), 'x',2);        
 
         // Loadings centralizado
         this.loadingHB_up    = new loadingicon(new Vector2D(GlobalVars.dpad_centerX + GlobalVars.loading_offset, GlobalVars.dpad_centerY - GlobalVars.offset + GlobalVars.loading_offset), 50);
@@ -168,7 +220,7 @@ export default class Player extends GameObject {
     }
 
     #setAction(name) {
-        if (this.currentAnim.name == name) return;
+        if (this.currentAnim.name == name && name != 'hit') return;
 
         this.currentAnim.stop();
         this.currentAnim = this.animations[name];
@@ -179,51 +231,121 @@ export default class Player extends GameObject {
         if(this.currentAnim.name != 'idle') return;
 
         const mouseX  = this.mouse.x;
-        const CenterX = document.documentElement.clientWidth / 2 + (32*2);                
+        const CenterX = document.documentElement.clientWidth / 2;                
 
         this.texture.flipX = (this.PlayerId == 2) ? !(mouseX < CenterX) : (mouseX < CenterX);
     }
 
+    /**
+     * @param {Array}   names -array de nomes a serem verificados     
+     */
+    #checkCurrentAnimation(names) {
+        if (names.length == 0) return true;             
+
+        return names.includes(this.currentAnim.name);
+    }
+
+    #previousIdleCheck(){
+        let ret = true;
+        
+        if(this.#checkCurrentAnimation(['attack_1','attack_2']) && this.times.attack >= this.Counters.attack)
+            ret = false;
+        else if((this.currentAnim.name == 'HB_01') && this.times.HB_01 >= this.Counters.HB)
+            ret = false;
+        else if((this.currentAnim.name == 'HB_02') && this.times.HB_02 >= this.Counters.HB)
+            ret = false;
+        else if((this.currentAnim.name == 'HB_03') && this.times.HB_03 >= this.Counters.HB)
+            ret = false;  
+        else if((this.currentAnim.name == 'hit') && this.times.hit >= this.Counters.hit)
+            ret = false;        
+
+        return ret;
+    }
+
     #move() {
         let direction = Vector2D.zero();
-        let moving    = false;    
+        let moving    = false;
 
+        if (this.live <= 0) return;
+        
         if (this.keyboard.isKey("ArrowLeft") == KeysState.PRESSED || this.keyboard.isKey("KeyA") == KeysState.PRESSED) {
             this.texture.flipX = (this.PlayerId == 2) ? false : true;
-            moving = true;
             direction.x -= 1;
+            moving = true;
         }
 
         if (this.keyboard.isKey("ArrowRight") == KeysState.PRESSED || this.keyboard.isKey("KeyD") == KeysState.PRESSED) {
             this.texture.flipX = (this.PlayerId == 2) ? true : false;
-            moving = true;
             direction.x += 1;
+            moving = true;
         }
 
         if (this.keyboard.isKey("ArrowUp") == KeysState.PRESSED || this.keyboard.isKey("KeyW") == KeysState.PRESSED) {
-            moving = true;
             direction.y -= 1;
+            moving = true;
         }
 
         if (this.keyboard.isKey("ArrowDown") == KeysState.PRESSED || this.keyboard.isKey("KeyS") == KeysState.PRESSED) {
-            moving = true;
             direction.y += 1;
-        }                
+            moving = true;
+        }
 
-        if (moving) {
-            this.#setAction('walk');
-            direction = direction.normalize();
-            this.moveDir.copy(direction);
-            this.position.x += direction.x * this.speed.x;
-            this.position.y += direction.y * this.speed.y;
-        } else {
-            this.moveDir.set(0, 0);
-            this.#setAction('idle');
-        }        
+        direction = direction.normalize();                
+        
+        if (!this.#checkCurrentAnimation(['HB_01','HB_02','HB_03','hit','die'])) {
+            if (moving) {
+                this.#setAction('walk');
+                this.moveDir.copy(direction);
+                this.position.x += direction.x * this.speed.x;
+                this.position.y += direction.y * this.speed.y;
+            } else {
+                if (this.#previousIdleCheck()) {
+                    this.moveDir.set(0, 0);
+                    this.#setAction('idle');
+                }
+            }
+        } else {            
+            if (this.PlayerId == 4 && this.currentAnim.name == 'HB_03' && !this.#previousIdleCheck()) {    
+                const centerX = document.documentElement.clientWidth / 2;
+                const centerY = document.documentElement.clientHeight / 2;
+
+                const directionToMouse = new Vector2D(
+                    this.mouse.x - centerX,
+                    this.mouse.y - centerY
+                ).normalize();
+
+                this.moveDir.copy(directionToMouse);
+
+                this.position.x += this.moveDir.x * (this.speed.x + 2);
+                this.position.y += this.moveDir.y * (this.speed.y + 2);               
+            } else if(this.#previousIdleCheck()){
+                this.moveDir.set(0, 0);
+                this.#setAction('idle');
+            }
+        }
     }
 
     update(deltaTime) {
         this.Mousedot.setMousePos(this.mouse.x, this.mouse.y);  
+
+        // === / timers - counters / ===
+        if(this.itemReceived){
+            this.Counters.item += deltaTime * 0.002;   
+        }
+
+        if(this.#checkCurrentAnimation(['attack_1','attack_2'])){
+            this.Counters.attack += this.PlayerId == 1 ? deltaTime * 0.007 : deltaTime * 0.004;                            
+        } else if(this.currentAnim.name == 'HB_01'){
+            this.Counters.HB += deltaTime * 0.009   ;        
+        } else if(this.currentAnim.name == 'HB_02'){
+            this.Counters.HB += deltaTime * 0.008;  
+        } else if(this.currentAnim.name == 'HB_03'){
+            this.Counters.HB += deltaTime * 0.008;              
+        } else if(this.currentAnim.name == 'hit'){
+            this.Counters.hit += deltaTime * 0.005;
+        } else if(this.currentAnim.name == 'die'){
+            this.Counters.die += this.PlayerId == 4 ? deltaTime * 0.01 : deltaTime * 0.009;
+        }                  
         
         // === MENUS ===
         if(this.mainMenu.cansee){ //Menu de pausa
@@ -252,8 +374,10 @@ export default class Player extends GameObject {
             //botão 3
             const btn3_data = {x:this.mainMenu.btn3.position.x,y:this.mainMenu.btn3.position.y,sW:this.mainMenu.btn3.size.x,sH:this.mainMenu.btn3.size.y}
             if(this.mouse.isOver(btn3_data)){
-                if(this.mouse.isClick(btn3_data,0))
-                    window.close();
+                if(this.mouse.isClick(btn3_data,0)){
+                    this.mainMenu.updateSee(false);
+                    this.starMenu.updateSee(true);                
+                }                    
 
                 this.mainMenu.switchHover('btn3',true);
             } else {
@@ -319,7 +443,7 @@ export default class Player extends GameObject {
             //=== DESCRIÇÃO / REMOVER / EQUIPAR-DESEQUIPAR ===
             if(!this.InventoryMenu.descriptions.cansee){                
 
-                const item = this.inventory.getSelectedItemData(this.InventoryMenu.selectedSlotIndex,this.PlayerId)                
+                const item = this.inventory.getSelectedItemData(this.InventoryMenu.selectedSlotIndex,this.PlayerId);
 
                 if(this.keyboard.isKey("KeyE") == KeysState.CLICKED){//EQUIPAR                
                     if(item){
@@ -330,10 +454,10 @@ export default class Player extends GameObject {
                     }
                 } else if(this.keyboard.isKey("KeyR") == KeysState.CLICKED){//REMOVER
                     if(item){
-                        if(item.keyID == "part-1" || item.keyID == "part-3" || item.keyID == "part-3"){
+                        if(item.keyID == "part-1" || item.keyID == "part-2" || item.keyID == "part-3"){
                             this.InventoryMenu.descriptions.switchItemId();
                             this.InventoryMenu.descriptions.updateSee(true);
-                        } else {
+                        } else {                                                                   
                             this.inventory.addOrRemoveItem(item.keyID,false);
                             this.InventoryMenu.updateInventoryIcons(this.inventory,true);
                         }
@@ -384,18 +508,18 @@ export default class Player extends GameObject {
             if (!this.isMenuBlocking('pause')) {
                 this.mainMenu.updateSee(!this.mainMenu.cansee);
             }
-        }                      
-
-        //Prioridade - MOUSE
-        this.#updateFacing();        
+        }                                     
 
         //Player Swtich            
         if(!this.keyboard.isKey("AltLeft") == KeysState.PRESSED && !this.keyboard.isKey("AltRight") == KeysState.PRESSED){
-            this.#move();                                
-            this.currentAnim.update(deltaTime);  
-            this.updateSwtichDesign()
-        } else {                            
-            this.updateSwtichDesign(true);
+            this.#move();   
+
+            if(this.live > 0 || this.times.die > this.Counters.die)
+                this.currentAnim.update(deltaTime);            
+
+            this.updateSwtichDesign()                                                                    
+        } else {
+            this.updateSwtichDesign(true);                          
         }
 
         if(this.switchMode){
@@ -403,131 +527,202 @@ export default class Player extends GameObject {
             this.layoutSwitch_left.updateIcon();
             this.layoutSwitch_Right.updateIcon();
 
-            this.currentAnim.update(deltaTime);
-        }                              
+            if(this.currentAnim.name != 'idle' && this.live > 0)
+                this.#setAction('idle');
+            
+            if(this.live > 0 || this.times.die > this.Counters.die)
+                this.currentAnim.update(deltaTime);            
+        }                      
+        
+        //Prioridade - MOUSE
+        this.#updateFacing(); 
         
         //Barra superior        
-        this.CharacterLayout.updateIcon();  
+        this.CharacterLayout.updateIcon(); 
         
-        //=== / Poção de cura / ===
-        //KEY
-        if(this.keyboard.isKey("KeyV") == KeysState.CLICKED){
-            if(!this.loadingHB_potion.loading){
-                if(this.live <= 4){  
-                    this.HealthBar.addOrSubStartX(false);                
-                    this.live++;                
-                    this.loadingHB_potion.startCooldown(10)
-                } else {
-                    this.iconCancel_potion.startCooldown(1);
-                }                
-            }
-        }
-
-        //Update     
-        this.layoutHB_potion.updateIcon();
-        if(this.iconCancel_potion.cansee){
-            this.iconCancel_potion.updateIconTimer();
-        }
+        //Funções gerais
+        if(this.live > 0 && !this.switchMode){
+            // === / Combate / ===
+            if(this.mouse.isLeft){
+                if(this.PlayerId == 1)         
+                    this.times.attack = (this.currentWeapon.WeaponId == 1) ? 3 : 6                                    
                 
-        if(this.loadingHB_potion.loading){
-            this.loadingHB_potion.updateIconTimer()
-            this.layoutHB_potion.setMoving(false);
-        } else {
-            this.layoutHB_potion.setMoving(true);
-        }
-        
-        //=== / D-Pad - Up / ===
-        //KEY
-        if(this.keyboard.isKey("KeyQ") == KeysState.CLICKED){
-            if(!this.loadingHB_up.loading){
-                this.loadingHB_up.startCooldown(3); 
+                if(!this.#checkCurrentAnimation(['HB_01','HB_02','HB_03','attack_2'])){
+                    this.Counters.attack = 0
+                    this.#setAction(`attack_${this.currentWeapon.WeaponId}`);    
+
+                    if(this.currentWeapon.WeaponId == 2){
+                        this.shootProjectile(this.mouse.x,this.mouse.y);
+                    }
+                }                        
+            } 
+
+            //=== / Poção de cura / ===
+            //KEY
+            if(this.keyboard.isKey("KeyV") == KeysState.CLICKED){
+                if(!this.loadingHB_potion.loading){
+                    if(this.live <= 3){  
+                        this.HealthBar.addOrSubStartX(false);                
+                        this.live++;                
+                        this.loadingHB_potion.startCooldown(10)
+                    } else {
+                        this.iconCancel_potion.startCooldown(1);
+                    }                
+                }
             }
-        }
 
-        //Update       
-        this.layoutHB_up.updateIcon();
-        if(this.loadingHB_up.loading){
-            this.loadingHB_up.updateIconTimer()
-            this.layoutHB_up.setMoving(false);
-        } else {
-            this.layoutHB_up.setMoving(true);
-        }
-
-        //=== / D-Pad - Right / ===
-        //KEY
-        if(this.keyboard.isKey("KeyE") == KeysState.CLICKED){
-            if(!this.loadingHB_right.loading){
-                this.currentWeapon.nextWeapon();
-                this.iconHB_right.switchKey(`${this.PlayerId}-wp-${this.currentWeapon.WeaponId}`);
-                this.loadingHB_right.startCooldown(1)
+            //Update     
+            this.layoutHB_potion.updateIcon();
+            if(this.iconCancel_potion.cansee){
+                this.iconCancel_potion.updateIconTimer();
             }
+                    
+            if(this.loadingHB_potion.loading){
+                this.loadingHB_potion.updateIconTimer()
+                this.layoutHB_potion.setMoving(false);
+            } else {
+                this.layoutHB_potion.setMoving(true);
+            }
+            
+            //=== / D-Pad - Up / ===
+            //KEY
+            if(this.keyboard.isKey("KeyQ") == KeysState.CLICKED && this.LevelId >= 2) {
+                if(!this.loadingHB_up.loading){
+                    this.Counters.HB = 0;   
+                    this.#setAction(`HB_03`); 
+                    this.loadingHB_up.startCooldown(3); 
+                }
+            }
+
+            //Update       
+            this.layoutHB_up.updateIcon();
+            if(this.loadingHB_up.loading){
+                this.loadingHB_up.updateIconTimer()
+                this.layoutHB_up.setMoving(false);
+            } else {
+                this.layoutHB_up.setMoving(true);
+            }
+
+            //=== / D-Pad - Right / ===
+            //KEY
+            if(this.keyboard.isKey("KeyE") == KeysState.CLICKED){
+                if(!this.loadingHB_right.loading){
+                    this.currentWeapon.nextWeapon();
+                    this.iconHB_right.switchKey(`${this.PlayerId}-wp-${this.currentWeapon.WeaponId}`);
+                    this.loadingHB_right.startCooldown(1)
+                }
+            }
+
+            //Update
+            this.layoutHB_right.updateIcon();
+            if(this.loadingHB_right.loading){
+                this.loadingHB_right.updateIconTimer()
+                this.layoutHB_right.setMoving(false);
+            } else {
+                this.layoutHB_right.setMoving(true);
+            }
+
+            //=== / D-Pad - Left / ===
+            //KEY
+            if(this.keyboard.isKey("KeyZ") == KeysState.CLICKED && this.LevelId >= 5){
+                if(!this.loadingHB_left.loading){
+                    this.Counters.HB = 0;   
+                    this.#setAction(`HB_01`);                 
+                    this.loadingHB_left.startCooldown(8); 
+                }
+            }
+
+            //Update
+            this.layoutHB_left.updateIcon();
+            if(this.loadingHB_left.loading){
+                this.loadingHB_left.updateIconTimer()
+                this.layoutHB_left.setMoving(false);
+            } else {
+                this.layoutHB_left.setMoving(true);
+            }
+
+            //D-Pad - Down
+            //KEY
+            if(this.keyboard.isKey("KeyX") == KeysState.CLICKED && this.LevelId >= 10){
+                if(!this.loadingHB_down.loading){   
+                    this.Counters.HB = 0;
+                    this.#setAction(`HB_02`);                 
+                    this.loadingHB_down.startCooldown(15);
+                }            
+            }
+
+            //Update
+            this.layoutHB_down.updateIcon();
+            if(this.loadingHB_down.loading){
+                this.loadingHB_down.updateIconTimer()
+                this.layoutHB_down.setMoving(false);
+            } else {
+                this.layoutHB_down.setMoving(true);
+            }                
         }
 
-        //Update
-        this.layoutHB_right.updateIcon();
-        if(this.loadingHB_right.loading){
-            this.loadingHB_right.updateIconTimer()
-            this.layoutHB_right.setMoving(false);
-        } else {
-            this.layoutHB_right.setMoving(true);
-        }
-
-        //=== / D-Pad - Left / ===
-        //KEY
-        if(this.keyboard.isKey("KeyZ") == KeysState.CLICKED)
-            this.loadingHB_left.startCooldown(8); 
-
-        //Update
-        this.layoutHB_left.updateIcon();
-        if(this.loadingHB_left.loading){
-            this.loadingHB_left.updateIconTimer()
-            this.layoutHB_left.setMoving(false);
-        } else {
-            this.layoutHB_left.setMoving(true);
-        }
-
-        //D-Pad - Down
-        //KEY
-        if(this.keyboard.isKey("KeyX") == KeysState.CLICKED)
-            this.loadingHB_down.startCooldown(15)
-
-        //Update
-        this.layoutHB_down.updateIcon();
-        if(this.loadingHB_down.loading){
-            this.loadingHB_down.updateIconTimer()
-            this.layoutHB_down.setMoving(false);
-        } else {
-            this.layoutHB_down.setMoving(true);
-        }                
-        
         //=== / teste - XP / ===
         if (this.keyboard.isKey("KeyJ") == KeysState.PRESSED) {
-            this.XPNum++;
-            this.XPBar.updateXPNum(this.XPNum);
-
-            if(this.LevelId != this.XPBar.levelId){
-                this.LevelId = this.XPBar.levelId;
-                this.XPNum   = this.XPBar.xpnum;
-            }
+            this.CheckXPLevel(1);            
         }   
 
         //=== / Teste - VIDA / ===
         if (this.keyboard.isKey("KeyO") == KeysState.CLICKED) {
-            this.HealthBar.addOrSubStartX(true);                                             
-            this.live--;            
-        }        
+            if(this.live > 0){
+                this.HealthBar.addOrSubStartX(true); 
+                this.live--;  
+            } else 
+                this.live = 0
 
-        if(this.live == 0)
-            console.log('morte');  
+            if(this.live == 0){
+                this.Counters.die = 0;
+                this.#setAction('die'); 
+            } else if(this.live > 0){
+                this.Counters.hit = 0;
+                this.#setAction('hit');
+            }
+        }   
         
+        // Atualiza os projéteis
+        this.projectiles = this.projectiles.filter(p => {
+            p.position.x += p.velocity.x;
+            p.position.y += p.velocity.y;
+            p.lifetime--;
+            return p.lifetime > 0;
+        });
+   
         this.mouse.resetScroll();
         this.keyboard.reset();
     }
 
     /** @param {CanvasRenderingContext2D} ctx */
     draw(ctx, hudctx) {
-        this.hitbox.draw(ctx);
+        if(GlobalVars.devMode)
+            this.hitbox.draw(ctx);        
+        
         this.currentAnim.draw(ctx, new Vector2D(this.position.x - 50, this.position.y - 50));
+
+        for (const p of this.projectiles) {
+            const angle = Math.atan2(p.velocity.y, p.velocity.x);
+
+            ctx.save();
+            
+            ctx.translate(p.position.x, p.position.y);
+            ctx.rotate(angle);
+            
+            p.texture.draw(ctx, -16, -16, 32, 32, 0, 0, 32, 32);
+
+            ctx.restore();       
+
+            // Se quiser usar o modo debug para ver o centro do projétil
+            /*
+            ctx.fillStyle = 'orange';
+            ctx.beginPath();
+            ctx.arc(p.position.x, p.position.y, 3, 0, Math.PI * 2);
+            ctx.fill();
+            */
+
+        }
         
         //VIDA e XP - barrra superior
         this.MinimapLayout.draw(hudctx);
@@ -550,6 +745,9 @@ export default class Player extends GameObject {
         this.iconHB_up.draw(hudctx);
         this.loadingHB_up.draw(hudctx);
 
+        if(this.LevelId < 2)
+            this.iconCancelHB_up.draw(hudctx);
+
         // D-Pad - Right
         this.icon_right.draw(hudctx);
         this.layoutHB_right.draw(hudctx);   
@@ -562,11 +760,17 @@ export default class Player extends GameObject {
         this.iconHB_left.draw(hudctx);
         this.loadingHB_left.draw(hudctx);
 
+        if(this.LevelId < 5)
+            this.iconCancelHB_left.draw(hudctx);
+
         // D-Pad - Down
         this.icon_down.draw(hudctx);
         this.layoutHB_down.draw(hudctx); 
         this.iconHB_down.draw(hudctx);       
         this.loadingHB_down.draw(hudctx);   
+
+        if(this.LevelId < 10)
+            this.iconCancelHB_down.draw(hudctx);
 
         //Player Switch
         //Centro
@@ -598,15 +802,112 @@ export default class Player extends GameObject {
 
         //MOUSE
         this.Mousedot.draw(hudctx);
+
+        if(this.itemReceived){
+            if(this.Counters.item > this.times.item){
+                this.Counters.item = 0;
+                this.itemReceived  = false;
+            }
+
+            const alpha = 1 - (this.Counters.item / this.times.item); 
+
+            ctx.save();
+
+            ctx.globalAlpha   = alpha;
+            ctx.font          = "0.5rem MONOGRAM";
+            ctx.fillStyle     = "white";
+            ctx.textBaseline  = "top";
+            ctx.fillText(`+1 Item Recebido`, this.position.x, this.position.y - 20 - (this.Counters.item * 2));
+
+    ctx.restore();
+        }
     }
 
     drawWorld(ctx) {
-        this.hitbox.draw(ctx);
+        if(GlobalVars.devMode)
+            this.hitbox.draw(ctx);
+        
         this.currentAnim.draw(ctx, this.position);
     }
 
     //utilidades
-    isMenuBlocking(input){        
+    subPlayerLife(enemyPosition,deltaTime){
+        if (!this.#checkCurrentAnimation(['hit', 'die'])) {                        
+            if (this.live > 0) {
+                this.HealthBar.addOrSubStartX(true); 
+                this.live--;
+
+                if (this.live == 0) {
+                    this.Counters.die = 0;
+                    this.#setAction('die');
+                } else if (this.live > 0) {
+                    this.Counters.hit = 0;
+                    this.#setAction('hit');
+                }
+
+                this.currentAnim.update(deltaTime);
+                
+                const knockbackForce = (this.playerId == 4) ? 80 : 60;
+                const dx = this.position.x - enemyPosition.x;
+                const dy = this.position.y - enemyPosition.y;
+                const magnitude = Math.sqrt(dx * dx + dy * dy) || 1;
+
+                this.position.x += (dx / magnitude) * knockbackForce;
+                this.position.y += (dy / magnitude) * knockbackForce;
+
+            } else {
+                this.live = 0;
+
+                if (this.live == 0) {
+                    this.Counters.die = 0;
+                    this.#setAction('die');
+                } else if (this.live > 0) {
+                    this.Counters.hit = 0;
+                    this.#setAction('hit');
+                }
+
+                this.currentAnim.update(deltaTime);
+            }            
+        }
+    }
+
+    CheckXPLevel(XPAmount){
+        this.XPNum += XPAmount;
+        this.XPBar.updateXPNum(this.XPNum);
+
+        if(this.LevelId != this.XPBar.levelId){
+            this.LevelId = this.XPBar.levelId;
+            this.XPNum   = this.XPBar.xpnum;
+        }
+    }
+
+    switchItemReceive(switchvalue){
+        this.itemReceived = switchvalue;
+    }
+
+    shootProjectile() {
+        const direction = new Vector2D(
+            this.mouse.x - this.position.x,
+            this.mouse.y - this.position.y
+        ).normalize();                              
+        
+        this.projectiles.push({
+            texture:  new Texture("/Game/Assets/Projectils/Arrow01(32x32).png"),
+            position: this.position.clone(),       
+            velocity: direction.multiply(6),          
+            lifetime: 60                         
+        });
+    }
+
+    /**
+     * @param {string}  effectId  - Nome do efeito a ser manipulado
+     * @param {boolean} value - atribuir ou desatribuir efeito
+     */
+    handleEffect(effectId,value){
+        this.effects[effectId] = value;                
+    }
+
+    isMenuBlocking(input){
         if(input == 'pause' && this.InventoryMenu.cansee) return true;
         if(input == 'inventory' && this.mainMenu.cansee) return true;
         return false;
@@ -689,6 +990,10 @@ export default class Player extends GameObject {
         this.loadingHB_left.position.set(GlobalVars.dpad_centerX - GlobalVars.offset + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.loading_offset);
         this.loadingHB_right.position.set(GlobalVars.dpad_centerX + GlobalVars.offset + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.loading_offset);
 
+        this.iconCancelHB_up.position.set(GlobalVars.dpad_centerX + GlobalVars.loading_offset, GlobalVars.dpad_centerY - GlobalVars.offset + GlobalVars.loading_offset);
+        this.iconCancelHB_down.position.set(GlobalVars.dpad_centerX + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.offset + GlobalVars.loading_offset);
+        this.iconCancelHB_left.position.set(GlobalVars.dpad_centerX - GlobalVars.offset + GlobalVars.loading_offset, GlobalVars.dpad_centerY + GlobalVars.loading_offset);     
+
         // Switch Center
         this.layoutSwitch_center.position.set(GlobalVars.dpad2_centerX, GlobalVars.dpad_centerY + GlobalVars.offset);
         this.iconSwitch_center.position.set(GlobalVars.dpad2_centerX + GlobalVars.icon_offset, GlobalVars.dpad_centerY + 90 - 40);
@@ -711,6 +1016,47 @@ export default class Player extends GameObject {
         this.iconSwitch_ArrowRight.position.set(GlobalVars.dpad2_centerX + GlobalVars.dpad2_offsetX + GlobalVars.icon_offset, GlobalVars.dpad_centerY + 110);
         this.CharacterIcon_Right.position.set(GlobalVars.dpad2_centerX + 125, GlobalVars.dpad_centerY + GlobalVars.offset + 15);
         this.iconCancel_player4.position.set(GlobalVars.dpad2_centerX + 130, GlobalVars.dpad_centerY + GlobalVars.offset + 15);
+    }
+
+    setLastAnimation(name){
+        this.#setAction(name);
+    }
+
+    //LOAD E SAVE
+    serialize() {
+        return {
+            PlayerId: this.PlayerId,
+            currentPlayer: this.currentPlayer,
+            LevelId: this.LevelId,
+            XPNum: this.XPNum,
+            live: this.live,
+            position: {
+                x: this.position.x,
+                y: this.position.y
+            },
+            lastAnim: this.currentAnim.name,
+            effects: { ...this.effects },
+            inventory: this.inventory.serialize(),
+            weaponId: this.currentWeapon.WeaponId
+        };
+    }
+
+    static deserialize(data, texture, keyboard, mouse, inventory, startMenu,Pos) {
+        const refPos = new Vector2D(Pos.x,Pos.y);
+        const player = new Player(texture, refPos, keyboard, mouse, data.PlayerId, inventory, startMenu);
+
+        player.currentPlayer = data.currentPlayer;
+        player.LevelId = data.LevelId;
+        player.XPNum = data.XPNum;
+        player.CheckXPLevel(1);  
+        player.live = data.live;    
+        player.HealthBar.setStarX(data.live);     
+        
+        player.setLastAnimation(data.lastAnim);
+
+        player.currentWeapon = new Weapons(data.weaponId);
+
+        return player;
     }
 
 }

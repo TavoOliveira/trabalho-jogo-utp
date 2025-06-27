@@ -1,4 +1,7 @@
+// === / UTILIDADES / ===
 import Texture from "../../Engine/Utils/texture.js";
+
+// === / ENUMS GLOBAIS / === 
 import Enums from "./HUD-enums/HUD_Enums.js";
 
 export default class XPBar {
@@ -8,7 +11,7 @@ export default class XPBar {
 
         this.levelId       = LevelId;
         this.xpnum         = XP_Level;
-        this.levelexponent = 1.5;
+        this.levelexponent = 1.2;
 
         let xpNeeded = this.getXPNeededForLevel(this.levelId);
         let percent  = Math.floor((this.xpnum / xpNeeded) * 100);
@@ -18,7 +21,7 @@ export default class XPBar {
     }
 
     getXPBarLevel(xpPercent, totalStages = 5) {
-        let step = 100 / totalStages;
+        let step = 90 / totalStages;
         return Math.min(Math.floor(xpPercent / step), totalStages);
     }
 

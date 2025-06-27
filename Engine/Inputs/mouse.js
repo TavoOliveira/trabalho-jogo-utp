@@ -36,6 +36,10 @@ export default class Mouse {
       this.x = e.clientX;
       this.y = e.clientY;      
     });
+
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault();
+    });
   }
 
   getPosition() {

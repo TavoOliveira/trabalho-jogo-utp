@@ -11,6 +11,7 @@ const GlobalVars = {
     potionY:               (document.documentElement.clientHeight * 0.7) + 90 * 1.25,
     potionOffset:          (50 - 30) / 2,
     potionIconOffset:      (50 - 20) / 2,
+    devMode:               false,
 
     updateVars: function (newWidth, newHeight) {
         this.dpad_centerX          = newWidth * 0.1;

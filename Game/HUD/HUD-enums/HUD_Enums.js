@@ -67,17 +67,17 @@ const icons = {
 
     '2-q': {x: 256,y: 2208,sW: 32,sH: 32}, //Dash         - player 2
     '2-z': {x: 32,y: 2624,sW: 32,sH: 32},  //Habilidade 1 - player 2
-    '2-x': {x: 320,y: 2208,sW: 32,sH: 32}, //Habilidade 2 - player 2
+    '2-x': {x: 384,y: 2112,sW: 32,sH: 32}, //Habilidade 2 - player 2
     
     '4-q': {x: 416,y: 1760,sW: 32,sH: 32}, //Dash         - player 4
     '4-z': {x: 96,y: 1472,sW: 32,sH: 32},  //Habilidade 1 - player 4
-    '4-x': {x: 480,y: 2080,sW: 32,sH: 32}, //Habilidade 2 - player 4
+    '4-x': {x: 224,y: 1536,sW: 32,sH: 32}, //Habilidade 2 - player 4
 
     //ITEMS
     'hpt': {x: 448,y: 1887,sW: 32,sH: 32}, //Poção de cura
 
     //ARMADURAS    
-    'old-hat-H': {x: 64,y: 3808,sW: 32,sH: 32},    //capacete velho 
+    'old-hat-H':   {x: 64,y: 3808,sW: 32,sH: 32},  //capacete velho 
     'old-torso-T': {x: 64,y: 3840,sW: 32,sH: 32},  //Torso velho 
     'old-boots-B': {x: 64,y: 3872,sW: 32,sH: 32},  //Botas velhas 
     'old-colar-C': {x: 352,y: 3679,sW: 32,sH: 32}, //colar velho 
@@ -138,6 +138,10 @@ const customIcons = {
     'part-1': {x: 67,y: 4,sW: 27,sH: 12},  //parte 1 do avião
     'part-2': {x: 95,y: 1,sW: 33,sH: 15},  //parte 2 do avião
     'part-3': {x: 131,y: 0,sW: 28,sH: 21}, //parte 3 do avião
+
+    'pointer-1': {x:  0,y: 112,sW: 16,sH: 16}, //pointer - vermelho
+    'pointer-2': {x: 16,y: 112,sW: 16,sH: 16}, //pointer - branco
+    'pointer-3': {x: 32,y: 112,sW: 16,sH: 16}, //pointer - preto
 }
 
 const dots_Id = { 
@@ -148,18 +152,25 @@ const dots_Id = {
     4: "/Game/Assets/HUD/mouseIcons/purple_dots.png",                           
 }
 
+//Modelo:
+//nome \n\n breve texto\n raridade \n 
 const descriptions = {
     'not': "este item nao pode ser removido",
     'part-1': "Parte de aviao quebrada\n\nParte frontal do aviao quebrada no acidente...\nRaridade: Comum\nUso - Item de historia\n(NAO PODE SER DESCARTADO)",
     'part-2': "Parte de aviao quebrada\n\nParte medial do aviao quebrada no acidente...\nRaridade: Comum\nUso - Item de historia\n(NAO PODE SER DESCARTADO)",
     'part-3': "Parte de aviao quebrada\n\nParte traseira do aviao quebrada no acidente...\nRaridade: Comum\nUso - Item de historia\n(NAO PODE SER DESCARTADO)",
+    'old-hat-H':"Capacete velho",
 }
 
 const sprites_offset = {
-    1: 50,
-    2: 31,
-    3: 0,
-    4: 40
+    'p-1': 50,
+    'p-2': 31,
+    'p-3': 0,
+    'p-4': 40,
+    'e-1': 50,
+    'e-2': 50,
+    'e-3': 32,
+    'e-4': 90,
 }
 
 export default {UtilityIcon_type,bar_type,Key_type,dots_Id,XP_BarLevel,icons,customIcons,menus_positions,inventPositions,descriptions,sprites_offset};
